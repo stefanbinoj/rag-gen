@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Depends
-from app.schemas.questions import GenerateRequest, QuestionOut
-from app.services.questions import generate_questions
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
-
+from app.schemas.questions import GenerateRequest, QuestionOut, PromptConfigIn, PromptConfigOut
+from app.services.questions import generate_questions
 router = APIRouter()
 
 @router.post(
@@ -17,7 +15,7 @@ router = APIRouter()
     },
     tags=["questions"],
 )
-async def generate_questions_endpoint(req: GenerateReq):
+async def generate_questions_endpoint(req: GenerateRequest):
     """
     Generate questions using an LLM.
 
@@ -27,12 +25,31 @@ async def generate_questions_endpoint(req: GenerateReq):
     - **prompt**: the natural-language prompt for the LLM
     - **count**: the number of questions to generate (default 1)
     """
-    try:
-        # call LLM...
-        pass
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except SomeLLMProviderError:
-        # return a 502 with custom JSON
-        return JSONResponse({"detail": "LLM provider failed"}, status_code=502)
+    print("Received request:", req)
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=[
+        {"id": 1, "question": "What is the capital of France?"},
+        {"id": 2, "question": "Who wrote 'To Kill a Mockingbird'?"}
+    ])
 
+
+@router.post("/passive_paragraph", response_model=QuestionOut)
+async def passive(req: GenerateRequest):
+    print("Received request:", req)
+    await generate_questions()
+    return { "success" : True }
+
+@router.get("/questions/{id}", response_model=QuestionOut)
+async def read_question(id: int):
+    print("Fetching question with ID:", id)
+    q = {}  # fetch from DB or cache
+    if not q:
+        raise HTTPException(status_code=404, detail="not found")
+
+@router.get("/prompt-config", response_model=PromptConfigOut)
+async def get_prompt_config():
+    return {"model": "gpt-4", "temperature": 0.2}
+
+@router.post("/prompt-config", response_model=PromptConfigOut)
+async def set_prompt_config(cfg: PromptConfigIn):
+    # persist config
+    return cfg
