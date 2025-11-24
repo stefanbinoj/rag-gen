@@ -1,10 +1,23 @@
 from fastapi import FastAPI
+from beanie import init_beanie
 from app.routers import questions, validator, admin, health, mcq
+from app.schemas.models import Model
 from config import load_environment_variables
+from app.deps import get_mongo_db
 
 def create_app() -> FastAPI:
     app = FastAPI(title="Question Generator", version="1.0.0")
     load_environment_variables()
+
+    @app.on_event("startup")
+    async def startup_event():
+        db = get_mongo_db()
+        await init_beanie(database=db, document_models=[Model])
+        
+        # Initialize default models if none exist
+        if not await Model.find_one():
+            await Model().insert()
+            print("Default models configuration initialized.")
 
     app.include_router(questions.router, prefix="/api/v1/questions", tags=["questions"])
     app.include_router(mcq.router, prefix="/api/v1/mcq", tags=["mcq"])
@@ -15,3 +28,15 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+
+@app.on_event("shutdown")
+def close_db_client():
+    try:
+        db = get_mongo_db()
+        client = getattr(db, "client", None)
+        if client:
+            client.close()
+    except Exception:
+        # best-effort close; nothing to do on failure
+        pass

@@ -1,15 +1,16 @@
 import os
-from fastapi import  HTTPException
-from typing import Generator, Any
-from pymongo import MongoClient
+from functools import lru_cache
+from motor.motor_asyncio import AsyncIOMotorClient
 
-def get_mongo_db() -> Generator[Any, None, None]:
-    client = MongoClient(os.getenv("MONGO_URI"))
-    try:
-        print("Successfully connected to MongoDB")
-        yield client[os.getenv("MONGO_DB")]  # pyright: ignore[reportArgumentType]
-    except Exception as e:
-        print(f"Connection failed: {e}")
-        raise HTTPException(status_code=500, detail="Database connection failed")
-    finally:
-        client.close()
+
+@lru_cache()
+def get_mongo_db():
+    """Return a cached Motor DB instance.
+
+    Caches the DB object so an AsyncIOMotorClient is created only once
+    (on first call). Use this with FastAPI's `Depends` to get the DB.
+    """
+    client = AsyncIOMotorClient(os.getenv("MONGO_URI"))
+    db = client[os.getenv("MONGO_DB")] #pyright: ignore[reportArgumentType]
+    return db
+
