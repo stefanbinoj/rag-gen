@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas.res import BaseResponse, ComprehensionResponse
 from app.schemas.req import QuestionReqPara, ComprehensionReqPara
+
 from app.services.generation_node import generate_questions
-from app.deps import get_llm_client
-from app.prompts.generation_prompt import system_prompt
+from app.services.validation_node import validate_questions
 
 router = APIRouter()
 
@@ -23,26 +23,17 @@ router = APIRouter()
     },
 )
 async def generate_questions_endpoint(req: QuestionReqPara):
-    """
-    Generate questions using an LLM.
+    """Generate list of questions based on the input paragraph."""
 
-    This endpoint accepts a `prompt` and returns an array of generated
-    question objects. Each item contains `id` and `question` fields.
-
-    - **prompt**: the natural-language prompt for the LLM
-    - **count**: the number of questions to generate (default 1)
-    """
     print("Received request:", req)
+    await generate_questions(req)
+    return []  # Placeholder return
 
-    llm_chain = LLMChain(prompt=system_prompt, llm=get_llm_client("gpt-4"))
-    question = "What NFL team won the Super Bowl in the year Justin Beiber was born?"
-    print(llm_chain.run(question))
 
 
 @router.post("/passive_paragraph", response_model=BaseResponse)
 async def passive(req: ComprehensionReqPara):
     print("Received request:", req)
-    await generate_questions()
     return {"success": True}
 
 

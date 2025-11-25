@@ -19,7 +19,6 @@ def get_mongo_db():
 
 def get_llm_client(model_name: str) -> ChatOpenAI:
     llm = ChatOpenAI(
-        api_key=os.getenv("OPENROUTER_API_KEY"),  # pyright: ignore[reportArgumentType]
         base_url="https://openrouter.ai/api/v1",
         model=model_name,
     )

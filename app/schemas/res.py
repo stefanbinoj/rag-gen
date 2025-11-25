@@ -29,10 +29,11 @@ class Metadata(BaseModel):
 
 
 class QuestionItem(BaseModel):
-    question: str
-    options: dict[OptionLabel , str]
-    correct_option: OptionLabel
-    explanation: str | None = None
+    """ Contains information about a single question item. """
+    question: str = Field(..., description="The question text")
+    options: dict[OptionLabel , str] = Field(..., description="Mapping of option labels to option text")
+    correct_option: OptionLabel = Field(..., description="The label of the correct option")
+    explanation: str = Field(..., description="Explanation for the correct answer")
 
 
 class BaseResponse(BaseModel):
@@ -42,8 +43,9 @@ class BaseResponse(BaseModel):
 
 
 class ComprehensionResponse(BaseResponse):
-    passage_title: str
-    passage_text: str
+    """ Response model for comprehension-based questions. """
+    passage_title: str = Field(..., description="Title of the passage")
+    passage_text: str = Field(..., description="Text of the passage")
     question_type: ComprehensionBasedType
 
     # (BaseResponse model_validator still applies)
