@@ -43,7 +43,7 @@ class OptionLabel(str, Enum):
     D = "D"
 
 
-class QuestionReq(BaseModel):
+class QuestionReqPara(BaseModel):
     type: QuestionType
     subject: str
     topic: str
@@ -55,18 +55,19 @@ class QuestionReq(BaseModel):
     sub_topic: str | None = None
     language: Language = Language.eng
 
-    # comprehension-specific fields (optional unless type == comprehension_based)
+
+class ComprehensionReqPara(QuestionReqPara):
     more_information: str | None = None
 
-    @model_validator(mode="after")
-    def validate_comprehension(self) -> "QuestionReq":
-        if self.type == QuestionType.comprehension_based and not self.more_information:
-            raise ValueError(
-                "more_information is required when type == 'comprehension_based'"
-            )
-        return self
+    # @model_validator(mode="after")
+    # def validate_comprehension(self) -> "ComprehensionReqPara":
+    #     if self.type == QuestionType.comprehension_based and not self.more_information:
+    #         raise ValueError(
+    #             "more_information is required when type == 'comprehension_based'"
+    #         )
+    #     return self
 
 
-class ModelReq(BaseModel):
+class ModelReqPara(BaseModel):
     generation_model: str | None = None
     validation_model: str | None = None

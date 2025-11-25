@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette.responses import JSONResponse
 from app.schemas.models import Model
-from app.schemas.req import ModelReq
+from app.schemas.req import ModelReqPara
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def list_models():
 
 
 @router.post("/models/switch")
-async def switch_model(req: ModelReq):
+async def switch_model(req: ModelReqPara):
     models = await Model.find_one()
     if not models:
         # Use exclude_none=True so that if fields are missing, the Model defaults are used

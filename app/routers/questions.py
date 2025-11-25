@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas.res import BaseResponse, ComprehensionResponse
-from app.schemas.req import QuestionReq
+from app.schemas.req import QuestionReqPara, ComprehensionReqPara
 from app.services.generation_node import generate_questions
 from app.deps import get_llm_client
 from app.prompts.generation_prompt import system_prompt
@@ -22,7 +22,7 @@ router = APIRouter()
         },
     },
 )
-async def generate_questions_endpoint(req: QuestionReq):
+async def generate_questions_endpoint(req: QuestionReqPara):
     """
     Generate questions using an LLM.
 
@@ -40,7 +40,7 @@ async def generate_questions_endpoint(req: QuestionReq):
 
 
 @router.post("/passive_paragraph", response_model=BaseResponse)
-async def passive(req: QuestionReq):
+async def passive(req: ComprehensionReqPara):
     print("Received request:", req)
     await generate_questions()
     return {"success": True}

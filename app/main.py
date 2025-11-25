@@ -5,6 +5,7 @@ from app.schemas.models import Model
 from config import load_environment_variables
 from app.deps import get_mongo_db
 
+
 def create_app() -> FastAPI:
     app = FastAPI(title="Question Generator", version="1.0.0")
     load_environment_variables()
@@ -12,7 +13,7 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
         db = get_mongo_db()
-        await init_beanie(database=db, document_models=[Model]) #pyright: ignore[reportArgumentType]
+        await init_beanie(database=db, document_models=[Model])  # pyright: ignore[reportArgumentType]
 
         # Initialize default models if none exist
         if not await Model.find_one():
@@ -21,22 +22,12 @@ def create_app() -> FastAPI:
 
     app.include_router(questions.router, prefix="/api/v1/questions", tags=["questions"])
     app.include_router(mcq.router, prefix="/api/v1/mcq", tags=["mcq"])
-    app.include_router(validator.router, prefix="/api/v1/validators", tags=["validators"])
+    app.include_router(
+        validator.router, prefix="/api/v1/validators", tags=["validators"]
+    )
     app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
     app.include_router(health.router, prefix="/api/v1/health", tags=["health"])
     return app
 
 
 app = create_app()
-
-
-@app.on_event("shutdown")
-def close_db_client():
-    try:
-        db = get_mongo_db()
-        client = getattr(db, "client", None)
-        if client:
-            client.close()
-    except Exception:
-        # best-effort close; nothing to do on failure
-        pass
