@@ -57,8 +57,6 @@ class QuestionReq(BaseModel):
 
     # comprehension-specific fields (optional unless type == comprehension_based)
     more_information: str | None = None
-    distribution: bool | None = False
-    require_vocabulary_question: bool | None = False
 
     @model_validator(mode="after")
     def validate_comprehension(self) -> "QuestionReq":

@@ -4,12 +4,9 @@ from fastapi import APIRouter
 router = APIRouter()
 
 @router.post("/generate-distractors")
-async def generate_distractors(req):
-    print("Received request:", req)
+async def generate_distractors():
     return {"distractors": ["A","B","C"]}
 
 @router.post("/validate-options")
-async def validate_options(req):
-    print("Received request:", req)
-    # validation logic
+async def validate_options():
     return {"valid": True}

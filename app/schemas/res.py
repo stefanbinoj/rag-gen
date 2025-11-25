@@ -19,7 +19,7 @@ class ComprehensionBasedType(str, Enum):
 
 
 class Metadata(BaseModel):
-    _id: str = Field(..., alias="_id", description="MongoDB ObjectId as string")
+    id: str = Field(..., alias="_id", description="MongoDB ObjectId as string")
     created_at: datetime
     question_score: int = Field(..., description="Equals number of questions generated")
     generation_attempts: int

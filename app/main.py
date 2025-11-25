@@ -12,8 +12,8 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
         db = get_mongo_db()
-        await init_beanie(database=db, document_models=[Model])
-        
+        await init_beanie(database=db, document_models=[Model]) #pyright: ignore[reportArgumentType]
+
         # Initialize default models if none exist
         if not await Model.find_one():
             await Model().insert()
