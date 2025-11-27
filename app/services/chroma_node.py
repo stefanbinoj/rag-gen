@@ -10,6 +10,7 @@ async def search_similar_questions(
     question: QuestionItem, subject: str, topic: str, top_k: int = 3
 ) -> list[dict]:
     """Search ChromaDB for similar questions"""
+    print(question.question)
     try:
         client = get_chroma_client()
         collection = client.get_or_create_collection(
@@ -33,9 +34,6 @@ async def search_similar_questions(
                         "distance": results["distances"][0][i]
                         if results["distances"]
                         else None,
-                        "metadata": results["metadatas"][0][i]
-                        if results["metadatas"]
-                        else {},
                     }
                 )
 

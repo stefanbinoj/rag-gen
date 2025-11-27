@@ -23,6 +23,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
 
     validated_results: list[ValidationNodeReturn] = []
     for idx, question in enumerate(generated_questions):
+        print(question.question)
         print(f"    --->Validating question {idx + 1}")
 
         similar_questions = await search_similar_questions(
@@ -33,12 +34,30 @@ async def generate_questions_endpoint(req: QuestionReqPara):
         check_validation: ValidationNodeReturn = await validate_questions(
             req, question, similar_questions
         )
-        validated_results[idx] = check_validation
+        validated_results.append(check_validation)
+        validated_results[idx].retries = 1
 
     for idx, result in enumerate(validated_results):
         if not result.added_to_vectordb:
-            print(f"    --->Question {idx + 1} not added to vector DB due to low score")
-            await regenerate_question(req, generated_questions[idx], result)
+            print(
+                f"    --->Regenerating question {idx + 1}: {generated_questions[idx]}"
+            )
+            regenerated_question = await regenerate_question(
+                req, generated_questions[idx], result
+            )
+            similar_questions = await search_similar_questions(
+                question=regenerated_question,
+                subject=req.subject,
+                topic=req.topic,
+                top_k=3,
+            )
+            print(f"  Found {len(similar_questions)} similar questions in database")
+
+            check_regeneration_validation: ValidationNodeReturn = (
+                await validate_questions(req, regenerated_question, similar_questions)
+            )
+            validated_results[idx] = check_regeneration_validation
+            validated_results[idx].retries = 2
 
     print(f"Validation completed for all {len(validated_results)} questions")
 

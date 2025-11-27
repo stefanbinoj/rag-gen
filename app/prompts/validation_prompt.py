@@ -55,6 +55,7 @@ When duplication_chance is high (>0.5), reduce score accordingly (typically belo
   - "Stem is double-barreled: asks two things."
   - "Option C repeats Option B conceptually."
   - "Correct option unsupported by explanation."
+- **IMPORTANT:** If duplication is found (duplication_chance > 0.4), you MUST include the text of the duplicate question from the database in the issues list so the regenerator knows what to avoid.
 
 If you reference a similar question from the database, include its identifier in the issues entry.
 

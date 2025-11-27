@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from enum import Enum
 from typing import Optional
 
+
 class OptionLabel(str, Enum):
     A = "A"
     B = "B"
@@ -76,7 +77,7 @@ class ValidationNodeReturn(BaseModel):
     uuid: Optional[str] = Field(
         default=None, description="The UUID of the question if added to DB"
     )
-
+    retries: int = Field(default=1, description="Number of regeneration attempts made")
 
 
 class BaseResponse(BaseModel):

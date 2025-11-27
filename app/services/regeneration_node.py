@@ -1,4 +1,5 @@
 import time
+from typing import cast
 from app.deps import get_llm_client
 from app.schemas.req import QuestionReqPara
 from app.schemas.res import QuestionItem, ValidationNodeReturn
@@ -58,9 +59,14 @@ Please regenerate this single question to address the issues above.
     if isinstance(result, QuestionItem):
         print("Parsed questions using structured output.")
         questions = result
+    elif isinstance(result, dict) and "questions" in result:
+        print("Parsed questions from dict format.")
+        raw_questions = result["questions"]
+        questions: QuestionItem = QuestionItem(**raw_questions) if isinstance(raw_questions, dict) else raw_questions
     else:
         # Fallback for unexpected formats
         print(f"Unexpected result type: {type(result)}")
         raise ValueError("Failed to parse generated questions.")
 
     return questions
+

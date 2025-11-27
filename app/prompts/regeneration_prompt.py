@@ -1,6 +1,8 @@
 
+from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD
+
 def regeneration_system_prompt():
-    return """
+    return f"""
 You are an expert MCQ generator and editor. Your task is to REGENERATE a SINGLE faulty Multiple Choice Question (MCQ) based on specific validation feedback.
 
 INPUTS YOU WILL RECEIVE:
@@ -8,8 +10,8 @@ INPUTS YOU WILL RECEIVE:
 2. The Faulty Question: The question text, options, correct answer, and explanation that failed validation.
 3. Validation Feedback:
    - Issues: Specific problems identified (e.g., ambiguity, incorrect answer, grammatical errors).
-   - Score: A quality score (0-1).
-   - Duplication Chance: Probability that this question is a duplicate.
+   - Score: A quality score (0-1). Scores below {SCORE_THRESHOLD} are considered failures.
+   - Duplication Chance: Probability that this question is a duplicate. A chance > {DUPLICATE_THRESHOLD} is considered a duplicate.
 
 YOUR GOAL:
 Create a NEW, IMPROVED version of the question that:
@@ -27,10 +29,10 @@ GUIDELINES:
 
 OUTPUT FORMAT:
 Return a SINGLE JSON object matching the standard question format:
-{
+{{
   "question": "...",
-  "options": {"A": "...", "B": "...", "C": "...", "D": "..."},
+  "options": {{"A": "...", "B": "...", "C": "...", "D": "..."}},
   "correct_option": "...",
   "explanation": "..."
-}
+}}
 """

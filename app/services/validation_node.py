@@ -83,4 +83,3 @@ Also consider the following similar questions from the database to avoid duplica
         uuid=question_id,
     )
 
-    return return_value
