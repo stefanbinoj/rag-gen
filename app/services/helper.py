@@ -1,6 +1,6 @@
 
 import json
-from app.schemas.models import Model
+from app.schemas.models import Model, Prompt
 
 
 
@@ -14,6 +14,16 @@ async def get_model_name(type: str):
         return models.generation_model
     else:
         return models.validation_model
+
+
+async def get_prompt(type: str):
+    prompt = await Prompt.find_one(Prompt.name == type)
+
+    if not prompt:
+        raise ValueError(f"No prompt found for type: {type}")
+
+    return prompt.content
+
 
 def _extract_metadata(
     llm_result: dict, expected_questions: int

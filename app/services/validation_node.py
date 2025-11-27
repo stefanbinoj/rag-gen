@@ -1,10 +1,9 @@
 import time
 from typing import cast, Optional, List
 from app.deps import get_llm_client
-from app.prompts.validation_prompt import validation_system_prompt
 from app.schemas.req import QuestionReqPara
 from app.schemas.res import QuestionItem, ValidationResult
-from app.services.helper import get_model_name
+from app.services.helper import get_model_name, get_prompt
 from app.services.chroma_node import add_question_to_chroma
 
 
@@ -17,7 +16,7 @@ async def validate_questions(
     model_name = await get_model_name("validation")
     llm = get_llm_client(model_name)
 
-    system_prompt = validation_system_prompt()
+    system_prompt = await get_prompt("validation")
 
     model_with_structure = llm.with_structured_output(ValidationResult)
 
@@ -38,7 +37,7 @@ async def validate_questions(
 
     user_message = f"""Validate this MCQ:
 
-Age: {state.age} | Subject: {state.subject} | Topic: {state.topic}
+{f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country.value} | Difficulty: {state.difficulty.value}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
@@ -62,7 +61,10 @@ Also consider the following similar questions from the database to avoid duplica
     # Cast result to ValidationResult object
     validation_result: ValidationResult = cast(ValidationResult, result)
 
-    print("trying to add question to chroma")
+    print(f"validation result : {validation_result}")
+    print(f"Validation time: {validation_time:.2f} seconds")
+
+    print("Adding question to Chroma DB...")
     await add_question_to_chroma(
         question=question,
         subject=state.subject,
@@ -71,9 +73,5 @@ Also consider the following similar questions from the database to avoid duplica
         validation_issues=validation_result.issues,
         duplication_chance=validation_result.duplication_chance,
     )
-
-    print("Validation completed")
-    print(f"Validation time: {validation_time:.2f} seconds")
-    print(validation_result)
 
     return validation_result

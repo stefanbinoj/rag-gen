@@ -50,7 +50,6 @@ async def add_question_to_chroma(
         # if duplication_chance > 0.8:
         #     return False
 
-        print("before get client")
         client = get_chroma_client()
         collection = client.get_or_create_collection(
             name=f"{subject.strip().lower()}_{topic.strip().lower()}", metadata={"hnsw:space": "cosine"}
@@ -71,9 +70,8 @@ async def add_question_to_chroma(
             ],
             ids=[uuid.uuid4().hex],
         )
-        print("added")
 
-        print(f"Question added to ChromaDB with score {score}")
+        print(f"Question added to ChromaDB with score {score} and duplication chance {duplication_chance}")
         return True
     except Exception as e:
         print(f"Error adding question to ChromaDB: {e}")

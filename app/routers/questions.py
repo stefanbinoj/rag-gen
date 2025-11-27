@@ -58,12 +58,3 @@ async def read_question(id: int):
         raise HTTPException(status_code=404, detail="not found")
 
 
-@router.get("/prompt-config")
-async def get_prompt_config():
-    return {"model": "gpt-4", "temperature": 0.2}
-
-
-@router.post("/prompt-config")
-async def set_prompt_config(cfg):
-    # persist config
-    return cfg

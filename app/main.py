@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from beanie import init_beanie
 from app.routers import questions, validator, admin, health, mcq
-from app.schemas.models import Model
+from app.schemas.models import Model, Prompt
 from config import load_environment_variables
 from app.deps import get_mongo_db
+from app.prompts.generation_prompt import generation_system_prompt
+from app.prompts.validation_prompt import validation_system_prompt
 
 
 def create_app() -> FastAPI:
@@ -13,12 +15,21 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
         db = get_mongo_db()
-        await init_beanie(database=db, document_models=[Model])  # pyright: ignore[reportArgumentType]
+        await init_beanie(database=db, document_models=[Model, Prompt])  # pyright: ignore[reportArgumentType]
 
         # Initialize default models if none exist
         if not await Model.find_one():
             await Model().insert()
             print("Default models configuration initialized.")
+
+        # Initialize default prompts
+        if not await Prompt.find_one(Prompt.name == "generation"):
+            await Prompt(name="generation", content=generation_system_prompt()).insert()
+            print("Default generation prompt initialized.")
+
+        if not await Prompt.find_one(Prompt.name == "validation"):
+            await Prompt(name="validation", content=validation_system_prompt()).insert()
+            print("Default validation prompt initialized.")
 
     app.include_router(questions.router, prefix="/api/v1/questions", tags=["questions"])
     app.include_router(mcq.router, prefix="/api/v1/mcq", tags=["mcq"])

@@ -34,5 +34,9 @@ _chroma_client = None
 def get_chroma_client():
     global _chroma_client
     if _chroma_client is None:
-        _chroma_client = chromadb.Client()
+        _chroma_client = chromadb.CloudClient(
+            api_key=os.getenv("CHROMA_API_KEY"),
+            tenant=os.getenv("CHROMA_TENANT"),
+            database=os.getenv("CHROMA_DATABASE")
+        )
     return _chroma_client

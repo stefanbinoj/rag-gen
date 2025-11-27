@@ -1,4 +1,4 @@
-from beanie import Document
+from beanie import Document, Indexed
 from datetime import datetime
 from pydantic import Field
 
@@ -9,4 +9,12 @@ class Model(Document):
 
     class Settings:
         name = "models"     # collection name
+
+class Prompt(Document):
+    name: Indexed(str, unique=True) # pyright: ignore[reportInvalidTypeForm]
+    content: str
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+    class Settings:
+        name = "prompts"
 

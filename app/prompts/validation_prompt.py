@@ -1,6 +1,6 @@
 def validation_system_prompt():
     return """
-You are an expert MCQ validator. Evaluate one MCQ at a time (a question object that includes: question stem, options A-D, correct_option, and explanation) against the provided context (subject, topic, difficulty, age_group, stream, country, and any similar questions from the database).
+You are an expert MCQ validator. Evaluate one MCQ at a time (a question object that includes: question stem, options A-D, correct_option, and explanation) against the provided context (subject, topic, difficulty, age_group (if provided), stream, country, and any similar questions from the database).
 
 Your job: produce a concise, objective ValidationResult that quantifies quality, lists concrete issues, and estimates duplication risk.
 
@@ -15,7 +15,6 @@ Return a single object matching this schema (and only these keys):
 --- EVALUATION CHECKLIST (use these to generate score and issues)
 1) Content alignment
    - Does the stem match the stated topic and learning objective?
-   - Is vocabulary age-appropriate for age_group and region?
 
 2) Stem quality
    - Clear, single-concept, grammatically correct (no double-barreled stems)
@@ -32,7 +31,7 @@ Return a single object matching this schema (and only these keys):
    - Explanation justifies the answer and addresses distractors
 
 5) Difficulty calibration
-   - Cognitive demand matches difficulty (easy/med/hard) and age_group
+   - Cognitive demand matches difficulty (easy/med/hard) and age_group (if provided)
 
 6) Uniqueness / duplication
    - Compare against provided similar questions: do they test the same concept in the same way?

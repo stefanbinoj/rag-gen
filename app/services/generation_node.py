@@ -2,10 +2,9 @@ import time
 from typing import List
 from pydantic import BaseModel
 from app.deps import get_llm_client
-from app.prompts.generation_prompt import generation_system_prompt
 from app.schemas.req import QuestionReqPara
 from app.schemas.res import QuestionItem
-from app.services.helper import get_model_name
+from app.services.helper import get_model_name, get_prompt
 
 
 class QuestionsList(BaseModel):
@@ -16,13 +15,13 @@ async def generate_questions(state: QuestionReqPara) -> List[QuestionItem]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
-    system_prompt = generation_system_prompt()
+    system_prompt = await get_prompt("generation")
 
     model_with_structure = llm.with_structured_output(QuestionsList)
 
     user_message = f"""Generate {state.no_of_questions} MCQs.
 
-Age: {state.age} | Subject: {state.subject} | Topic: {state.topic}
+{f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country.value} | Difficulty: {state.difficulty.value}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}"""
 

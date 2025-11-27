@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
+from typing import Optional, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -50,8 +50,8 @@ class QuestionReqPara(BaseModel):
     topic: str
     difficulty: Difficulty
     stream: Stream
-    country: Country
-    age: str = Field(..., description='e.g. "10-11" or "14-16"')
+    country: Country = Country.UK
+    age: Optional[str] = None
     no_of_questions: int = Field(..., gt=0)
     sub_topic: Optional[str] = None
     language: Language = Language.eng
@@ -72,3 +72,8 @@ class ComprehensionReqPara(QuestionReqPara):
 class ModelReqPara(BaseModel):
     generation_model: Optional[str] = None
     validation_model: Optional[str] = None
+
+
+class PromptReqPara(BaseModel):
+    name: Literal["generation", "validation"]
+    content: str
