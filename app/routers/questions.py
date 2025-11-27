@@ -4,6 +4,7 @@ from app.schemas.req import QuestionReqPara, ComprehensionReqPara
 
 from app.services.generation_node import generate_questions
 from app.services.validation_node import validate_questions
+from app.services.chroma_node import search_similar_questions
 
 router = APIRouter()
 
@@ -33,10 +34,18 @@ async def generate_questions_endpoint(req: QuestionReqPara):
     validated_results = []
     for idx, question in enumerate(generated_questions):
         print(f"Validating question {idx + 1}: {question.question[:50]}...")
-        validation_result = await validate_questions(req, question)
-        validated_results.append(
-            {"req":req, "question": question, "validation": validation_result}
+
+        # Search for similar questions in ChromaDB
+        similar_questions = await search_similar_questions(
+            question=question, subject=req.subject, topic=req.topic, top_k=3
         )
+        print(f"  Found {len(similar_questions)} similar questions in database")
+
+        validation_result = await validate_questions(req, question, similar_questions)
+        validated_results.append(
+            {"req": req, "question": question, "validation": validation_result}
+        )
+    print(validated_results)
 
     print(f"Validation completed for all {len(validated_results)} questions")
     for idx, result in enumerate(validated_results):

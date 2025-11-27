@@ -53,6 +53,14 @@ class ValidationResult(BaseModel):
     validation_time: float = Field(
         default=0.0, description="Time taken to validate in seconds"
     )
+    stored_in_chroma: bool = Field(
+        default=False,
+        description="Whether the question was stored in ChromaDB due to low score",
+    )
+    isDuplicate: bool = Field(
+        default=False,
+        description="Whether the question is a duplicate of an existing question",
+    )
 
 
 class BaseResponse(BaseModel):

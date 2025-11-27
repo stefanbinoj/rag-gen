@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -52,12 +53,12 @@ class QuestionReqPara(BaseModel):
     country: Country
     age: str = Field(..., description='e.g. "10-11" or "14-16"')
     no_of_questions: int = Field(..., gt=0)
-    sub_topic: str | None = None
+    sub_topic: Optional[str] = None
     language: Language = Language.eng
 
 
 class ComprehensionReqPara(QuestionReqPara):
-    more_information: str | None = None
+    more_information: Optional[str] = None
 
     # @model_validator(mode="after")
     # def validate_comprehension(self) -> "ComprehensionReqPara":
@@ -69,5 +70,5 @@ class ComprehensionReqPara(QuestionReqPara):
 
 
 class ModelReqPara(BaseModel):
-    generation_model: str | None = None
-    validation_model: str | None = None
+    generation_model: Optional[str] = None
+    validation_model: Optional[str] = None
