@@ -4,7 +4,7 @@ from app.schemas.models import Model, Prompt
 
 
 
-async def get_model_name(type: str):
+async def get_model_name(type: str) -> str:
     models = await Model.find_one()
 
     if not models:
@@ -12,17 +12,28 @@ async def get_model_name(type: str):
 
     if type == "generation":
         return models.generation_model
-    else:
+    elif type == "regeneration":
+        return models.regeneration_model
+    elif type == "validation":
         return models.validation_model
+    else:
+        return "openai/gpt-5-mini"
 
 
 async def get_prompt(type: str):
-    prompt = await Prompt.find_one(Prompt.name == type)
+    prompts = await Prompt.find_one()
 
-    if not prompt:
-        raise ValueError(f"No prompt found for type: {type}")
+    if not prompts:
+        raise ValueError("No prompt configuration found in the database.")
 
-    return prompt.content
+    if type == "generation":
+        return prompts.generation_prompt
+    elif type == "regeneration":
+        return prompts.regeneration_prompt
+    elif type == "validation":
+        return prompts.validation_prompt
+    else:
+        raise ValueError(f"Unknown prompt type: {type}")
 
 
 def _extract_metadata(

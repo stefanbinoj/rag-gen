@@ -52,11 +52,11 @@ async def switch_model(req: ModelReqPara):
 
 @router.get("/prompts")
 async def list_prompts():
-    prompts = await Prompt.find_all().to_list()
+    prompts = await Prompt.find_one()
     return JSONResponse(
         content={
             "success": True,
-            "prompts": [p.model_dump(mode="json") for p in prompts],
+            "prompts": prompts.model_dump(mode="json") if prompts else None,
         },
         status_code=200,
     )
@@ -64,19 +64,25 @@ async def list_prompts():
 
 @router.post("/prompts/update")
 async def update_prompt(req: PromptReqPara):
-    prompt = await Prompt.find_one(Prompt.name == req.name)
-    if not prompt:
-       return JSONResponse(
-            content={"success": False, "message": f"Prompt with name '{req.name}' not found."},
+    prompts = await Prompt.find_one()
+    if not prompts:
+        return JSONResponse(
+            content={"success": False, "message": "NO Prompt with not found."},
             status_code=404,
         ) 
 
-    prompt.content = req.content
-    prompt.updated_at = datetime.now()
-    await prompt.save()
+    if req.generation_prompt:
+        prompts.generation_prompt = req.generation_prompt
+    if req.regeneration_prompt:
+        prompts.regeneration_prompt = req.regeneration_prompt
+    if req.validation_prompt:
+        prompts.validation_prompt = req.validation_prompt
+
+    prompts.updated_at = datetime.now()
+    await prompts.save()
 
     return JSONResponse(
-        content={"success": True, "prompt": prompt.model_dump(mode="json")},
+        content={"success": True, "prompt": prompts.model_dump(mode="json")},
         status_code=200,
     )
 

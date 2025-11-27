@@ -18,12 +18,13 @@ def get_mongo_db():
 _llm_client = None
 
 
-def get_llm_client(model_name: str) -> ChatOpenAI:
+def get_llm_client(model_name: str, temperatur: float = 0) -> ChatOpenAI:
     global _llm_client
     if _llm_client is None:
         _llm_client = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
             model=model_name,
+            temperature=temperatur,
         )
     return _llm_client
 
@@ -37,6 +38,6 @@ def get_chroma_client():
         _chroma_client = chromadb.CloudClient(
             api_key=os.getenv("CHROMA_API_KEY"),
             tenant=os.getenv("CHROMA_TENANT"),
-            database=os.getenv("CHROMA_DATABASE")
+            database=os.getenv("CHROMA_DATABASE"),
         )
     return _chroma_client

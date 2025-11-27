@@ -75,5 +75,6 @@ class ModelReqPara(BaseModel):
 
 
 class PromptReqPara(BaseModel):
-    name: Literal["generation", "validation"]
-    content: str
+    generation_prompt: Optional[str] = None
+    regeneration_prompt: Optional[str] = None
+    validation_prompt: Optional[str] = None

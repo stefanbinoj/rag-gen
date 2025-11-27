@@ -3,6 +3,7 @@ from app.schemas.res import BaseResponse, ComprehensionResponse, ValidationNodeR
 from app.schemas.req import QuestionReqPara, ComprehensionReqPara
 
 from app.services.generation_node import generate_questions
+from app.services.regeneration_node import regenerate_question
 from app.services.validation_node import validate_questions
 from app.services.chroma_node import search_similar_questions
 
@@ -20,7 +21,7 @@ router = APIRouter()
 async def generate_questions_endpoint(req: QuestionReqPara):
     generated_questions = await generate_questions(req)
 
-    validated_results = []
+    validated_results: list[ValidationNodeReturn] = []
     for idx, question in enumerate(generated_questions):
         print(f"    --->Validating question {idx + 1}")
 
@@ -29,17 +30,17 @@ async def generate_questions_endpoint(req: QuestionReqPara):
         )
         print(f"  Found {len(similar_questions)} similar questions in database")
 
-        validation_result: ValidationNodeReturn = await validate_questions(
+        check_validation: ValidationNodeReturn = await validate_questions(
             req, question, similar_questions
         )
-    # validated_results.append(
-    #     {"req": req, "question": question, "validation": validation_result}
-    # )
-    #
-    print(f"Validation completed for all {len(validated_results)} questions")
+        validated_results[idx] = check_validation
 
-    # for idx, result in enumerate(validated_results):
-    #     print(f"\nQuestion {idx + 1} validation score: {result['validation'].score}/10")
+    for idx, result in enumerate(validated_results):
+        if not result.added_to_vectordb:
+            print(f"    --->Question {idx + 1} not added to vector DB due to low score")
+            await regenerate_question(req, generated_questions[idx], result)
+
+    print(f"Validation completed for all {len(validated_results)} questions")
 
     return []  # Placeholder return
 
