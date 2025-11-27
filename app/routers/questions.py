@@ -19,27 +19,25 @@ router = APIRouter()
 )
 async def generate_questions_endpoint(req: QuestionReqPara):
     generated_questions = await generate_questions(req)
-    print(f"\nGenerated {len(generated_questions)} questions")
 
     validated_results = []
     for idx, question in enumerate(generated_questions):
-        print(f"Validating question {idx + 1}")
+        print(f"    --->Validating question {idx + 1}")
 
         similar_questions = await search_similar_questions(
             question=question, subject=req.subject, topic=req.topic, top_k=3
         )
         print(f"  Found {len(similar_questions)} similar questions in database")
-        print("  Similar Questions:", similar_questions)
 
         validation_result = await validate_questions(req, question, similar_questions)
-        validated_results.append(
-            {"req": req, "question": question, "validation": validation_result}
-        )
-
+       # validated_results.append(
+        #     {"req": req, "question": question, "validation": validation_result}
+        # )
+        #
     print(f"Validation completed for all {len(validated_results)} questions")
 
-    for idx, result in enumerate(validated_results):
-        print(f"\nQuestion {idx + 1} validation score: {result['validation'].score}/10")
+    # for idx, result in enumerate(validated_results):
+    #     print(f"\nQuestion {idx + 1} validation score: {result['validation'].score}/10")
 
     return []  # Placeholder return
 

@@ -52,12 +52,9 @@ class ValidationResult(BaseModel):
     """Contains validation results for a single question."""
 
     score: float = Field(..., ge=0, le=1, description="Validation score from 0 to 1")
+    duplication_chance: float = Field(..., ge=0, le=1, description="Chance of duplication from 0 to 1")
     issues: list[str] = Field(
         default_factory=list, description="List of identified issues"
-    )
-    duplication_chance: float = Field(..., ge=0, le=1, description="Chance of duplication from 0 to 1")
-    validation_time: float = Field(
-        default=0.0, description="Time taken to validate in seconds"
     )
 
 

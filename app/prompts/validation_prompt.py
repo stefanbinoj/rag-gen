@@ -17,18 +17,15 @@ Return a single object matching this schema (and only these keys):
    - Does the stem match the stated topic and learning objective?
 
 2) Stem quality
-   - Clear, single-concept, grammatically correct (no double-barreled stems)
-   - No ambiguous phrasing or unnecessary complexity
+   - Clear, grammatically correct (no double-barreled stems)
 
 3) Options quality
    - Exactly 4 distinct options labeled A–D
    - One clear best answer; others are plausible distractors
-   - Options are parallel in grammar and similar in length
-   - No accidental clues (length bias, punctuation, absolutes)
+   - All options except correct_option are clearly incorrect but plausible
 
 4) Correctness & verification
    - Stated correct_option is defensibly the best answer
-   - Explanation justifies the answer and addresses distractors
 
 5) Difficulty calibration
    - Cognitive demand matches difficulty (easy/med/hard) and age_group (if provided)
@@ -37,9 +34,10 @@ Return a single object matching this schema (and only these keys):
    - Compare against provided similar questions: do they test the same concept in the same way?
    - Consider both semantic and functional duplication (same reasoning path)
    - If similar, identify why (same concept, same answer pattern, same scaffolding)
+   - NOTE : Similarity metrics are provided for reference but use your judgment. Smaller Similarity = more similar. (e.g., <0.3 = very similar, 0.3–0.6 = somewhat similar, >0.6 = likely different)
 
 --- SCORING GUIDELINES (map observations to 0.00–1.00)
-- 0.90–1.00: excellent — clear, curriculum-aligned, age-appropriate, strong distractors, great explanation
+- 0.90–1.00: excellent — clear, curriculum-aligned, age-appropriate, strong distractors
 - 0.70–0.89: good — minor issues (wording, minor distractor weakness) but usable
 - 0.50–0.69: fair — several issues that need revision (ambiguous wording, weak distractors)
 - 0.30–0.49: poor — significant problems (multiple ambiguous options, incorrect key, mismatch with difficulty)
@@ -52,8 +50,7 @@ When duplication_chance is high (>0.6), reduce score accordingly (typically belo
   - "Stem is double-barreled: asks two things."
   - "Option C repeats Option B conceptually."
   - "Correct option unsupported by explanation."
-  - "Vocabulary above age_group level."
-  - "Likely duplicate of DB question id=1234: tests same concept with same reasoning."
+  - "Likely duplicate of DB question tests same concept with same reasoning."
 
 If you reference a similar question from the database, include its identifier in the issues entry.
 

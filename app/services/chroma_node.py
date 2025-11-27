@@ -11,11 +11,16 @@ async def search_similar_questions(
     try:
         client = get_chroma_client()
         collection = client.get_or_create_collection(
-            name=f"{subject.strip().lower()}_{topic.strip().lower()}", metadata={"hnsw:space": "cosine"}
+            name=f"{subject.strip().lower()}",
+            metadata={"hnsw:space": "cosine"},
         )
 
         # Search for similar questions
-        results = collection.query(query_texts=[question.question], n_results=top_k)
+        results = collection.query(
+            query_texts=[question.question],
+            n_results=top_k,
+            include=["documents", "distances"],
+        )
 
         similar_questions = []
         if results and results["documents"]:
@@ -52,7 +57,8 @@ async def add_question_to_chroma(
 
         client = get_chroma_client()
         collection = client.get_or_create_collection(
-            name=f"{subject.strip().lower()}_{topic.strip().lower()}", metadata={"hnsw:space": "cosine"}
+            name=f"{subject.strip().lower()}",
+            metadata={"hnsw:space": "cosine"},
         )
 
         # Add to collection
@@ -71,7 +77,9 @@ async def add_question_to_chroma(
             ids=[uuid.uuid4().hex],
         )
 
-        print(f"Question added to ChromaDB with score {score} and duplication chance {duplication_chance}")
+        print(
+            f"Question added to ChromaDB with score {score} and duplication chance {duplication_chance}"
+        )
         return True
     except Exception as e:
         print(f"Error adding question to ChromaDB: {e}")
