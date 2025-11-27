@@ -44,17 +44,17 @@ async def add_question_to_chroma(
     topic: str,
     score: float,
     validation_issues: list[str],
+    is_duplicate: bool,
 ) -> bool:
     """Add question to ChromaDB if score is low"""
     try:
-        if score >= 7:
+        if score >= 7 or is_duplicate:
             return False
 
         client = get_chroma_client()
         collection = client.get_or_create_collection(
             name=f"{subject}_{topic}", metadata={"hnsw:space": "cosine"}
         )
-
 
         # Add to collection
         collection.add(

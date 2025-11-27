@@ -76,17 +76,17 @@ Also consider the following similar questions from the database to avoid duplica
     validation_result: ValidationResult = cast(ValidationResult, result)
 
     # Add question to ChromaDB if score is less than 7
-    stored_in_chroma = await add_question_to_chroma(
+    await add_question_to_chroma(
         question=question,
         subject=state.subject,
         topic=state.topic,
         score=validation_result.score,
         validation_issues=validation_result.issues,
+        is_duplicate=validation_result.isDuplicate,
     )
 
     print("Validation completed")
     print(f"  - Score: {validation_result.score}/10")
     print(f"  - Validation time: {validation_time:.2f}s")
-    print(f"  - Stored in ChromaDB: {stored_in_chroma}")
 
     return validation_result

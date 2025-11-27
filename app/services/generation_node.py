@@ -1,5 +1,5 @@
 import time
-from typing import cast
+from typing import cast, List
 from app.deps import get_llm_client
 from app.prompts.generation_prompt import generation_system_prompt
 from app.schemas.req import QuestionReqPara
@@ -7,7 +7,7 @@ from app.schemas.res import QuestionItem
 from app.services.helper import get_model_name, _extract_metadata
 
 
-async def generate_questions(state: QuestionReqPara) -> list[QuestionItem]:
+async def generate_questions(state: QuestionReqPara) -> List[QuestionItem]:
     """
     Generate MCQ questions with comprehensive metadata extraction.
 
@@ -57,7 +57,7 @@ Stream: {state.stream.value} | Country: {state.country.value} | Difficulty: {sta
         print("============================\n")
 
         # Convert dicts to QuestionItem objects
-        questions: list[QuestionItem] = []
+        questions: List[QuestionItem] = []
         for q in raw_questions:
             print(f"Processing item type: {type(q)}, value: {q}")
             if isinstance(q, dict):
@@ -71,17 +71,17 @@ Stream: {state.stream.value} | Country: {state.country.value} | Difficulty: {sta
     elif isinstance(result, dict) and "questions" in result:
         # Alternative dict format
         raw_questions = result["questions"]
-        questions: list[QuestionItem] = [
+        questions: List[QuestionItem] = [
             QuestionItem(**q) if isinstance(q, dict) else q for q in raw_questions
         ]
     elif isinstance(result, list):
         # Already a list - still may need conversion
-        questions: list[QuestionItem] = [
+        questions: List[QuestionItem] = [
             QuestionItem(**q) if isinstance(q, dict) else q for q in result
         ]
     else:
         # Unexpected format - wrap in list
-        questions: list[QuestionItem] = [cast(QuestionItem, result)]
+        questions: List[QuestionItem] = [cast(QuestionItem, result)]
 
     print(f"Extracted {len(questions)} questions")
     if questions and len(questions) > 0:
