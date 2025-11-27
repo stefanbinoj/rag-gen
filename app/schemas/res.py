@@ -30,13 +30,18 @@ class Metadata(BaseModel):
     cost: float
 
 
+class Options(BaseModel):
+    A: str
+    B: str
+    C: str
+    D: str
+
+
 class QuestionItem(BaseModel):
     """Contains information about a single question item."""
 
     question: str = Field(..., description="The question text")
-    options: dict[OptionLabel, str] = Field(
-        ..., description="Mapping of option labels to option text"
-    )
+    options: Options = Field(..., description="The options for the question")
     correct_option: OptionLabel = Field(
         ..., description="The label of the correct option"
     )
@@ -46,16 +51,13 @@ class QuestionItem(BaseModel):
 class ValidationResult(BaseModel):
     """Contains validation results for a single question."""
 
-    score: float = Field(..., ge=0, le=10, description="Validation score from 0-10")
+    score: float = Field(..., ge=0, le=1, description="Validation score from 0 to 1")
     issues: list[str] = Field(
         default_factory=list, description="List of identified issues"
     )
+    duplication_chance: float = Field(..., ge=0, le=1, description="Chance of duplication from 0 to 1")
     validation_time: float = Field(
         default=0.0, description="Time taken to validate in seconds"
-    )
-    isDuplicate: bool = Field(
-        default=False,
-        description="Whether the question is a duplicate of an existing question",
     )
 
 
@@ -72,11 +74,3 @@ class ComprehensionResponse(BaseResponse):
     passage_text: str = Field(..., description="Text of the passage")
     question_type: ComprehensionBasedType
 
-    # (BaseResponse model_validator still applies)
-
-
-# Example usage note:
-# if req.type == QuestionType.comprehension_based:
-#     resp = ComprehensionResponse(...)
-# else:
-#     resp = BaseResponse(...)
