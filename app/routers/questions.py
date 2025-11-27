@@ -25,10 +25,25 @@ router = APIRouter()
 async def generate_questions_endpoint(req: QuestionReqPara):
     """Generate list of questions based on the input paragraph."""
 
-    print("Received request:", req)
-    await generate_questions(req)
-    return []  # Placeholder return
+    # Generate questions - returns list[QuestionItem]
+    generated_questions = await generate_questions(req)
+    print(f"\nGenerated {len(generated_questions)} questions")
 
+    # Validate each generated question
+    validated_results = []
+    for idx, question in enumerate(generated_questions):
+        print(f"Validating question {idx + 1}: {question.question[:50]}...")
+        validation_result = await validate_questions(req, question)
+        validated_results.append(
+            {"req":req, "question": question, "validation": validation_result}
+        )
+
+    print(f"Validation completed for all {len(validated_results)} questions")
+    for idx, result in enumerate(validated_results):
+        print(f"\nQuestion {idx + 1} validation score: {result['validation'].score}/10")
+        print(f"  Recommendation: {result['validation'].recommendation}")
+
+    return []  # Placeholder return
 
 
 @router.post("/passive_paragraph", response_model=BaseResponse)

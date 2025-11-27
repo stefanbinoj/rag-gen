@@ -2,6 +2,7 @@ import os
 from functools import lru_cache
 from motor.motor_asyncio import AsyncIOMotorClient
 
+#import chromadb
 from langchain_openai import ChatOpenAI
 
 
@@ -23,3 +24,17 @@ def get_llm_client(model_name: str) -> ChatOpenAI:
         model=model_name,
     )
     return llm
+#
+#
+# _client = None
+#
+#
+# def get_chroma_client():
+#     global _client
+#     if _client is None:
+#         _client = chromadb.CloudClient(
+#             api_key=os.getenv("CHROMA_API_KEY"),
+#             tenant=os.getenv("CHROMA_TENANT"),
+#             database=os.getenv("CHROMA_DATABASE"),
+#         )
+#     return _client

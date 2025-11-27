@@ -2,11 +2,13 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 from enum import Enum
 
+
 class OptionLabel(str, Enum):
     A = "A"
     B = "B"
     C = "C"
     D = "D"
+
 
 class ComprehensionBasedType(str, Enum):
     direct_retrieval = "direct_retrieval"
@@ -29,11 +31,28 @@ class Metadata(BaseModel):
 
 
 class QuestionItem(BaseModel):
-    """ Contains information about a single question item. """
+    """Contains information about a single question item."""
+
     question: str = Field(..., description="The question text")
-    options: dict[OptionLabel , str] = Field(..., description="Mapping of option labels to option text")
-    correct_option: OptionLabel = Field(..., description="The label of the correct option")
+    options: dict[OptionLabel, str] = Field(
+        ..., description="Mapping of option labels to option text"
+    )
+    correct_option: OptionLabel = Field(
+        ..., description="The label of the correct option"
+    )
     explanation: str = Field(..., description="Explanation for the correct answer")
+
+
+class ValidationResult(BaseModel):
+    """Contains validation results for a single question."""
+
+    score: float = Field(..., ge=0, le=10, description="Validation score from 0-10")
+    issues: list[str] = Field(
+        default_factory=list, description="List of identified issues"
+    )
+    validation_time: float = Field(
+        default=0.0, description="Time taken to validate in seconds"
+    )
 
 
 class BaseResponse(BaseModel):
@@ -43,7 +62,8 @@ class BaseResponse(BaseModel):
 
 
 class ComprehensionResponse(BaseResponse):
-    """ Response model for comprehension-based questions. """
+    """Response model for comprehension-based questions."""
+
     passage_title: str = Field(..., description="Title of the passage")
     passage_text: str = Field(..., description="Text of the passage")
     question_type: ComprehensionBasedType
