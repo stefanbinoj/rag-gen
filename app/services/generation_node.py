@@ -57,7 +57,7 @@ Stream: {state.stream.value} | Country: {state.country.value} | Difficulty: {sta
         print("============================\n")
 
         # Convert dicts to QuestionItem objects
-        questions: List[QuestionItem] = []
+        questions: List[QuestionItem] = []  # pyright: ignore[reportRedeclaration]
         for q in raw_questions:
             print(f"Processing item type: {type(q)}, value: {q}")
             if isinstance(q, dict):
@@ -71,12 +71,12 @@ Stream: {state.stream.value} | Country: {state.country.value} | Difficulty: {sta
     elif isinstance(result, dict) and "questions" in result:
         # Alternative dict format
         raw_questions = result["questions"]
-        questions: List[QuestionItem] = [
+        questions: List[QuestionItem] = [  # pyright: ignore[reportRedeclaration]
             QuestionItem(**q) if isinstance(q, dict) else q for q in raw_questions
         ]
     elif isinstance(result, list):
         # Already a list - still may need conversion
-        questions: List[QuestionItem] = [
+        questions: List[QuestionItem] = [  # pyright: ignore[reportRedeclaration]
             QuestionItem(**q) if isinstance(q, dict) else q for q in result
         ]
     else:

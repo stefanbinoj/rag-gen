@@ -1,29 +1,31 @@
 import os
-from functools import lru_cache
 from motor.motor_asyncio import AsyncIOMotorClient
-
 import chromadb
 from langchain_openai import ChatOpenAI
 
+_mongo_client = None
+_mongo_db = None
 
-@lru_cache()
+
 def get_mongo_db():
-    """Return a cached Motor DB instance.
+    global _mongo_client, _mongo_db
+    if _mongo_client is None or _mongo_db is None:
+        _mongo_client = AsyncIOMotorClient(os.getenv("MONGO_URI"))
+        _mongo_db = _mongo_client[os.getenv("MONGO_DB")]  # pyright: ignore[reportArgumentType]
+    return _mongo_db
 
-    Caches the DB object so an AsyncIOMotorClient is created only once
-    (on first call). Use this with FastAPI's `Depends` to get the DB.
-    """
-    client = AsyncIOMotorClient(os.getenv("MONGO_URI"))
-    db = client[os.getenv("MONGO_DB")]  # pyright: ignore[reportArgumentType]
-    return db
+
+_llm_client = None
 
 
 def get_llm_client(model_name: str) -> ChatOpenAI:
-    llm = ChatOpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        model=model_name,
-    )
-    return llm
+    global _llm_client
+    if _llm_client is None:
+        _llm_client = ChatOpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            model=model_name,
+        )
+    return _llm_client
 
 
 _chroma_client = None
