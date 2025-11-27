@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 from enum import Enum
-
+from typing import Optional
 
 class OptionLabel(str, Enum):
     A = "A"
@@ -52,10 +52,31 @@ class ValidationResult(BaseModel):
     """Contains validation results for a single question."""
 
     score: float = Field(..., ge=0, le=1, description="Validation score from 0 to 1")
-    duplication_chance: float = Field(..., ge=0, le=1, description="Chance of duplication from 0 to 1")
+    duplication_chance: float = Field(
+        ..., ge=0, le=1, description="Chance of duplication from 0 to 1"
+    )
     issues: list[str] = Field(
         default_factory=list, description="List of identified issues"
     )
+
+
+class ValidationNodeReturn(BaseModel):
+    validation_result: ValidationResult = Field(
+        ..., description="Results from the validation process"
+    )
+    added_to_vectordb: bool = Field(
+        ..., description="Indicates if the question was added to the vector database"
+    )
+    validation_time: float = Field(
+        ..., description="Time taken for validation in seconds"
+    )
+    similar_section: str = Field(
+        ..., description="Details about similar questions found during validation"
+    )
+    uuid: Optional[str] = Field(
+        default=None, description="The UUID of the question if added to DB"
+    )
+
 
 
 class BaseResponse(BaseModel):
@@ -70,4 +91,3 @@ class ComprehensionResponse(BaseResponse):
     passage_title: str = Field(..., description="Title of the passage")
     passage_text: str = Field(..., description="Text of the passage")
     question_type: ComprehensionBasedType
-

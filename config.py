@@ -18,3 +18,6 @@ def load_environment_variables():
     if not os.getenv("CHROMA_DATABASE"):
         raise EnvironmentError("CHROMA_DATABASE is not set in the environment variables.")
 
+DUPLICATE_THRESHOLD = 0.4
+SCORE_THRESHOLD = 0.7
+

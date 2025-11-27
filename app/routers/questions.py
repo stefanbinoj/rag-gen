@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas.res import BaseResponse, ComprehensionResponse
+from app.schemas.res import BaseResponse, ComprehensionResponse, ValidationNodeReturn
 from app.schemas.req import QuestionReqPara, ComprehensionReqPara
 
 from app.services.generation_node import generate_questions
@@ -29,11 +29,13 @@ async def generate_questions_endpoint(req: QuestionReqPara):
         )
         print(f"  Found {len(similar_questions)} similar questions in database")
 
-        validation_result = await validate_questions(req, question, similar_questions)
-       # validated_results.append(
-        #     {"req": req, "question": question, "validation": validation_result}
-        # )
-        #
+        validation_result: ValidationNodeReturn = await validate_questions(
+            req, question, similar_questions
+        )
+    # validated_results.append(
+    #     {"req": req, "question": question, "validation": validation_result}
+    # )
+    #
     print(f"Validation completed for all {len(validated_results)} questions")
 
     # for idx, result in enumerate(validated_results):
@@ -54,5 +56,3 @@ async def read_question(id: int):
     q = {}  # fetch from DB or cache
     if not q:
         raise HTTPException(status_code=404, detail="not found")
-
-

@@ -1,7 +1,9 @@
 import json
+from typing import Optional
 import uuid
 from app.deps import get_chroma_client
 from app.schemas.res import QuestionItem
+from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD
 
 
 async def search_similar_questions(
@@ -50,10 +52,11 @@ async def add_question_to_chroma(
     score: float,
     validation_issues: list[str],
     duplication_chance: float,
-) -> bool:
+) -> tuple[bool, Optional[str]]:
     try:
-        # if duplication_chance > 0.8:
-        #     return False
+        if duplication_chance > DUPLICATE_THRESHOLD or score < SCORE_THRESHOLD :
+            print(f"Question not added to ChromaDB due to low score ({score}) or high duplication chance ({duplication_chance})")
+            return False, None
 
         client = get_chroma_client()
         collection = client.get_or_create_collection(
@@ -62,6 +65,7 @@ async def add_question_to_chroma(
         )
 
         # Add to collection
+        uuid_str = uuid.uuid4().hex
         collection.add(
             documents=[question.question],
             metadatas=[
@@ -74,13 +78,13 @@ async def add_question_to_chroma(
                     "options": json.dumps(question.options.model_dump()),
                 }
             ],
-            ids=[uuid.uuid4().hex],
+            ids=[uuid_str],
         )
 
         print(
             f"Question added to ChromaDB with score {score} and duplication chance {duplication_chance}"
         )
-        return True
+        return True, uuid_str
     except Exception as e:
         print(f"Error adding question to ChromaDB: {e}")
-        return False
+        return False, None
