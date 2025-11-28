@@ -47,6 +47,9 @@ class QuestionItem(BaseModel):
         ..., description="The label of the correct option"
     )
     explanation: str = Field(..., description="Explanation for the correct answer")
+    id: Optional[str] = Field(
+        default=None, description="The UUID of the question in the database"
+    )
 
 
 class ValidationResult(BaseModel):
@@ -80,15 +83,5 @@ class ValidationNodeReturn(BaseModel):
     retries: int = Field(default=1, description="Number of regeneration attempts made")
 
 
-class BaseResponse(BaseModel):
-    no_of_questions: int
-    questions: list[QuestionItem]
-    metadata: Metadata
 
 
-class ComprehensionResponse(BaseResponse):
-    """Response model for comprehension-based questions."""
-
-    passage_title: str = Field(..., description="Title of the passage")
-    passage_text: str = Field(..., description="Text of the passage")
-    question_type: ComprehensionBasedType

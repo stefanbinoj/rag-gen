@@ -30,9 +30,7 @@ async def validate_questions(
         similar_section = "\n\nSimilar questions found in database:"
         for i, sim_q in enumerate(similar_questions[:3], 1):
             similarity = sim_q.get("distance", "N/A")
-            similar_section += (
-                f"\n{i}. {sim_q['question']}\n   (Similarity: {similarity})"
-            )
+            similar_section += f"\n{i}. {sim_q['question']}\n   (Similarity: {similarity}) (Metadata: {sim_q.get('metadata')})"
         similar_section += "\n\nCompare the provided question with these similar ones. Are they essentially the same? Would they have the same answer?"
 
     user_message = f"""Validate this MCQ:
@@ -62,16 +60,14 @@ Also consider the following similar questions from the database to avoid duplica
     validation_result: ValidationResult = cast(ValidationResult, result)
 
     print(
-        f"validation result : {validation_result} took time {validation_time:.2f} seconds"
+        f"validation issues : {validation_result.issues} took time {validation_time:.2f} seconds"
     )
 
-    print("Tryin g to add question to chroma...")
     chroma_res, question_id = await add_question_to_chroma(
         question=question,
         subject=state.subject,
         topic=state.topic,
         score=validation_result.score,
-        validation_issues=validation_result.issues,
         duplication_chance=validation_result.duplication_chance,
     )
 
@@ -82,4 +78,3 @@ Also consider the following similar questions from the database to avoid duplica
         similar_section=similar_section,
         uuid=question_id,
     )
-

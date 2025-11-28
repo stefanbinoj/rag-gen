@@ -11,7 +11,7 @@ class QuestionsList(BaseModel):
     questions: List[QuestionItem]
 
 
-async def generate_questions(state: QuestionReqPara) -> List[QuestionItem]:
+async def generate_questions(state: QuestionReqPara) -> tuple[List[QuestionItem], float]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
@@ -38,17 +38,10 @@ Stream: {state.stream.value} | Country: {state.country.value} | Difficulty: {sta
 
     # Extract questions from the result
     if isinstance(result, QuestionsList):
-        print("Parsed questions using structured output.")
         questions = result.questions
-    elif isinstance(result, dict) and "questions" in result:
-        print("Parsed questions from dict format.")
-        raw_questions = result["questions"]
-        questions: List[QuestionItem] = [
-            QuestionItem(**q) if isinstance(q, dict) else q for q in raw_questions
-        ]
     else:
         # Fallback for unexpected formats
         print(f"Unexpected result type: {type(result)}")
         raise ValueError("Failed to parse generated questions.")
 
-    return questions
+    return questions , generation_time

@@ -1,4 +1,3 @@
-import json
 from typing import Optional
 import uuid
 from app.deps import get_chroma_client
@@ -7,10 +6,9 @@ from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD
 
 
 async def search_similar_questions(
-    question: QuestionItem, subject: str, topic: str, top_k: int = 3
+    question: QuestionItem, subject: str, top_k: int = 3
 ) -> list[dict]:
     """Search ChromaDB for similar questions"""
-    print(question.question)
     try:
         client = get_chroma_client()
         collection = client.get_or_create_collection(
@@ -22,7 +20,7 @@ async def search_similar_questions(
         results = collection.query(
             query_texts=[question.question],
             n_results=top_k,
-            include=["documents", "distances"],
+            include=["documents", "distances", "metadatas"],
         )
 
         similar_questions = []
@@ -33,6 +31,9 @@ async def search_similar_questions(
                         "question": doc,
                         "distance": results["distances"][0][i]
                         if results["distances"]
+                        else None,
+                        "metadata": results["metadatas"][0][i]
+                        if results["metadatas"]
                         else None,
                     }
                 )
@@ -48,12 +49,13 @@ async def add_question_to_chroma(
     subject: str,
     topic: str,
     score: float,
-    validation_issues: list[str],
     duplication_chance: float,
 ) -> tuple[bool, Optional[str]]:
     try:
-        if duplication_chance > DUPLICATE_THRESHOLD or score < SCORE_THRESHOLD :
-            print(f"Question not added to ChromaDB due to low score ({score}) or high duplication chance ({duplication_chance})")
+        if duplication_chance > DUPLICATE_THRESHOLD or score < SCORE_THRESHOLD:
+            print(
+                f"XXX Question not added to ChromaDB due to low score ({score}) or high duplication chance ({duplication_chance})"
+            )
             return False, None
 
         client = get_chroma_client()
@@ -68,19 +70,15 @@ async def add_question_to_chroma(
             documents=[question.question],
             metadatas=[
                 {
-                    "correct_option": question.correct_option.value,
-                    "explanation": question.explanation,
-                    "issues": json.dumps(validation_issues),
                     "subject": subject,
                     "topic": topic,
-                    "options": json.dumps(question.options.model_dump()),
                 }
             ],
             ids=[uuid_str],
         )
 
         print(
-            f"Question added to ChromaDB with score {score} and duplication chance {duplication_chance}"
+            f"||| Question added to ChromaDB with score {score} and duplication chance {duplication_chance}"
         )
         return True, uuid_str
     except Exception as e:
