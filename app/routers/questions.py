@@ -25,6 +25,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
     validated_results: list[ValidationNodeReturn] = []
     for idx, question in enumerate(generated_questions):
         print(f"\n\n    --->Validating question {idx + 1}")
+        print(f"Generated Question: {question.question}")
 
         similar_questions = await search_similar_questions(
             question=question, subject=req.subject, top_k=3
@@ -42,11 +43,11 @@ async def generate_questions_endpoint(req: QuestionReqPara):
             print(
                 f"\n\n    --->Regenerating question {idx + 1}"
             )
-            print(f"    --->Original Question: {generated_questions[idx].question}")
+            print(f"Original Question: {generated_questions[idx].question}")
             regenerated_question = await regenerate_question(
                 req, generated_questions[idx], result
             )
-            print(f"    --->Regenerated Question: {regenerated_question.question}")
+            print(f"Regenerated Question: {regenerated_question.question}")
 
             similar_questions = await search_similar_questions(
                 question=regenerated_question,
@@ -61,7 +62,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
             validated_results[idx].retries = 2
             generated_questions[idx] = regenerated_question
 
-    print(f"Validation completed for all {len(validated_results)} questions")
+    print(f"\n\n------Validation and generation completed for all {len(validated_results)} questions------\n\n")
 
     # Save to MongoDB
     question_logs = []
