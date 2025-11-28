@@ -13,8 +13,4 @@ async def validate_passage(req):
     print("Received request:", req)
     return {"valid": True}
 
-@router.get("/criteria/{subject}")
-async def get_criteria(subject: str):
-    print("Fetching criteria for subject:", subject)
-    return {"subject": subject, "criteria": ["Criterion 1", "Criterion 2"]}
 

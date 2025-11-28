@@ -1,0 +1,725 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Question Generator",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/questions/generate-questions": {
+      "post": {
+        "tags": [
+          "questions"
+        ],
+        "summary": "Generate Questions Endpoint",
+        "operationId": "generate_questions_endpoint_api_v1_questions_generate_questions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionReqPara"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Questions generated successfully"
+          },
+          "422": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/v1/questions/passive_paragraph": {
+      "post": {
+        "tags": [
+          "questions"
+        ],
+        "summary": "Passive",
+        "operationId": "passive_api_v1_questions_passive_paragraph_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComprehensionReqPara"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/questions/questions/{id}": {
+      "get": {
+        "tags": [
+          "questions"
+        ],
+        "summary": "Read Question",
+        "operationId": "read_question_api_v1_questions_questions__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mcq/generate-distractors": {
+      "post": {
+        "tags": [
+          "mcq"
+        ],
+        "summary": "Generate Distractors",
+        "operationId": "generate_distractors_api_v1_mcq_generate_distractors_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mcq/validate-options": {
+      "post": {
+        "tags": [
+          "mcq"
+        ],
+        "summary": "Validate Options",
+        "operationId": "validate_options_api_v1_mcq_validate_options_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/validators/validate-question": {
+      "post": {
+        "tags": [
+          "validators"
+        ],
+        "summary": "Validate Question",
+        "operationId": "validate_question_api_v1_validators_validate_question_post",
+        "parameters": [
+          {
+            "name": "req",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Req"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/validators/validate-passage": {
+      "post": {
+        "tags": [
+          "validators"
+        ],
+        "summary": "Validate Passage",
+        "operationId": "validate_passage_api_v1_validators_validate_passage_post",
+        "parameters": [
+          {
+            "name": "req",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Req"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/metrics": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Metrics",
+        "operationId": "admin_metrics_api_v1_admin_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/models": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Models",
+        "operationId": "list_models_api_v1_admin_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/models/switch": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Switch Model",
+        "operationId": "switch_model_api_v1_admin_models_switch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelReqPara"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/prompts": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Prompts",
+        "operationId": "list_prompts_api_v1_admin_prompts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/prompts/update": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update Prompt",
+        "operationId": "update_prompt_api_v1_admin_prompts_update_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromptReqPara"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/status": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Status",
+        "operationId": "status_api_v1_health_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ComprehensionReqPara": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/QuestionType"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "sub_topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sub Topic"
+          },
+          "difficulty": {
+            "$ref": "#/components/schemas/Difficulty"
+          },
+          "stream": {
+            "$ref": "#/components/schemas/Stream"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country",
+            "default": "UK"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "no_of_questions": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "No Of Questions"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language",
+            "default": "eng"
+          },
+          "more_information": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "More Information"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "subject",
+          "topic",
+          "difficulty",
+          "stream",
+          "no_of_questions"
+        ],
+        "title": "ComprehensionReqPara"
+      },
+      "Country": {
+        "type": "string",
+        "enum": [
+          "UK",
+          "INDIA",
+          "US"
+        ],
+        "title": "Country"
+      },
+      "Difficulty": {
+        "type": "string",
+        "enum": [
+          "easy",
+          "med",
+          "hard"
+        ],
+        "title": "Difficulty"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Language": {
+        "type": "string",
+        "enum": [
+          "eng"
+        ],
+        "title": "Language"
+      },
+      "ModelReqPara": {
+        "properties": {
+          "generation_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Model"
+          },
+          "validation_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Model"
+          }
+        },
+        "type": "object",
+        "title": "ModelReqPara"
+      },
+      "PromptReqPara": {
+        "properties": {
+          "generation_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Prompt"
+          },
+          "regeneration_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regeneration Prompt"
+          },
+          "validation_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Prompt"
+          }
+        },
+        "type": "object",
+        "title": "PromptReqPara"
+      },
+      "QuestionReqPara": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/QuestionType"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "sub_topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sub Topic"
+          },
+          "difficulty": {
+            "$ref": "#/components/schemas/Difficulty"
+          },
+          "stream": {
+            "$ref": "#/components/schemas/Stream"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country",
+            "default": "UK"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "no_of_questions": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "title": "No Of Questions"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language",
+            "default": "eng"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "subject",
+          "topic",
+          "difficulty",
+          "stream",
+          "no_of_questions"
+        ],
+        "title": "QuestionReqPara"
+      },
+      "QuestionType": {
+        "type": "string",
+        "enum": [
+          "mcq",
+          "fill_in_the_blank",
+          "short_answer",
+          "long_form",
+          "comprehension_based"
+        ],
+        "title": "QuestionType"
+      },
+      "Stream": {
+        "type": "string",
+        "enum": [
+          "11Plus",
+          "GCSE",
+          "CBSE",
+          "ICSE"
+        ],
+        "title": "Stream"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

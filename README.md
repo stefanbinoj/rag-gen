@@ -38,5 +38,10 @@
 
 ## API Documentation
 
+Import `api.json` into Postman
+
+--
+or
+
 Once the server is running, you can access the Swagger UI at:
 [http://localhost:8000/docs](http://localhost:8000/docs)

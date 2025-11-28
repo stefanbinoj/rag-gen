@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class QuestionType(str, Enum):
@@ -48,13 +48,20 @@ class QuestionReqPara(BaseModel):
     type: QuestionType
     subject: str
     topic: str
+    sub_topic: Optional[str] = None
     difficulty: Difficulty
     stream: Stream
     country: Country = Country.UK
     age: Optional[str] = None
     no_of_questions: int = Field(..., gt=0)
-    sub_topic: Optional[str] = None
     language: Language = Language.eng
+
+    @field_validator("subject", "topic", "sub_topic", mode="before")
+    @classmethod
+    def sanitize_strings(cls, v):
+        if isinstance(v, str):
+            return v.strip().lower().rstrip(".")
+        return v
 
 
 class ComprehensionReqPara(QuestionReqPara):
