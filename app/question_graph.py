@@ -38,7 +38,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
         request=state["request"],
         questions=question_logs,
         total_questions=state["request"].no_of_questions,
-        total_questions_generated=len(state["question_state"]),
+        total_questions_generated=len(question_logs),
         total_regeneration_attempts=state["total_regeneration_attempts"],
         total_retries=state["current_retry"],
         total_time=time() - state["start_time"],

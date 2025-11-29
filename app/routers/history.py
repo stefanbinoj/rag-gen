@@ -18,7 +18,14 @@ async def get_history(offset: int = 0, limit: int = 10):
         return JSONResponse(
             content={
                 "status": "ok",
-                "data": [log.model_dump() for log in logs],
+                "data": [
+                    {
+                        **log.model_dump(),
+                        "id": str(log.id) if hasattr(log, "id") else None,
+                        "created_at": log.created_at.isoformat() if hasattr(log, "created_at") and log.created_at else None
+                    }
+                    for log in logs
+                ],
                 "total": total_count,
                 "count": len(logs),
                 "limit": limit,

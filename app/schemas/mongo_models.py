@@ -47,13 +47,13 @@ class QuestionLog(BaseModel):
 
 
 class GenerationLog(Document):
-    request: QuestionReqPara
-    questions: List[QuestionLog]
     total_questions: int
     total_questions_generated: int
+    total_time: float
+    request: QuestionReqPara
+    questions: List[QuestionLog]
     total_regeneration_attempts: int
     total_retries: int
-    total_time: float
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
