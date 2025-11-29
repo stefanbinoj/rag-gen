@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas.res import  ValidationNodeReturn
+from app.schemas.res import ValidationNodeReturn
 from app.schemas.req import QuestionReqPara, ComprehensionReqPara
 from app.schemas.models import GenerationLog, QuestionLog
 
@@ -28,7 +28,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
         print(f"Generated Question: {question.question}")
 
         similar_questions = await search_similar_questions(
-            question=question, subject=req.subject, top_k=3
+            question=question, subject=req.subject, topic=req.topic, top_k=3
         )
 
         check_validation: ValidationNodeReturn = await validate_questions(
@@ -40,9 +40,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
     # REGENERATION NODE
     for idx, result in enumerate(validated_results):
         if not result.added_to_vectordb:
-            print(
-                f"\n\n    --->Regenerating question {idx + 1}"
-            )
+            print(f"\n\n    --->Regenerating question {idx + 1}")
             print(f"Original Question: {generated_questions[idx].question}")
             regenerated_question = await regenerate_question(
                 req, generated_questions[idx], result
@@ -52,6 +50,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
             similar_questions = await search_similar_questions(
                 question=regenerated_question,
                 subject=req.subject,
+                topic=req.topic,
                 top_k=3,
             )
 
@@ -62,7 +61,9 @@ async def generate_questions_endpoint(req: QuestionReqPara):
             validated_results[idx].retries = 2
             generated_questions[idx] = regenerated_question
 
-    print(f"\n\n------Validation and generation completed for all {len(validated_results)} questions------\n\n")
+    print(
+        f"\n\n------Validation and generation completed for all {len(validated_results)} questions------\n\n"
+    )
 
     # Save to MongoDB
     question_logs = []
@@ -77,9 +78,9 @@ async def generate_questions_endpoint(req: QuestionReqPara):
                 duplication_chance=v.validation_result.duplication_chance,
                 issues=v.validation_result.issues,
                 retries=v.retries,
-                chroma_id=v.uuid ,
+                chroma_id=v.uuid,
                 total_time=v.validation_time + generation_time,
-                similar_questions=v.similar_section
+                similar_questions=v.similar_section,
             )
         )
 
@@ -106,7 +107,7 @@ async def read_question(id: str):
     if not log:
         raise HTTPException(status_code=404, detail="Question not found")
 
-    res: QuestionLog  = [q for q in log.questions if q.chroma_id == id][0]
+    res: QuestionLog = [q for q in log.questions if q.chroma_id == id][0]
 
     return {
         "question": res.question,

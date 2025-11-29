@@ -30,7 +30,7 @@ async def validate_question(question_id: str):
     print(f"\n\n    --->Validating single question {question.question}")
 
     similar_questions = await search_similar_questions(
-        question=question, subject=req.subject, top_k=3
+        question=question, subject=req.subject, topic=req.topic, top_k=3
     )
 
     check_validation: ValidationNodeReturn = await validate_questions(

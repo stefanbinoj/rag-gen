@@ -6,13 +6,13 @@ from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD
 
 
 async def search_similar_questions(
-    question: QuestionItem, subject: str, top_k: int = 3
+    question: QuestionItem, subject: str,topic: str, top_k: int = 3
 ) -> list[dict]:
     """Search ChromaDB for similar questions"""
     try:
         client = get_chroma_client()
         collection = client.get_or_create_collection(
-            name=f"{subject.strip().lower()}",
+            name=f"{subject.strip().lower()}_{topic.strip().lower()}",
             metadata={"hnsw:space": "cosine"},
         )
 
@@ -60,7 +60,7 @@ async def add_question_to_chroma(
 
         client = get_chroma_client()
         collection = client.get_or_create_collection(
-            name=f"{subject.strip().lower()}",
+            name=f"{subject.strip().lower()}_{topic.strip().lower()}",
             metadata={"hnsw:space": "cosine"},
         )
 
