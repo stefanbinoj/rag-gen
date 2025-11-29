@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from beanie import init_beanie
-from app.routers import questions, validator, admin, health, mcq
+from app.routers import questions, validator, admin, health
 from app.schemas.models import Model, Prompt, QuestionLog, GenerationLog
 from config import load_environment_variables
 from app.deps import get_mongo_db
@@ -26,7 +26,6 @@ def create_app() -> FastAPI:
             print("Default prompts initialized.")
 
     app.include_router(questions.router, prefix="/api/v1/questions", tags=["questions"])
-    app.include_router(mcq.router, prefix="/api/v1/mcq", tags=["mcq"])
     app.include_router(
         validator.router, prefix="/api/v1/validators", tags=["validators"]
     )
