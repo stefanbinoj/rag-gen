@@ -40,7 +40,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
         print(f"score: {check_validation.validation_result.score}, duplication chance: {check_validation.validation_result.duplication_chance}")
         print(f"Took time: {check_validation.validation_time:.2f} seconds")
         print(
-            f"--->validation issues : {check_validation.validation_result.issues}\n"
+            f"--->validation issues : {check_validation.validation_result.issues}"
         )
         if not check_validation.added_to_vectordb:
             print(
@@ -74,10 +74,10 @@ async def generate_questions_endpoint(req: QuestionReqPara):
             check_regeneration_validation: ValidationNodeReturn = (
                 await validate_questions(req, regenerated_question, similar_questions)
             )
+            print(f"score: {check_regeneration_validation.validation_result.score}, duplication chance: {check_regeneration_validation.validation_result.duplication_chance} ")
             print(
                 f"--->validation-for-regeneration issues : {check_regeneration_validation.validation_result.issues}"
             )
-            print(f"score: {check_regeneration_validation.validation_result.score}, duplication chance: {check_regeneration_validation.validation_result.duplication_chance} ")
             print(f"Took time: {check_regeneration_validation.validation_time:.2f} seconds")
             if not check_regeneration_validation.added_to_vectordb:
                 print(
