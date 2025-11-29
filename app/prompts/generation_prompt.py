@@ -6,6 +6,13 @@ OVERVIEW
 - Generate {num_quizzes} independent MCQs on the given {subject} and {topic} with optional {sub_topic}.
 - Respect the provided {difficulty}, {stream} (e.g., CBSE, GCSE), {region}, and {age_group} (if provided).
 - Ensure difficulty matches given {difficulty} level.
+- If a comprehension passage is provided, generate ALL questions from that passage only. Do not use external knowledge or the general topic - base questions exclusively on the content of the provided comprehension text.
+
+COMPREHENSION-BASED GENERATION
+- When comprehension text is given, treat it as the sole source material
+- Questions must test understanding, inference, and analysis of the specific passage content
+- Reference specific details, examples, and concepts from the comprehension
+- Ensure questions can be answered using only the information in the passage
 
 DIFFICULTY GUIDELINES (STRICT)
 - Easy: Direct recall, simple definitions, single-step reasoning.

@@ -69,7 +69,7 @@ async def update_prompt(req: PromptReqPara):
         return JSONResponse(
             content={"success": False, "message": "NO Prompt with not found."},
             status_code=404,
-        ) 
+        )
 
     if req.generation_prompt:
         prompts.generation_prompt = req.generation_prompt
@@ -77,6 +77,8 @@ async def update_prompt(req: PromptReqPara):
         prompts.regeneration_prompt = req.regeneration_prompt
     if req.validation_prompt:
         prompts.validation_prompt = req.validation_prompt
+    if req.comprehensive_generation_prompt:
+        prompts.comprehensive_generation_prompt = req.comprehensive_generation_prompt
 
     prompts.updated_at = datetime.now()
     await prompts.save()

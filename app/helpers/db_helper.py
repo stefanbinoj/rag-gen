@@ -32,6 +32,8 @@ async def get_prompt(type: str):
         return prompts.regeneration_prompt
     elif type == "validation":
         return prompts.validation_prompt
+    elif type == "comprehension":
+        return prompts.comprehensive_generation_prompt
     else:
         raise ValueError(f"Unknown prompt type: {type}")
 

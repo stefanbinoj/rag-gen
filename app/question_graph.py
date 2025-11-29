@@ -1,11 +1,27 @@
 from time import time
+from typing import cast
 from langgraph.graph import StateGraph, END
+from app.nodes.comprehension_generator_node import comprehension_generator_node
+from app.schemas.input_schema import ComprehensionReqPara, GraphType
 from app.schemas.langgraph_schema import QuestionState
 from app.nodes.generation_node import generation_node
 from app.nodes.validation_node import validation_node
 from app.nodes.regeneration_node import regeneration_node
-from app.schemas.mongo_models import GenerationLog, QuestionLog
+from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
 from config import MAX_RETRIES
+
+async def should_generate_comprehension(state: QuestionState) -> str:
+    if state["type"] == GraphType.comprehension :
+        req = cast(ComprehensionReqPara, state["request"])
+        if req.generate_comprehension:
+            print("\nRouting to comprehension generation node...")
+            return "generate_comprehension"
+        else:
+            print("\nSkipping comprehension generation, using provided paragraph...")
+            return "generate"
+    else:
+        print("\nRouting to standard question generation node...")
+        return "generate"
 
 
 async def save_to_db_node(state: QuestionState) -> QuestionState:
@@ -34,20 +50,38 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
         )
 
     # Create and save the generation log
-    log = GenerationLog(
-        request=state["request"],
-        questions=question_logs,
-        total_questions=state["request"].no_of_questions,
-        total_questions_generated=len(question_logs),
-        total_regeneration_attempts=state["total_regeneration_attempts"],
-        total_retries=state["current_retry"],
-        total_time=time() - state["start_time"],
-    )
-    await log.insert()
-
-    # Update the generated questions with their ChromaDB IDs
-
-    print(f"✅ Saved {len(question_logs)} questions to MongoDB")
+    if state["type"] == GraphType.mcq:
+        log = GenerationLog(
+            type=state["request"].type,
+            request=state["request"],
+            questions=question_logs,
+            total_questions=state["request"].no_of_questions,
+            total_questions_generated=len(question_logs),
+            total_regeneration_attempts=state["total_regeneration_attempts"],
+            total_retries=state["current_retry"],
+            total_time=time() - state["start_time"],
+        )
+        await log.insert()
+        print(
+            f"✅ Saved {len(question_logs)} questions to GenerationLog with ID: {log.id}\n"
+        )
+    elif state["type"] == GraphType.comprehension:
+        request = cast(ComprehensionReqPara, state["request"])
+        log = ComprehensionLog(
+            paragraph=(state["comprehensive_paragraph"] or ""),
+            more_information=(request.more_information or ""),
+            total_questions=request.no_of_questions,
+            total_questions_generated=len(question_logs),
+            request=request,
+            questions=question_logs,
+            total_regeneration_attempts=state["total_regeneration_attempts"],
+            total_retries=state["current_retry"],
+            total_time=time() - state["start_time"],
+        )
+        await log.insert()
+        print(
+            f"✅ Saved {len(question_logs)} questions to ComprehensionLog with ID: {log.id}\n"
+        )
 
     return {
         **state,
@@ -56,27 +90,29 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
 
 def should_regenerate(state: QuestionState) -> str:
     has_failed = any(
-        not result.added_to_vectordb
-        for result in state["validation_state"]
+        not result.added_to_vectordb for result in state["validation_state"]
     )
-
 
     if has_failed and state["current_retry"] < MAX_RETRIES:
         failed_count = sum(
-            1 for r in state["validation_state"]
-            if not r.added_to_vectordb
+            1 for r in state["validation_state"] if not r.added_to_vectordb
         )
-        print(f"\n🔄 Routing to regeneration ({failed_count} questions need regeneration) with curent retry {state['current_retry']}/{MAX_RETRIES}")
+        print(
+            f"\n🔄 Routing to regeneration ({failed_count} questions need regeneration) with curent retry {state['current_retry']}/{MAX_RETRIES}"
+        )
         return "regenerate"
     else:
         if has_failed:
             failed_count = sum(
-                1 for r in state["validation_state"]
-                if not r.added_to_vectordb
+                1 for r in state["validation_state"] if not r.added_to_vectordb
             )
-            print(f"\n⚠️  Max retries reached, saving anyway ({failed_count} questions still rejected)")
+            print(
+                f"\n⚠️  Max retries reached, saving anyway ({failed_count} questions still rejected)"
+            )
         else:
-            print("\n||||Exiting regeneration loop, all questions validated successfully||||")
+            print(
+                "\n||||Exiting regeneration loop, all questions validated successfully||||"
+            )
         return "save"
 
 
@@ -84,36 +120,33 @@ def create_question_generation_graph():
     workflow = StateGraph(QuestionState)
 
     # Add all nodes to the graph
+    workflow.add_node("start", lambda state: state)  # Identity node to start the graph
+    workflow.add_node("generate_comprehension", comprehension_generator_node)
     workflow.add_node("generate", generation_node)
     workflow.add_node("validate", validation_node)
     workflow.add_node("regenerate", regeneration_node)
     workflow.add_node("save", save_to_db_node)
 
-
     # Start with generation
-    workflow.set_entry_point("generate")
+    workflow.set_entry_point("start")
+    workflow.add_conditional_edges(
+            "start", should_generate_comprehension , {"generate": "generate", "generate_comprehension": "generate_comprehension" }
+    )
+
+    # After comprehension generation, always generate questions
+    workflow.add_edge("generate_comprehension", "generate")
 
     # After generation, always validate
     workflow.add_edge("generate", "validate")
 
     # After validation, conditionally route to regeneration or save
     workflow.add_conditional_edges(
-        "validate",
-        should_regenerate,
-        {
-            "regenerate": "regenerate",
-            "save": "save"
-        }
+        "validate", should_regenerate, {"regenerate": "regenerate", "save": "save"}
     )
 
     # After regeneration, validate again (creating a feedback loop)
     workflow.add_conditional_edges(
-        "regenerate",
-        should_regenerate,
-        {
-            "regenerate": "regenerate",
-            "save": "save"
-        }
+        "regenerate", should_regenerate, {"regenerate": "regenerate", "save": "save"}
     )
     # After saving, end the workflow
     workflow.add_edge("save", END)

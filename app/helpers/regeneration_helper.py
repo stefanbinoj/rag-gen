@@ -1,13 +1,12 @@
 import time
-from typing import cast
 from app.deps import get_llm_client
-from app.schemas.input_schema import QuestionReqPara
+from app.schemas.input_schema import QuestionReqPara, ComprehensionReqPara
 from app.schemas.output_schema import QuestionItem, ValidationNodeReturn
 from app.helpers.db_helper import get_model_name, get_prompt
 
 
 async def regenerate_question(
-    req: QuestionReqPara,
+    req: QuestionReqPara | ComprehensionReqPara,
     question: QuestionItem,
     validation_result: ValidationNodeReturn,
     temperature: float = 0.3,
@@ -30,6 +29,9 @@ Difficulty: {req.difficulty.value}
 Stream: {req.stream.value}
 Country: {req.country}
 Age Group: {req.age if req.age else "N/A"}
+
+COMPREHENSION PASSAGE:
+{getattr(req, 'comprehensive_paragraph', '') if hasattr(req, 'comprehensive_paragraph') else 'N/A'}
 
 FAULTY QUESTION:
 Question: {question.question}

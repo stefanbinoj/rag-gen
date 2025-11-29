@@ -40,20 +40,22 @@ class QuestionReqPara(BaseModel):
     @classmethod
     def sanitize_strings(cls, v):
         if isinstance(v, str):
-            return v.strip().lower().rstrip(".")
+            return v.strip().lower().rstrip(".").replace(" ", "_")
         return v
 
 
 class ComprehensionReqPara(QuestionReqPara):
+    generate_comprehension: bool
     more_information: Optional[str] = None
+    comprehension_paragraph: Optional[str] = None
 
-    # @model_validator(mode="after")
-    # def validate_comprehension(self) -> "ComprehensionReqPara":
-    #     if self.type == QuestionType.comprehension_based and not self.more_information:
-    #         raise ValueError(
-    #             "more_information is required when type == 'comprehension_based'"
-    #         )
-    #     return self
+    @field_validator("generate_comprehension", mode="before")
+    @classmethod
+    def check_comprehension_requirements(cls, v, info):
+        if not v:
+            if not info.data.get("comprehension_paragraph"):
+                raise ValueError("comprehension_paragraph is required when generate_comprehension is False")
+        return v
 
 
 class ModelReqPara(BaseModel):
@@ -65,3 +67,8 @@ class PromptReqPara(BaseModel):
     generation_prompt: Optional[str] = None
     regeneration_prompt: Optional[str] = None
     validation_prompt: Optional[str] = None
+    comprehensive_generation_prompt: Optional[str] = None
+
+class GraphType(str, Enum):
+    mcq = "mcq"
+    comprehension = "comprehension"

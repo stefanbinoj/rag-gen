@@ -1,14 +1,14 @@
 import time
 from typing import cast, Optional, List
 from app.deps import get_llm_client
-from app.schemas.input_schema import QuestionReqPara
+from app.schemas.input_schema import ComprehensionReqPara, QuestionReqPara
 from app.schemas.output_schema import QuestionItem, ValidationResult, ValidationNodeReturn
 from app.helpers.db_helper import get_model_name, get_prompt
 from app.helpers.chroma_helper import add_question_to_chroma
 
 
 async def validate_questions(
-    state: QuestionReqPara,
+    state: QuestionReqPara | ComprehensionReqPara,
     question: QuestionItem,
     similar_questions: Optional[List[dict]] = None,
     add_to_db: bool = True,
@@ -39,6 +39,8 @@ async def validate_questions(
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
+
+{f"Comprehension Passage: {getattr(state, 'comprehensive_paragraph', '')}" if hasattr(state, 'comprehensive_paragraph') and getattr(state, 'comprehensive_paragraph', '') else ""}
 
 Question: {question.question}
 Options: A) {option_a} | B) {option_b} | C) {option_c} | D) {option_d}

@@ -12,7 +12,7 @@ async def search_similar_questions(
     try:
         client = get_chroma_client()
         collection = client.get_or_create_collection(
-            name=f"{subject.strip().lower()}_{topic.strip().lower()}",
+            name=f"{subject.strip().lower()}.{topic.strip().lower()}",
             metadata={"hnsw:space": "cosine"},
         )
 
@@ -57,7 +57,7 @@ async def add_question_to_chroma(
 
         client = get_chroma_client()
         collection = client.get_or_create_collection(
-            name=f"{subject.strip().lower()}_{topic.strip().lower()}",
+            name=f"{subject.strip().lower()}.{topic.strip().lower()}",
             metadata={"hnsw:space": "cosine"},
         )
 

@@ -3,7 +3,7 @@ from app.helpers.generation_helper import generate_questions
 
 
 async def generation_node(state: QuestionState) -> QuestionState:
-    print("1) Generating questions...")
+    print("\n1) Generating questions...")
 
     generated_questions, generation_time = await generate_questions(state["request"])
 
