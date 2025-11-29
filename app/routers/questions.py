@@ -22,7 +22,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
     # GENERATION NODE
     generated_questions, generation_time = await generate_questions(req)
     print(
-        f"Generated {len(generated_questions)} Generation time: {generation_time:.2f} seconds"
+        f"Generated {len(generated_questions)}questions, Generation time: {generation_time:.2f} seconds"
     )
     # VALIDATION NODE
     validated_results: list[ValidationNodeReturn] = []
