@@ -125,48 +125,6 @@
         }
       }
     },
-    "/api/v1/mcq/generate-distractors": {
-      "post": {
-        "tags": [
-          "mcq"
-        ],
-        "summary": "Generate Distractors",
-        "operationId": "generate_distractors_api_v1_mcq_generate_distractors_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mcq/validate-options": {
-      "post": {
-        "tags": [
-          "mcq"
-        ],
-        "summary": "Validate Options",
-        "operationId": "validate_options_api_v1_mcq_validate_options_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/validators/validate-question": {
       "post": {
         "tags": [
@@ -176,11 +134,12 @@
         "operationId": "validate_question_api_v1_validators_validate_question_post",
         "parameters": [
           {
-            "name": "req",
+            "name": "question_id",
             "in": "query",
             "required": true,
             "schema": {
-              "title": "Req"
+              "type": "string",
+              "title": "Question Id"
             }
           }
         ],
@@ -217,11 +176,12 @@
         "operationId": "validate_passage_api_v1_validators_validate_passage_post",
         "parameters": [
           {
-            "name": "req",
+            "name": "question_id",
             "in": "query",
             "required": true,
             "schema": {
-              "title": "Req"
+              "type": "string",
+              "title": "Question Id"
             }
           }
         ],
@@ -449,7 +409,8 @@
             "$ref": "#/components/schemas/Stream"
           },
           "country": {
-            "$ref": "#/components/schemas/Country",
+            "type": "string",
+            "title": "Country",
             "default": "UK"
           },
           "age": {
@@ -469,8 +430,9 @@
             "title": "No Of Questions"
           },
           "language": {
-            "$ref": "#/components/schemas/Language",
-            "default": "eng"
+            "type": "string",
+            "title": "Language",
+            "default": "English"
           },
           "more_information": {
             "anyOf": [
@@ -495,20 +457,11 @@
         ],
         "title": "ComprehensionReqPara"
       },
-      "Country": {
-        "type": "string",
-        "enum": [
-          "UK",
-          "INDIA",
-          "US"
-        ],
-        "title": "Country"
-      },
       "Difficulty": {
         "type": "string",
         "enum": [
           "easy",
-          "med",
+          "medium",
           "hard"
         ],
         "title": "Difficulty"
@@ -525,13 +478,6 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
-      },
-      "Language": {
-        "type": "string",
-        "enum": [
-          "eng"
-        ],
-        "title": "Language"
       },
       "ModelReqPara": {
         "properties": {
@@ -631,7 +577,8 @@
             "$ref": "#/components/schemas/Stream"
           },
           "country": {
-            "$ref": "#/components/schemas/Country",
+            "type": "string",
+            "title": "Country",
             "default": "UK"
           },
           "age": {
@@ -651,8 +598,9 @@
             "title": "No Of Questions"
           },
           "language": {
-            "$ref": "#/components/schemas/Language",
-            "default": "eng"
+            "type": "string",
+            "title": "Language",
+            "default": "English"
           }
         },
         "type": "object",
