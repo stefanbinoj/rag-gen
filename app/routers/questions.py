@@ -120,7 +120,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
     await log.insert()
 
     for i, question in enumerate(generated_questions):
-        generated_questions[i].id = question_logs[i]._id
+        generated_questions[i].id = validated_results[i].uuid
 
     return generated_questions
 
