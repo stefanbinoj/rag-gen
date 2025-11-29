@@ -1,8 +1,8 @@
 from datetime import datetime
 from fastapi import APIRouter
 from starlette.responses import JSONResponse
-from app.schemas.models import Model, Prompt
-from app.schemas.req import ModelReqPara, PromptReqPara
+from app.schemas.mongo_models import Model, Prompt
+from app.schemas.input_schema import ModelReqPara, PromptReqPara
 
 router = APIRouter()
 

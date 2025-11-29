@@ -2,9 +2,9 @@ import time
 from typing import List
 from pydantic import BaseModel
 from app.deps import get_llm_client
-from app.schemas.req import QuestionReqPara
-from app.schemas.res import QuestionItem
-from app.services.helper import get_model_name, get_prompt
+from app.schemas.input_schema import QuestionReqPara
+from app.schemas.output_schema import QuestionItem
+from app.services.db_helper import get_model_name, get_prompt
 
 
 class QuestionsList(BaseModel):

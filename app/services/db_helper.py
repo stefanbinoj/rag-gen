@@ -1,6 +1,6 @@
 
 import json
-from app.schemas.models import Model, Prompt
+from app.schemas.mongo_models import Model, Prompt
 
 
 

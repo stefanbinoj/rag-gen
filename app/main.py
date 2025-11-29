@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from beanie import init_beanie
 from app.routers import questions, validator, admin, health
-from app.schemas.models import Model, Prompt, GenerationLog
+from app.schemas.mongo_models import Model, Prompt, GenerationLog
 from config import load_environment_variables
 from app.deps import get_mongo_db
 

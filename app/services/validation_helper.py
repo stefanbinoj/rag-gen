@@ -1,10 +1,10 @@
 import time
 from typing import cast, Optional, List
 from app.deps import get_llm_client
-from app.schemas.req import QuestionReqPara
-from app.schemas.res import QuestionItem, ValidationResult, ValidationNodeReturn
-from app.services.helper import get_model_name, get_prompt
-from app.services.chroma_node import add_question_to_chroma
+from app.schemas.input_schema import QuestionReqPara
+from app.schemas.output_schema import QuestionItem, ValidationResult, ValidationNodeReturn
+from app.services.db_helper import get_model_name, get_prompt
+from app.services.chroma_helper import add_question_to_chroma
 
 
 async def validate_questions(

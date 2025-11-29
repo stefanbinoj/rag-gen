@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas.res import ValidationNodeReturn
-from app.schemas.req import QuestionReqPara, ComprehensionReqPara
-from app.schemas.models import GenerationLog, QuestionLog
+from app.schemas.output_schema import ValidationNodeReturn
+from app.schemas.input_schema import QuestionReqPara, ComprehensionReqPara
+from app.schemas.mongo_models import GenerationLog, QuestionLog
 
-from app.services.generation_node import generate_questions
-from app.services.regeneration_node import regenerate_question
-from app.services.validation_node import validate_questions
-from app.services.chroma_node import search_similar_questions
+from app.services.generation_helper import generate_questions
+from app.services.regeneration_helper import regenerate_question
+from app.services.validation_helper import validate_questions
+from app.services.chroma_helper import search_similar_questions
 
 router = APIRouter()
 

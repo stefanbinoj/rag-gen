@@ -1,7 +1,7 @@
 from typing import Optional
 import uuid
 from app.deps import get_chroma_client
-from app.schemas.res import QuestionItem
+from app.schemas.output_schema import QuestionItem
 from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD
 
 

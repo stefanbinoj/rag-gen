@@ -5,8 +5,8 @@ from app.prompts.generation_prompt import generation_system_prompt
 from app.prompts.validation_prompt import validation_system_prompt
 from app.prompts.regeneration_prompt import regeneration_system_prompt
 from typing import List, Optional
-from app.schemas.req import QuestionReqPara
-from app.schemas.res import Options
+from app.schemas.input_schema import QuestionReqPara
+from app.schemas.output_schema import Options
 from pydantic import BaseModel
 
 
