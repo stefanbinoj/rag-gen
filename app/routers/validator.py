@@ -3,8 +3,8 @@ from fastapi import APIRouter, HTTPException
 from app.schemas.mongo_models import GenerationLog, QuestionLog
 from app.schemas.input_schema import QuestionReqPara
 from app.schemas.output_schema import QuestionItem, ValidationNodeReturn, OptionLabel
-from app.services.chroma_helper import search_similar_questions
-from app.services.validation_helper import validate_questions
+from app.helpers.chroma_helper import search_similar_questions
+from app.helpers.validation_helper import validate_questions
 
 router = APIRouter()
 
