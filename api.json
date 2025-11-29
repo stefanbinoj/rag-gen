@@ -209,6 +209,59 @@
         }
       }
     },
+    "/api/v1/history/get": {
+      "get": {
+        "tags": [
+          "history"
+        ],
+        "summary": "Get History",
+        "operationId": "get_history_api_v1_history_get_get",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/metrics": {
       "get": {
         "tags": [
@@ -426,6 +479,7 @@
           },
           "no_of_questions": {
             "type": "integer",
+            "maximum": 25,
             "exclusiveMinimum": 0,
             "title": "No Of Questions"
           },
@@ -594,6 +648,7 @@
           },
           "no_of_questions": {
             "type": "integer",
+            "maximum": 25,
             "exclusiveMinimum": 0,
             "title": "No Of Questions"
           },
