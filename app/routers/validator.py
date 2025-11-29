@@ -22,7 +22,6 @@ async def validate_question(question_id: str):
         options=res.options,
         correct_option=OptionLabel(res.correct_option),
         explanation=res.explanation,
-        id=res.chroma_id,
     )
 
     req: QuestionReqPara = log.request
@@ -33,15 +32,15 @@ async def validate_question(question_id: str):
         question=question, subject=req.subject, topic=req.topic, top_k=3
     )
 
-    check_validation: ValidationNodeReturn = await validate_questions(
+    check_validation , validation_time = await validate_questions(
         req, question, similar_questions[1:], add_to_db=False
     )
     return {
         "validation_score": check_validation.validation_result.score,
         "duplication_chance": check_validation.validation_result.duplication_chance,
         "issues": check_validation.validation_result.issues,
-        "validation_time": check_validation.validation_time,
         "similar_questions": similar_questions,
+        "validation_time": validation_time,
     }
 
 

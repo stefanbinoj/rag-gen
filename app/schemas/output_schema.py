@@ -1,4 +1,3 @@
-from datetime import datetime
 from pydantic import BaseModel, Field
 from enum import Enum
 from typing import Optional
@@ -35,9 +34,6 @@ class QuestionItem(BaseModel):
         ..., description="The label of the correct option"
     )
     explanation: str = Field(..., description="Explanation for the correct answer")
-    id: Optional[str] = Field(
-        default=None, description="The UUID of the question in the database"
-    )
 
 
 class ValidationResult(BaseModel):
@@ -59,14 +55,10 @@ class ValidationNodeReturn(BaseModel):
     added_to_vectordb: bool = Field(
         ..., description="Indicates if the question was added to the vector database"
     )
-    validation_time: float = Field(
-        ..., description="Time taken for validation in seconds"
-    )
     similar_section: str = Field(
         ..., description="Details about similar questions found during validation"
     )
     uuid: Optional[str] = Field(
         default=None, description="The UUID of the question if added to DB"
     )
-    retries: int = Field(default=1, description="Number of regeneration attempts made")
 

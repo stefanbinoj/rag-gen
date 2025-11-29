@@ -12,7 +12,7 @@ async def validate_questions(
     question: QuestionItem,
     similar_questions: Optional[List[dict]] = None,
     add_to_db: bool = True,
-) -> ValidationNodeReturn:
+) -> tuple[ValidationNodeReturn, float]:
     start_time = time.time()
     model_name = await get_model_name("validation")
     llm = get_llm_client(model_name)
@@ -61,14 +61,14 @@ Also consider the following similar questions from the database to avoid duplica
     validation_result: ValidationResult = cast(ValidationResult, result)
 
 
-    if not add_to_db:
-        return ValidationNodeReturn(
+    return_value = ValidationNodeReturn(
             validation_result=validation_result,
             added_to_vectordb=False,
-            validation_time=validation_time,
             similar_section=similar_section,
             uuid=None,
         )
+    if not add_to_db:
+        return return_value, validation_time
 
     chroma_res, question_id = await add_question_to_chroma(
         question=question,
@@ -78,10 +78,6 @@ Also consider the following similar questions from the database to avoid duplica
         duplication_chance=validation_result.duplication_chance,
     )
 
-    return ValidationNodeReturn(
-        validation_result=validation_result,
-        added_to_vectordb=chroma_res,
-        validation_time=validation_time,
-        similar_section=similar_section,
-        uuid=question_id,
-    )
+    return_value.added_to_vectordb = chroma_res
+    return_value.uuid = question_id
+    return return_value, validation_time

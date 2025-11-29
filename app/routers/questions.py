@@ -1,12 +1,9 @@
+import time
 from fastapi import APIRouter, HTTPException
-from app.schemas.output_schema import ValidationNodeReturn
 from app.schemas.input_schema import QuestionReqPara, ComprehensionReqPara
 from app.schemas.mongo_models import GenerationLog, QuestionLog
-
-from app.helpers.generation_helper import generate_questions
-from app.helpers.regeneration_helper import regenerate_question
-from app.helpers.validation_helper import validate_questions
-from app.helpers.chroma_helper import search_similar_questions
+from app.question_graph import question_graph
+from app.schemas.langgraph_schema import QuestionState
 
 router = APIRouter()
 
@@ -19,110 +16,31 @@ router = APIRouter()
     },
 )
 async def generate_questions_endpoint(req: QuestionReqPara):
-    # GENERATION NODE
-    generated_questions, generation_time = await generate_questions(req)
-    print(
-        f"Generated {len(generated_questions)}questions, Generation time: {generation_time:.2f} seconds"
-    )
-    # VALIDATION NODE
-    validated_results: list[ValidationNodeReturn] = []
-    for idx, question in enumerate(generated_questions):
-        similar_questions = await search_similar_questions(
-            question=question, subject=req.subject, topic=req.topic, top_k=3
-        )
+    start_time = time.time()
+    print("\n" + "="*80)
+    print("Starting LangGraph Question Generation Pipeline")
+    print("="*80 + "\n")
 
-        check_validation: ValidationNodeReturn = await validate_questions(
-            req, question, similar_questions
-        )
+    # Initialize state for the LangGraph workflow
+    initial_state: QuestionState = {
+        "start_time": start_time,
+        "request": req,
+        "question_state": [],
+        "validation_state": [],
+        "current_retry": 0,
+        "total_regeneration_attempts": 0,
+    }
 
-        print(f"\n\n    --->Validating question {idx + 1}")
-        print(f"Generated Question: {question.question}")
-        print(f"score: {check_validation.validation_result.score}, duplication chance: {check_validation.validation_result.duplication_chance}")
-        print(f"Took time: {check_validation.validation_time:.2f} seconds")
-        print(
-            f"--->validation issues : {check_validation.validation_result.issues}"
-        )
-        if not check_validation.added_to_vectordb:
-            print(
-                f"XXX Question not added to ChromaDB due to low score ({check_validation.validation_result.score}) or high duplication chance ({check_validation.validation_result.duplication_chance})"
-            )
-        else :
-            print(
-                f"||| Question added to ChromaDB with score {check_validation.validation_result.score} and duplication chance {check_validation.validation_result.duplication_chance}"
-            )
-        validated_results.append(check_validation)
-        validated_results[idx].retries = 1
+    final_state = await question_graph.ainvoke(initial_state)
 
-    # REGENERATION NODE
-    for idx, result in enumerate(validated_results):
-        if not result.added_to_vectordb:
-            regenerated_question , regeneration_time = await regenerate_question(
-                req, generated_questions[idx], result
-            )
-            print(f"\n\n    --->Regenerating question {idx + 1}")
-            print(f"Original Question: {generated_questions[idx].question}")
-            print(f"Regenerated Question: {regenerated_question.question}")
-            print(f"Regeneration took time: {regeneration_time:.2f} seconds")
+    print("\n" + "="*80)
+    print("Pipeline Complete!")
+    print(f"   Total Questions: {len(final_state['question_state'])}")
+    print(f"   Successfully Added: {sum(1 for r in final_state['validation_state'] if r.added_to_vectordb)}")
+    print(f"   Total Time Taken: {time.time() - final_state['start_time']:.2f} seconds")
+    print("="*80 + "\n")
 
-            similar_questions = await search_similar_questions(
-                question=regenerated_question,
-                subject=req.subject,
-                topic=req.topic,
-                top_k=3,
-            )
-
-            check_regeneration_validation: ValidationNodeReturn = (
-                await validate_questions(req, regenerated_question, similar_questions)
-            )
-            print(f"score: {check_regeneration_validation.validation_result.score}, duplication chance: {check_regeneration_validation.validation_result.duplication_chance} ")
-            print(
-                f"--->validation-for-regeneration issues : {check_regeneration_validation.validation_result.issues}"
-            )
-            print(f"Took time: {check_regeneration_validation.validation_time:.2f} seconds")
-            if not check_regeneration_validation.added_to_vectordb:
-                print(
-                    f"XXX Regenerated question not added to ChromaDB due to low score ({check_regeneration_validation.validation_result.score}) or high duplication chance ({check_regeneration_validation.validation_result.duplication_chance})"
-                )
-            else :
-                print(
-                    f"||| Regenerated question added to ChromaDB with score {check_regeneration_validation.validation_result.score} and duplication chance {check_regeneration_validation.validation_result.duplication_chance}"
-                )
-            validated_results[idx] = check_regeneration_validation
-            validated_results[idx].retries = 2
-            generated_questions[idx] = regenerated_question
-
-    print(
-        f"\n\n------Validation and generation completed for all {len(validated_results)} questions------\n\n"
-    )
-
-    # Save to MongoDB
-    question_logs = []
-    for q, v in zip(generated_questions, validated_results):
-        question_logs.append(
-            QuestionLog(
-                question=q.question,
-                options=q.options,
-                correct_option=q.correct_option.value,
-                explanation=q.explanation,
-                validation_score=v.validation_result.score,
-                duplication_chance=v.validation_result.duplication_chance,
-                issues=v.validation_result.issues,
-                retries=v.retries,
-                chroma_id=v.uuid,
-                total_time=v.validation_time + generation_time,
-                similar_questions=v.similar_section,
-            )
-        )
-
-    log = GenerationLog(
-        request=req, questions=question_logs, total_questions=len(question_logs)
-    )
-    await log.insert()
-
-    for i, question in enumerate(generated_questions):
-        generated_questions[i].id = validated_results[i].uuid
-
-    return generated_questions
+    return final_state["question_state"]
 
 
 @router.post("/passive_paragraph")

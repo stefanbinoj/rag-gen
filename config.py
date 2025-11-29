@@ -20,4 +20,5 @@ def load_environment_variables():
 
 DUPLICATE_THRESHOLD = 0.4
 SCORE_THRESHOLD = 0.7
+MAX_RETRIES = 3
 

@@ -31,17 +31,16 @@ class Prompt(Document):
 
 
 class QuestionLog(BaseModel):
-    _id: Optional[str] = None
+    chroma_id: str
     question: str
     options: Options
     correct_option: str
     explanation: str
     validation_score: float
     duplication_chance: float
+    total_time: float
+    total_attempts: int
     issues: List[str]
-    retries: int
-    chroma_id: Optional[str] = None
-    total_time: Optional[float] = None
     similar_questions: Optional[str] = None
 
 
@@ -50,8 +49,12 @@ class QuestionLog(BaseModel):
 class GenerationLog(Document):
     request: QuestionReqPara
     questions: List[QuestionLog]
-    created_at: datetime = Field(default_factory=datetime.now)
     total_questions: int
+    total_questions_generated: int
+    total_regeneration_attempts: int
+    total_retries: int
+    total_time: float
+    created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
         name = "generation_logs"

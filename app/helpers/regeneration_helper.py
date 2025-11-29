@@ -53,11 +53,9 @@ Please regenerate this single question to address the issues above.
 
     generation_time = time.time() - start_time
 
-    # Extract questions from the result
     if isinstance(result, QuestionItem):
         questions = result
     else:
-        # Fallback for unexpected formats
         print(f"Unexpected result type: {type(result)}")
         raise ValueError("Failed to parse generated questions.")
 
