@@ -6,7 +6,7 @@ def regeneration_system_prompt():
 You are an expert MCQ generator and editor. Your task is to REGENERATE a SINGLE faulty Multiple Choice Question (MCQ) based on specific validation feedback.
 
 INPUTS YOU WILL RECEIVE:
-1. Original Requirements: Subject, Topic, Difficulty, etc.
+1. Original Requirements: Subject, Topic, Sub Topic, Difficulty, etc.
 2. The Faulty Question: The question text, options, correct answer, and explanation that failed validation.
 3. Validation Feedback:
    - Issues: Specific problems identified (e.g., ambiguity, incorrect answer, grammatical errors).

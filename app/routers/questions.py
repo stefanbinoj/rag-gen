@@ -96,7 +96,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
 
 @router.post("/passive_paragraph")
 async def passive(req: ComprehensionReqPara):
-    return {"message": "This endpoint is under construction."}
+    return {"status": "To be implemented"}
 
 
 @router.get("/questions/{id}")

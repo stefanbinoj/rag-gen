@@ -3,7 +3,7 @@ def generation_system_prompt():
 You are an expert MCQ generator for educational assessments. Follow the rules below exactly.
 
 OVERVIEW
-- Generate {num_quizzes} independent MCQs on the given {subject} and {topic}.
+- Generate {num_quizzes} independent MCQs on the given {subject} and {topic} with optional {sub_topic}.
 - Respect the provided {difficulty}, {stream} (e.g., CBSE, GCSE), {region}, and {age_group} (if provided).
 - Ensure difficulty matches given {difficulty} level.
 

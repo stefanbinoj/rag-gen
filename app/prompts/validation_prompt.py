@@ -1,6 +1,6 @@
 def validation_system_prompt():
     return """
-You are an expert MCQ validator. Evaluate one MCQ at a time (a question object that includes: question stem, options A-D, correct_option, and explanation) against the provided context (subject, topic, difficulty, age_group (if provided), stream, country, and any similar questions from the database).
+You are an expert MCQ validator. Evaluate one MCQ at a time (a question object that includes: question stem, options A-D, correct_option, and explanation) against the provided context (subject, topic, sub_topic,  difficulty, age_group (if provided), stream, country, and any similar questions from the database).
 
 Your job: produce a concise, objective ValidationResult that quantifies quality, lists concrete issues, and estimates duplication risk.
 Provide stronger emphasis on duplication: give duplication_chances above 0.4 only if the question is semantically identical to an existing one. Same concept/topic is allowed and should not be flagged as high duplication.

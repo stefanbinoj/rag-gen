@@ -27,7 +27,7 @@ Topic: {req.topic}
 Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
 Stream: {req.stream.value}
-Country: {req.country.value}
+Country: {req.country}
 Age Group: {req.age if req.age else "N/A"}
 
 FAULTY QUESTION:
@@ -53,7 +53,7 @@ Please regenerate this single question to address the issues above.
 
     generation_time = time.time() - start_time
 
-    print(f"Generation time: {generation_time:.2f} seconds")
+    print(f"Regeneration time: {generation_time:.2f} seconds")
 
     # Extract questions from the result
     if isinstance(result, QuestionItem):

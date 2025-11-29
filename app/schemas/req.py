@@ -13,36 +13,16 @@ class QuestionType(str, Enum):
     long_form = "long_form"
     comprehension_based = "comprehension_based"
 
-
 class Difficulty(str, Enum):
     easy = "easy"
-    med = "med"
+    medium = "medium"
     hard = "hard"
-
 
 class Stream(str, Enum):
     _11Plus = "11Plus"
     GCSE = "GCSE"
     CBSE = "CBSE"
     ICSE = "ICSE"
-
-
-class Country(str, Enum):
-    UK = "UK"
-    INDIA = "INDIA"
-    US = "US"
-
-
-class Language(str, Enum):
-    eng = "eng"
-
-
-class OptionLabel(str, Enum):
-    A = "A"
-    B = "B"
-    C = "C"
-    D = "D"
-
 
 class QuestionReqPara(BaseModel):
     type: QuestionType
@@ -51,10 +31,10 @@ class QuestionReqPara(BaseModel):
     sub_topic: Optional[str] = None
     difficulty: Difficulty
     stream: Stream
-    country: Country = Country.UK
+    country: str = "UK"
     age: Optional[str] = None
     no_of_questions: int = Field(..., gt=0)
-    language: Language = Language.eng
+    language: str = "English"
 
     @field_validator("subject", "topic", "sub_topic", mode="before")
     @classmethod

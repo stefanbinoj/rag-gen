@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-# from app.schemas.mcq import DistractorRequest, ValidateOptionsRequest
 
 router = APIRouter()
 
@@ -8,5 +7,5 @@ async def generate_distractors():
     return {"distractors": ["A","B","C"]}
 
 @router.post("/validate-options")
-async def validate_options():
+async def validate_options(question_id: str):
     return {"valid": True}

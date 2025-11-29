@@ -39,6 +39,7 @@
 ## API Documentation
 
 Import `api.json` into Postman
+set the base URL to `http://localhost:8000`
 
 --
 or

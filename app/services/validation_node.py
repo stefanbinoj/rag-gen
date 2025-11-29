@@ -11,6 +11,7 @@ async def validate_questions(
     state: QuestionReqPara,
     question: QuestionItem,
     similar_questions: Optional[List[dict]] = None,
+    add_to_db: bool = True,
 ) -> ValidationNodeReturn:
     start_time = time.time()
     model_name = await get_model_name("validation")
@@ -36,7 +37,7 @@ async def validate_questions(
     user_message = f"""Validate this MCQ:
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country.value} | Difficulty: {state.difficulty.value}
+Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 Question: {question.question}
@@ -62,6 +63,15 @@ Also consider the following similar questions from the database to avoid duplica
     print(
         f"validation issues : {validation_result.issues} took time {validation_time:.2f} seconds"
     )
+
+    if not add_to_db:
+        return ValidationNodeReturn(
+            validation_result=validation_result,
+            added_to_vectordb=False,
+            validation_time=validation_time,
+            similar_section=similar_section,
+            uuid=None,
+        )
 
     chroma_res, question_id = await add_question_to_chroma(
         question=question,

@@ -11,9 +11,9 @@ from pydantic import BaseModel
 
 
 class Model(Document):
-    generation_model: str = "openai/gpt-5-mini"
-    validation_model: str = "google/gemini-2.5-flash"
-    regeneration_model: str = "openai/gpt-5-mini"
+    generation_model: str = "openai/gpt-5.1-chat"
+    validation_model: str = "openai/gpt-oss-120b"
+    regeneration_model: str = "openai/gpt-5.1-chat"
     updated_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:

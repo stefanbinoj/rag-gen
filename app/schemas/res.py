@@ -3,13 +3,11 @@ from pydantic import BaseModel, Field
 from enum import Enum
 from typing import Optional
 
-
 class OptionLabel(str, Enum):
     A = "A"
     B = "B"
     C = "C"
     D = "D"
-
 
 class ComprehensionBasedType(str, Enum):
     direct_retrieval = "direct_retrieval"
@@ -19,16 +17,6 @@ class ComprehensionBasedType(str, Enum):
     author_intent = "author_intent"
     character_analysis = "character_analysis"
     evidence_based_reasoning = "evidence_based_reasoning"
-
-
-class Metadata(BaseModel):
-    id: str = Field(..., alias="_id", description="MongoDB ObjectId as string")
-    created_at: datetime
-    question_score: int = Field(..., description="Equals number of questions generated")
-    generation_attempts: int
-    generation_time: float = Field(..., description="Seconds taken to generate")
-    tokens_used: int
-    cost: float
 
 
 class Options(BaseModel):
@@ -81,7 +69,4 @@ class ValidationNodeReturn(BaseModel):
         default=None, description="The UUID of the question if added to DB"
     )
     retries: int = Field(default=1, description="Number of regeneration attempts made")
-
-
-
 
