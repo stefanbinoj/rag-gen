@@ -43,7 +43,4 @@ Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.dif
         raise ValueError("Failed to parse generated questions.")
 
     generation_time = time.time() - start_time
-    print(
-        f"Generated {len(result.questions)} Generation time: {generation_time:.2f} seconds"
-    )
     return questions, generation_time

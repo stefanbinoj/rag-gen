@@ -10,7 +10,7 @@ async def regenerate_question(
     req: QuestionReqPara,
     question: QuestionItem,
     validation_result: ValidationNodeReturn,
-) -> QuestionItem:
+) -> tuple[QuestionItem, float]:
     start_time = time.time()
     model_name = await get_model_name("regeneration")
     llm = get_llm_client(model_name, temperatur=0.3)
@@ -53,8 +53,6 @@ Please regenerate this single question to address the issues above.
 
     generation_time = time.time() - start_time
 
-    print(f"Regeneration time: {generation_time:.2f} seconds")
-
     # Extract questions from the result
     if isinstance(result, QuestionItem):
         questions = result
@@ -63,5 +61,5 @@ Please regenerate this single question to address the issues above.
         print(f"Unexpected result type: {type(result)}")
         raise ValueError("Failed to parse generated questions.")
 
-    return questions
+    return questions, generation_time
 

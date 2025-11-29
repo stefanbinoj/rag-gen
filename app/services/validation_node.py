@@ -60,9 +60,6 @@ Also consider the following similar questions from the database to avoid duplica
     # Cast result to ValidationResult object
     validation_result: ValidationResult = cast(ValidationResult, result)
 
-    print(
-        f"validation issues : {validation_result.issues} took time {validation_time:.2f} seconds"
-    )
 
     if not add_to_db:
         return ValidationNodeReturn(

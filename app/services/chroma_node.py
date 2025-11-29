@@ -53,9 +53,6 @@ async def add_question_to_chroma(
 ) -> tuple[bool, Optional[str]]:
     try:
         if duplication_chance > DUPLICATE_THRESHOLD or score < SCORE_THRESHOLD:
-            print(
-                f"XXX Question not added to ChromaDB due to low score ({score}) or high duplication chance ({duplication_chance})"
-            )
             return False, None
 
         client = get_chroma_client()
@@ -77,9 +74,6 @@ async def add_question_to_chroma(
             ids=[uuid_str],
         )
 
-        print(
-            f"||| Question added to ChromaDB with score {score} and duplication chance {duplication_chance}"
-        )
         return True, uuid_str
     except Exception as e:
         print(f"Error adding question to ChromaDB: {e}")

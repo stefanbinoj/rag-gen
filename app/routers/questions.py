@@ -19,14 +19,14 @@ router = APIRouter()
     },
 )
 async def generate_questions_endpoint(req: QuestionReqPara):
+    # GENERATION NODE
     generated_questions, generation_time = await generate_questions(req)
-
+    print(
+        f"Generated {len(generated_questions)} Generation time: {generation_time:.2f} seconds"
+    )
     # VALIDATION NODE
     validated_results: list[ValidationNodeReturn] = []
     for idx, question in enumerate(generated_questions):
-        print(f"\n\n    --->Validating question {idx + 1}")
-        print(f"Generated Question: {question.question}")
-
         similar_questions = await search_similar_questions(
             question=question, subject=req.subject, topic=req.topic, top_k=3
         )
@@ -34,18 +34,35 @@ async def generate_questions_endpoint(req: QuestionReqPara):
         check_validation: ValidationNodeReturn = await validate_questions(
             req, question, similar_questions
         )
+
+        print(f"\n\n    --->Validating question {idx + 1}")
+        print(f"Generated Question: {question.question}")
+        print(f"score: {check_validation.validation_result.score}, duplication chance: {check_validation.validation_result.duplication_chance}")
+        print(f"Took time: {check_validation.validation_time:.2f} seconds")
+        print(
+            f"--->validation issues : {check_validation.validation_result.issues}\n"
+        )
+        if not check_validation.added_to_vectordb:
+            print(
+                f"XXX Question not added to ChromaDB due to low score ({check_validation.validation_result.score}) or high duplication chance ({check_validation.validation_result.duplication_chance})"
+            )
+        else :
+            print(
+                f"||| Question added to ChromaDB with score {check_validation.validation_result.score} and duplication chance {check_validation.validation_result.duplication_chance}"
+            )
         validated_results.append(check_validation)
         validated_results[idx].retries = 1
 
     # REGENERATION NODE
     for idx, result in enumerate(validated_results):
         if not result.added_to_vectordb:
-            print(f"\n\n    --->Regenerating question {idx + 1}")
-            print(f"Original Question: {generated_questions[idx].question}")
-            regenerated_question = await regenerate_question(
+            regenerated_question , regeneration_time = await regenerate_question(
                 req, generated_questions[idx], result
             )
+            print(f"\n\n    --->Regenerating question {idx + 1}")
+            print(f"Original Question: {generated_questions[idx].question}")
             print(f"Regenerated Question: {regenerated_question.question}")
+            print(f"Regeneration took time: {regeneration_time:.2f} seconds")
 
             similar_questions = await search_similar_questions(
                 question=regenerated_question,
@@ -57,6 +74,19 @@ async def generate_questions_endpoint(req: QuestionReqPara):
             check_regeneration_validation: ValidationNodeReturn = (
                 await validate_questions(req, regenerated_question, similar_questions)
             )
+            print(
+                f"--->validation-for-regeneration issues : {check_regeneration_validation.validation_result.issues}"
+            )
+            print(f"score: {check_regeneration_validation.validation_result.score}, duplication chance: {check_regeneration_validation.validation_result.duplication_chance} ")
+            print(f"Took time: {check_regeneration_validation.validation_time:.2f} seconds")
+            if not check_regeneration_validation.added_to_vectordb:
+                print(
+                    f"XXX Regenerated question not added to ChromaDB due to low score ({check_regeneration_validation.validation_result.score}) or high duplication chance ({check_regeneration_validation.validation_result.duplication_chance})"
+                )
+            else :
+                print(
+                    f"||| Regenerated question added to ChromaDB with score {check_regeneration_validation.validation_result.score} and duplication chance {check_regeneration_validation.validation_result.duplication_chance}"
+                )
             validated_results[idx] = check_regeneration_validation
             validated_results[idx].retries = 2
             generated_questions[idx] = regenerated_question
