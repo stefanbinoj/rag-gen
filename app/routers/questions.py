@@ -35,7 +35,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
 
     print("\n" + "="*80)
     print("Pipeline Complete!")
-    print(f"   Total Questions: {len(final_state['question_state'])}")
+    print(f"   Total Questions: {final_state['request'].no_of_questions}")
     print(f"   Successfully Added: {sum(1 for r in final_state['validation_state'] if r.added_to_vectordb)}")
     print(f"   Total Time Taken: {time.time() - final_state['start_time']:.2f} seconds")
     print("="*80 + "\n")
@@ -58,9 +58,14 @@ async def read_question(id: str):
     res: QuestionLog = [q for q in log.questions if q.chroma_id == id][0]
 
     return {
+        "_id": res.chroma_id,
         "question": res.question,
         "options": res.options,
         "correct_option": res.correct_option,
         "explanation": res.explanation,
-        "_id": res.chroma_id,
+        "validation_score": res.validation_score,
+        "duplication_chance": res.duplication_chance,
+        "total_time": res.total_time,
+        "total_attempts": res.total_attempts,
+        "issues": res.issues,
     }

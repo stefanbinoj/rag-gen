@@ -9,7 +9,7 @@ from config import MAX_RETRIES
 
 
 async def save_to_db_node(state: QuestionState) -> QuestionState:
-    print("4) Saving to database...")
+    print("\n4) Saving to database...")
 
     question_logs = []
 
@@ -66,7 +66,7 @@ def should_regenerate(state: QuestionState) -> str:
             1 for r in state["validation_state"]
             if not r.added_to_vectordb
         )
-        print(f"\n🔄 Routing to regeneration ({failed_count} questions need regeneration)")
+        print(f"\n🔄 Routing to regeneration ({failed_count} questions need regeneration) with curent retry {state['current_retry']}/{MAX_RETRIES}")
         return "regenerate"
     else:
         if has_failed:
@@ -76,7 +76,7 @@ def should_regenerate(state: QuestionState) -> str:
             )
             print(f"\n⚠️  Max retries reached, saving anyway ({failed_count} questions still rejected)")
         else:
-            print("\n✅ All questions validated, proceeding to save")
+            print("\n||||Exiting regeneration loop, all questions validated successfully||||")
         return "save"
 
 
@@ -107,8 +107,14 @@ def create_question_generation_graph():
     )
 
     # After regeneration, validate again (creating a feedback loop)
-    workflow.add_edge("regenerate", "validate")
-
+    workflow.add_conditional_edges(
+        "regenerate",
+        should_regenerate,
+        {
+            "regenerate": "regenerate",
+            "save": "save"
+        }
+    )
     # After saving, end the workflow
     workflow.add_edge("save", END)
 

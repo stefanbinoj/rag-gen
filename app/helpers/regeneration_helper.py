@@ -10,10 +10,11 @@ async def regenerate_question(
     req: QuestionReqPara,
     question: QuestionItem,
     validation_result: ValidationNodeReturn,
+    temperature: float = 0.3,
 ) -> tuple[QuestionItem, float]:
     start_time = time.time()
     model_name = await get_model_name("regeneration")
-    llm = get_llm_client(model_name, temperatur=0.3)
+    llm = get_llm_client(model_name, temperatur=temperature)
     system_prompt = await get_prompt("regeneration")
 
     model_with_structure = llm.with_structured_output(QuestionItem)

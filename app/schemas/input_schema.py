@@ -33,7 +33,7 @@ class QuestionReqPara(BaseModel):
     stream: Stream
     country: str = "UK"
     age: Optional[str] = None
-    no_of_questions: int = Field(..., gt=0)
+    no_of_questions: int = Field(..., gt=0, le=25)
     language: str = "English"
 
     @field_validator("subject", "topic", "sub_topic", mode="before")

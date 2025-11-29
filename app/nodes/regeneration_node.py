@@ -5,7 +5,7 @@ from app.helpers.chroma_helper import search_similar_questions
 
 
 async def regeneration_node(state: QuestionState) -> QuestionState:
-    print("3) Regenerating failed questions...")
+    print("\n3) Regenerating failed questions...")
 
     req = state["request"]
     generated_questions = state["question_state"].copy()
@@ -16,11 +16,14 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
 
     for idx, result in enumerate(validated_results):
         if not result.added_to_vectordb:
-            print(f"\n  → Regenerating question {idx + 1}")
+            print(f"  → Regenerating question {idx + 1}")
             print(f"    Original: {generated_questions[idx].question[:60]}...")
 
             regenerated_q, regen_time = await regenerate_question(
-                req, generated_questions[idx], result
+                req,
+                generated_questions[idx],
+                result,
+                temperature=state["current_retry"] * 0.3,
             )
 
             generated_questions[idx].question = regenerated_q.question
@@ -60,8 +63,8 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
             # Update the question and validation result
             validated_results[idx] = new_validation
             regenerated_count += 1
-            total_regeneration_attempts += 1
 
+    total_regeneration_attempts += regenerated_count
     if regenerated_count > 0:
         print(f"\n  🔄 Regenerated {regenerated_count} question(s)")
         added_count = sum(1 for r in validated_results if r.added_to_vectordb)
@@ -76,4 +79,5 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
         "question_state": generated_questions,
         "validation_state": validated_results,
         "total_regeneration_attempts": total_regeneration_attempts,
+        "current_retry": state["current_retry"] + 1,
     }

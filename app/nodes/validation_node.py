@@ -4,7 +4,7 @@ from app.helpers.chroma_helper import search_similar_questions
 
 
 async def validation_node(state: QuestionState) -> QuestionState:
-    print("2) Validating generated_questions...")
+    print("\n2) Validating generated_questions...")
 
     validated_results = []
     req = state["request"]
@@ -43,7 +43,8 @@ async def validation_node(state: QuestionState) -> QuestionState:
     rejected_count = len(validated_results) - added_count
     print(f"\n  ✅ Added: {added_count} | ❌ Rejected: {rejected_count}")
 
-
-    return {**state, "validation_state": validated_results,
-            "question_state": generated_questions,
-            }
+    return {
+        **state,
+        "validation_state": validated_results,
+        "question_state": generated_questions,
+    }

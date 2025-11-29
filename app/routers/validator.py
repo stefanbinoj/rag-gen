@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.schemas.mongo_models import GenerationLog, QuestionLog
 from app.schemas.input_schema import QuestionReqPara
-from app.schemas.output_schema import QuestionItem, ValidationNodeReturn, OptionLabel
+from app.schemas.output_schema import QuestionItem, OptionLabel
 from app.helpers.chroma_helper import search_similar_questions
 from app.helpers.validation_helper import validate_questions
 
@@ -36,6 +36,7 @@ async def validate_question(question_id: str):
         req, question, similar_questions[1:], add_to_db=False
     )
     return {
+        "_id": res.chroma_id,
         "validation_score": check_validation.validation_result.score,
         "duplication_chance": check_validation.validation_result.duplication_chance,
         "issues": check_validation.validation_result.issues,
