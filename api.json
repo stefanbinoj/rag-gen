@@ -83,13 +83,55 @@
         }
       }
     },
-    "/api/v1/questions/questions/{id}": {
+    "/api/v1/questions/mcq/{id}": {
       "get": {
         "tags": [
           "questions"
         ],
         "summary": "Read Question",
-        "operationId": "read_question_api_v1_questions_questions__id__get",
+        "operationId": "read_question_api_v1_questions_mcq__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/questions/comprehension/{id}": {
+      "get": {
+        "tags": [
+          "questions"
+        ],
+        "summary": "Read Comprehension Question",
+        "operationId": "read_comprehension_question_api_v1_questions_comprehension__id__get",
         "parameters": [
           {
             "name": "id",
@@ -209,13 +251,66 @@
         }
       }
     },
-    "/api/v1/history/get": {
+    "/api/v1/history/": {
       "get": {
         "tags": [
           "history"
         ],
         "summary": "Get History",
-        "operationId": "get_history_api_v1_history_get_get",
+        "operationId": "get_history_api_v1_history__get",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/history/comprehension": {
+      "get": {
+        "tags": [
+          "history"
+        ],
+        "summary": "Get Comprehension History",
+        "operationId": "get_comprehension_history_api_v1_history_comprehension_get",
         "parameters": [
           {
             "name": "offset",
@@ -488,6 +583,10 @@
             "title": "Language",
             "default": "English"
           },
+          "generate_comprehension": {
+            "type": "boolean",
+            "title": "Generate Comprehension"
+          },
           "more_information": {
             "anyOf": [
               {
@@ -498,6 +597,17 @@
               }
             ],
             "title": "More Information"
+          },
+          "comprehension_paragraph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comprehension Paragraph"
           }
         },
         "type": "object",
@@ -507,7 +617,8 @@
           "topic",
           "difficulty",
           "stream",
-          "no_of_questions"
+          "no_of_questions",
+          "generate_comprehension"
         ],
         "title": "ComprehensionReqPara"
       },
@@ -595,6 +706,17 @@
               }
             ],
             "title": "Validation Prompt"
+          },
+          "comprehensive_generation_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comprehensive Generation Prompt"
           }
         },
         "type": "object",
