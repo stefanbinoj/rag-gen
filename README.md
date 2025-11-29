@@ -3,7 +3,6 @@
 - Which emebedding
 - internal indices
 - Parallel validadtion
-- better regeneration logic
 
 # Setup and Usage
 

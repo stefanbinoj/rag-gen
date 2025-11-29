@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from beanie import init_beanie
-from app.routers import questions, validator, admin, health
+from app.routers import history, questions, validator, admin, health
 from app.schemas.mongo_models import Model, Prompt, GenerationLog
 from config import load_environment_variables
 from app.deps import get_mongo_db
@@ -29,6 +29,7 @@ def create_app() -> FastAPI:
     app.include_router(
         validator.router, prefix="/api/v1/validators", tags=["validators"]
     )
+    app.include_router(history.router, prefix="/api/v1/history", tags=["history"])
     app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
     app.include_router(health.router, prefix="/api/v1/health", tags=["health"])
     return app

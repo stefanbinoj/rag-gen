@@ -8,7 +8,7 @@ class OptionLabel(str, Enum):
     C = "C"
     D = "D"
 
-class ComprehensionBasedType(str, Enum):
+class ComprehensionType(str, Enum):
     direct_retrieval = "direct_retrieval"
     inference_questions = "inference_questions"
     vocabulary_meaning = "vocabulary_meaning"
