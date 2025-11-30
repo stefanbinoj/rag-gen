@@ -7,9 +7,7 @@
   "paths": {
     "/api/v1/questions/generate-questions": {
       "post": {
-        "tags": [
-          "questions"
-        ],
+        "tags": ["questions"],
         "summary": "Generate Questions Endpoint",
         "operationId": "generate_questions_endpoint_api_v1_questions_generate_questions_post",
         "requestBody": {
@@ -27,9 +25,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -44,9 +40,7 @@
     },
     "/api/v1/questions/passive_paragraph": {
       "post": {
-        "tags": [
-          "questions"
-        ],
+        "tags": ["questions"],
         "summary": "Passive",
         "operationId": "passive_api_v1_questions_passive_paragraph_post",
         "requestBody": {
@@ -64,9 +58,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -85,9 +77,7 @@
     },
     "/api/v1/questions/mcq/{id}": {
       "get": {
-        "tags": [
-          "questions"
-        ],
+        "tags": ["questions"],
         "summary": "Read Question",
         "operationId": "read_question_api_v1_questions_mcq__id__get",
         "parameters": [
@@ -106,9 +96,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -127,9 +115,7 @@
     },
     "/api/v1/questions/comprehension/{id}": {
       "get": {
-        "tags": [
-          "questions"
-        ],
+        "tags": ["questions"],
         "summary": "Read Comprehension Question",
         "operationId": "read_comprehension_question_api_v1_questions_comprehension__id__get",
         "parameters": [
@@ -148,9 +134,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -169,9 +153,7 @@
     },
     "/api/v1/validators/validate-question": {
       "post": {
-        "tags": [
-          "validators"
-        ],
+        "tags": ["validators"],
         "summary": "Validate Question",
         "operationId": "validate_question_api_v1_validators_validate_question_post",
         "parameters": [
@@ -190,9 +172,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -211,9 +191,7 @@
     },
     "/api/v1/validators/validate-passage": {
       "post": {
-        "tags": [
-          "validators"
-        ],
+        "tags": ["validators"],
         "summary": "Validate Passage",
         "operationId": "validate_passage_api_v1_validators_validate_passage_post",
         "parameters": [
@@ -232,9 +210,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -253,9 +229,7 @@
     },
     "/api/v1/history/": {
       "get": {
-        "tags": [
-          "history"
-        ],
+        "tags": ["history"],
         "summary": "Get History",
         "operationId": "get_history_api_v1_history__get",
         "parameters": [
@@ -285,9 +259,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -306,9 +278,7 @@
     },
     "/api/v1/history/comprehension": {
       "get": {
-        "tags": [
-          "history"
-        ],
+        "tags": ["history"],
         "summary": "Get Comprehension History",
         "operationId": "get_comprehension_history_api_v1_history_comprehension_get",
         "parameters": [
@@ -338,9 +308,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -359,9 +327,7 @@
     },
     "/api/v1/admin/metrics": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Admin Metrics",
         "operationId": "admin_metrics_api_v1_admin_metrics_get",
         "responses": {
@@ -369,9 +335,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -380,9 +344,7 @@
     },
     "/api/v1/admin/models": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "List Models",
         "operationId": "list_models_api_v1_admin_models_get",
         "responses": {
@@ -390,9 +352,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -401,9 +361,7 @@
     },
     "/api/v1/admin/models/switch": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Switch Model",
         "operationId": "switch_model_api_v1_admin_models_switch_post",
         "requestBody": {
@@ -421,9 +379,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -442,9 +398,7 @@
     },
     "/api/v1/admin/prompts": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "List Prompts",
         "operationId": "list_prompts_api_v1_admin_prompts_get",
         "responses": {
@@ -452,9 +406,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -463,9 +415,7 @@
     },
     "/api/v1/admin/prompts/update": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Update Prompt",
         "operationId": "update_prompt_api_v1_admin_prompts_update_post",
         "requestBody": {
@@ -483,9 +433,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -504,9 +452,7 @@
     },
     "/api/v1/health/status": {
       "get": {
-        "tags": [
-          "health"
-        ],
+        "tags": ["health"],
         "summary": "Status",
         "operationId": "status_api_v1_health_status_get",
         "responses": {
@@ -514,9 +460,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -598,7 +542,7 @@
             ],
             "title": "More Information"
           },
-          "comprehension_paragraph": {
+          "comprehensive_paragraph": {
             "anyOf": [
               {
                 "type": "string"
@@ -607,7 +551,7 @@
                 "type": "null"
               }
             ],
-            "title": "Comprehension Paragraph"
+            "title": "Comprehensive Paragraph"
           }
         },
         "type": "object",
@@ -624,11 +568,7 @@
       },
       "Difficulty": {
         "type": "string",
-        "enum": [
-          "easy",
-          "medium",
-          "hard"
-        ],
+        "enum": ["easy", "medium", "hard"],
         "title": "Difficulty"
       },
       "HTTPValidationError": {
@@ -667,6 +607,17 @@
               }
             ],
             "title": "Validation Model"
+          },
+          "regeneration_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regeneration Model"
           }
         },
         "type": "object",
@@ -717,6 +668,39 @@
               }
             ],
             "title": "Comprehensive Generation Prompt"
+          },
+          "comprehensive_question_generation_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comprehensive Question Generation Prompt"
+          },
+          "comprehensive_question_validation_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comprehensive Question Validation Prompt"
+          },
+          "comprehensive_question_regeneration_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comprehensive Question Regeneration Prompt"
           }
         },
         "type": "object",
@@ -804,12 +788,7 @@
       },
       "Stream": {
         "type": "string",
-        "enum": [
-          "11Plus",
-          "GCSE",
-          "CBSE",
-          "ICSE"
-        ],
+        "enum": ["11Plus", "GCSE", "CBSE", "ICSE"],
         "title": "Stream"
       },
       "ValidationError": {
@@ -838,11 +817,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       }
     }
