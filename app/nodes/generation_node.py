@@ -1,5 +1,11 @@
+from typing import cast
 from app.schemas.input_schema import GraphType
-from app.schemas.langgraph_schema import GeneratedQuestionsStats, QuestionState
+from app.schemas.langgraph_schema import (
+    GeneratedComprehensionQuestionsStats,
+    GeneratedQuestionsStats,
+    QuestionState,
+)
+from app.schemas.output_schema import ComprehensionQuestionItem
 from app.helpers.generation_helper import generate_questions
 
 
@@ -7,22 +13,41 @@ async def generation_node(state: QuestionState) -> QuestionState:
     print("\n1) Generating questions...")
 
     is_comprehension = state["type"] == GraphType.comprehension
-    generated_questions, generation_time = await generate_questions(state["request"], is_comprehension=is_comprehension,
-                                                                    comprehension_passage=state["comprehensive_paragraph"])
+    generated_questions, generation_time = await generate_questions(
+        state["request"],
+        is_comprehension=is_comprehension,
+        comprehension_passage=state["comprehensive_paragraph"],
+    )
 
     print(f"Generated {len(generated_questions)} questions in {generation_time:.2f}s")
 
-    new_state: list[GeneratedQuestionsStats] = [
-        GeneratedQuestionsStats(
-            question=q.question,
-            options=q.options,
-            correct_option=q.correct_option,
-            explanation=q.explanation,
-            total_time=generation_time,
-            retries=0,
-        )
-        for q in generated_questions
-    ]
+    if not is_comprehension:
+        new_state = [
+            GeneratedQuestionsStats(
+                question=q.question,
+                options=q.options,
+                correct_option=q.correct_option,
+                explanation=q.explanation,
+                total_time=generation_time,
+                retries=0,
+            )
+            for q in generated_questions
+        ]
+
+    else:
+        comprehension_questions = cast(list[ComprehensionQuestionItem], generated_questions)
+        new_state = [
+            GeneratedComprehensionQuestionsStats(
+                question=q.question,
+                options=q.options,
+                correct_option=q.correct_option,
+                explanation=q.explanation,
+                total_time=generation_time,
+                retries=0,
+                comprehension_type=q.comprehension_type,
+            )
+            for q in comprehension_questions
+        ]
 
     return {
         **state,

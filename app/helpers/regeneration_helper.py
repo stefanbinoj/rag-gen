@@ -1,19 +1,25 @@
 import time
+from typing import Optional, cast
 from app.deps import get_llm_client
 from app.schemas.input_schema import QuestionReqPara, ComprehensionReqPara
-from app.schemas.output_schema import QuestionItem, ValidationNodeReturn
+from app.schemas.output_schema import ComprehensionQuestionItem, ComprehensionType, QuestionItem, ValidationNodeReturn
 from app.helpers.db_helper import get_model_name, get_prompt
 
 
 async def regenerate_question(
     req: QuestionReqPara | ComprehensionReqPara,
-    question: QuestionItem,
+    question: QuestionItem | ComprehensionQuestionItem,
     validation_result: ValidationNodeReturn,
     temperature: float = 0.3,
     is_comprehension: bool = False,
     comprehension_passage: str | None = None,
 ) -> tuple[QuestionItem, float]:
     start_time = time.time()
+    comprehension_type: Optional[ComprehensionType]= None
+    if is_comprehension:
+        question = cast(ComprehensionQuestionItem, question)
+        comprehension_type = question.comprehension_type
+
     model_name = await get_model_name("regeneration")
     llm = get_llm_client(model_name, temperatur=temperature)
 
@@ -45,7 +51,8 @@ Score: {validation_result.validation_result.score}
 Duplication Chance: {validation_result.validation_result.duplication_chance}
 Issues: {", ".join(validation_result.validation_result.issues)}
 
-Please regenerate a single clear, unambiguous MCQ that addresses the issues above. Keep format consistent with `QuestionItem` schema.
+Please regenerate a single clear, unambiguous MCQ that addresses the issues above. Keep format consistent.
+- Don't use any emojis and always ensure passage is in {req.country} respective context.
 """
 
     user_message_comprehensive = f"""
@@ -62,6 +69,7 @@ Age Group: {req.age if req.age else "N/A"}
 
 COMPREHENSION PASSAGE:
 {comprehension_passage if is_comprehension else "N/A"}
+QUESTION TYPE: {comprehension_type.value if comprehension_type else "N/A"}
 
 FAULTY QUESTION:
 Question: {question.question}
@@ -75,6 +83,7 @@ Duplication Chance: {validation_result.validation_result.duplication_chance}
 Issues: {", ".join(validation_result.validation_result.issues)}
 
 Please regenerate the question so that the correct answer is directly supported by the passage. Avoid ambiguity and ensure distractors are plausible but clearly incorrect when compared with the passage.
+- Don't use any emojis and always ensure passage is in {req.country} respective context.
 """
 
     user_message = user_message_comprehensive if is_comprehension else user_message_normal
@@ -88,7 +97,7 @@ Please regenerate the question so that the correct answer is directly supported 
 
     generation_time = time.time() - start_time
 
-    if isinstance(result, QuestionItem):
+    if isinstance(result, (QuestionItem, ComprehensionQuestionItem)):
         questions = result
     else:
         print(f"Unexpected result type: {type(result)}")

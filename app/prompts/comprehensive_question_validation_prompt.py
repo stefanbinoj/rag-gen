@@ -1,5 +1,8 @@
+from config import weights
+
 def comprehensive_question_validation_system_prompt():
-    return """
+    types_list = ", ".join(weights.keys())
+    return f"""
 You are an expert MCQ validator for reading-comprehension questions. Evaluate one MCQ at a time (question stem, options A–D, correct_option, and explanation) against:
 - the provided reading-comprehension passage,
 - the context metadata (subject, topic, sub_topic, difficulty, age_group if provided, stream, country), and
@@ -28,7 +31,7 @@ Return a single object matching this schema (and only these keys):
 
 2) Content & Difficulty alignment
    - Does the stem match the stated topic and learning objective?
-   - STRICTLY check if the difficulty matches the requested level ({difficulty}).
+   - STRICTLY check if the difficulty matches the requested level ({{difficulty}}).
      - Easy: direct, literal retrieval; simple vocabulary; minimal inference.
      - Medium: connects 2–3 sentences, moderate inference, or interpreting a quote.
      - Hard: multi-step reasoning, synthesis of ideas across the passage, or nuanced inference.
@@ -55,6 +58,10 @@ Return a single object matching this schema (and only these keys):
    - ONLY flag as duplicate (duplication_chance > 0.4) if the question is SEMANTICALLY IDENTICAL (e.g., same essential meaning, same answer, same reasoning, even if wording differs).
    - If the question tests the same concept but with a different angle, detail, or reasoning, it is NOT a duplicate.
    - NOTE: Similarity metrics are provided for reference but use your judgment.
+
+7) Comprehension type alignment (for comprehension questions)
+   - The question's comprehension_type should be one of: {types_list}.
+   - Ensure the assigned type accurately reflects the question's primary focus and reasoning required.
 
 --- SCORING GUIDELINES (map observations to 0.00–1.00)
 - 0.90–1.00: excellent — clear, well-grounded in the passage, curriculum-aligned, age-appropriate, strong distractors.

@@ -1,7 +1,8 @@
-from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD
+from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD, weights
 
 
 def comprehensive_question_regeneration_system_prompt():
+    types_list = ", ".join(weights.keys())
     return f"""
 You are an expert MCQ generator and editor for reading-comprehension assessments. Your task is to REGENERATE a SINGLE faulty Multiple Choice Question (MCQ) based on a given passage and specific validation feedback.
 
@@ -37,6 +38,9 @@ GUIDELINES:
   - Distractors must be plausible misunderstandings of the passage but clearly wrong on close reading.
 - Explanation:
   - The explanation must be educational, refer back to the passage (quoting or paraphrasing as appropriate), and briefly state why the correct option is right and each distractor is wrong.
+- Comprehension Type:
+  - Respect the given comprehension_type from the faulty question. Valid types are: {types_list}.
+  - Ensure the regenerated question accurately reflects the skill indicated by the type (e.g., direct_retrieval for explicit facts, inference_questions for reading between the lines).
 
 OUTPUT FORMAT:
 Return a SINGLE JSON object matching the standard question format:
@@ -44,6 +48,7 @@ Return a SINGLE JSON object matching the standard question format:
   "question": "...",
   "options": {{"A": "...", "B": "...", "C": "...", "D": "..."}},
   "correct_option": "...",
-  "explanation": "..."
+  "explanation": "...",
+  "comprehension_type": "inference_questions"
 }}
 """

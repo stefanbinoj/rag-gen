@@ -2,11 +2,13 @@ from pydantic import BaseModel, Field
 from enum import Enum
 from typing import Optional
 
+
 class OptionLabel(str, Enum):
     A = "A"
     B = "B"
     C = "C"
     D = "D"
+
 
 class ComprehensionType(str, Enum):
     direct_retrieval = "direct_retrieval"
@@ -36,6 +38,14 @@ class QuestionItem(BaseModel):
     explanation: str = Field(..., description="Explanation for the correct answer")
 
 
+class ComprehensionQuestionItem(QuestionItem):
+    """Extends QuestionItem to include comprehension type."""
+
+    comprehension_type: ComprehensionType = Field(
+        ..., description="The type of comprehension question"
+    )
+
+
 class ValidationResult(BaseModel):
     """Contains validation results for a single question."""
 
@@ -61,4 +71,3 @@ class ValidationNodeReturn(BaseModel):
     uuid: Optional[str] = Field(
         default=None, description="The UUID of the question if added to DB"
     )
-

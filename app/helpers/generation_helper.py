@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 from app.deps import get_llm_client
 from app.schemas.input_schema import ComprehensionReqPara, QuestionReqPara
-from app.schemas.output_schema import QuestionItem
+from app.schemas.output_schema import ComprehensionQuestionItem, QuestionItem
 from app.helpers.db_helper import get_model_name, get_prompt
 
 
@@ -11,19 +11,29 @@ class QuestionsList(BaseModel):
     questions: List[QuestionItem]
 
 
+class ComprehensionQuestionsList(BaseModel):
+    questions: List[ComprehensionQuestionItem]
+
+
 async def generate_questions(
     state: QuestionReqPara | ComprehensionReqPara,
     is_comprehension: bool = False,
-    comprehension_passage: str | None = None
-) -> tuple[List[QuestionItem], float]:
+    comprehension_passage: str | None = None,
+) -> tuple[List[QuestionItem] | List[ComprehensionQuestionItem], float]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
 
-    system_prompt_name = "comprehensive_question_generation" if is_comprehension else "generation"
+    system_prompt_name = (
+        "comprehensive_question_generation" if is_comprehension else "generation"
+    )
     system_prompt = await get_prompt(system_prompt_name)
 
-    model_with_structure = llm.with_structured_output(QuestionsList)
+    model_with_structure = (
+        llm.with_structured_output(ComprehensionQuestionsList)
+        if is_comprehension
+        else llm.with_structured_output(QuestionsList)
+    )
     # Build separate user messages for normal vs comprehensive generation
     user_message_normal = f"""
 Generate {state.no_of_questions} MCQs.
@@ -34,6 +44,7 @@ Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.dif
 Instructions:
 - Produce {state.no_of_questions} distinct MCQs with 4 options (A-D).
 - Provide one correct option, and a brief explanation for the correct answer.
+- Don't use any emojis and always ensure passage is in {state.country} respective context.
 """
 
     user_message_comprehensive = f"""
@@ -48,9 +59,12 @@ Instructions:
 - Generate {state.no_of_questions} MCQs that are answerable from the passage above.
 - Use explicit references to the passage where appropriate (e.g., "According to the passage...").
 - Provide 4 options (A-D), mark the correct option, and include a concise explanation referencing the passage.
+- Don't use any emojis and always ensure passage is in {state.country} respective context.
 """
 
-    user_message = user_message_comprehensive if is_comprehension else user_message_normal
+    user_message = (
+        user_message_comprehensive if is_comprehension else user_message_normal
+    )
 
     result = model_with_structure.invoke(
         [
@@ -60,7 +74,7 @@ Instructions:
     )
 
     # Extract questions from the result
-    if isinstance(result, QuestionsList):
+    if isinstance(result, (QuestionsList, ComprehensionQuestionsList)):
         questions = result.questions
     else:
         # Fallback for unexpected formats

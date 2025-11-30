@@ -37,6 +37,7 @@ Instructions:
 - Produce a well-structured, exam-style comprehension passage with a clear introduction, development of ideas, illustrative example(s), and a concise conclusion.
 - Make sure the passage contains specific, testable facts and details that can be used to form reliable MCQs.
 - Match vocabulary and sentence complexity to the difficulty level and stream.
+- Don't use any emojis and always ensure passage is in {state.country} respective context.
 """
 
 
