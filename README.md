@@ -45,3 +45,7 @@ or
 
 Once the server is running, you can access the Swagger UI at:
 [http://localhost:8000/docs](http://localhost:8000/docs)
+
+<img width="579" height="708" alt="Screenshot 2025-11-30 at 11 40 29 AM" src="https://github.com/user-attachments/assets/99fee51f-0bba-4b9a-91c3-2ae0af556da3" />
+
+
