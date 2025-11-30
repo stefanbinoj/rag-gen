@@ -1,6 +1,7 @@
 from time import time
 from typing import cast
 from langgraph.graph import StateGraph, END
+from app.helpers.db_helper import get_model_name
 from app.nodes.comprehension_generator_node import comprehension_generator_node
 from app.schemas.input_schema import ComprehensionReqPara, GraphType
 from app.schemas.langgraph_schema import QuestionState
@@ -10,8 +11,9 @@ from app.nodes.regeneration_node import regeneration_node
 from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
 from config import MAX_RETRIES
 
+
 async def should_generate_comprehension(state: QuestionState) -> str:
-    if state["type"] == GraphType.comprehension :
+    if state["type"] == GraphType.comprehension:
         req = cast(ComprehensionReqPara, state["request"])
         if req.generate_comprehension:
             print("\nRouting to comprehension generation node...")
@@ -27,30 +29,31 @@ async def should_generate_comprehension(state: QuestionState) -> str:
 async def save_to_db_node(state: QuestionState) -> QuestionState:
     print("\n4) Saving to database...")
 
-    question_logs = []
-
-    # Create QuestionLog entries for each question
-    for q, v in zip(state["question_state"], state["validation_state"]):
-        if not v.added_to_vectordb or not v.uuid:
-            continue  # Skip questions that were not added to the vector DB
-        question_logs.append(
-            QuestionLog(
-                chroma_id=v.uuid,
-                question=q.question,
-                options=q.options,
-                correct_option=q.correct_option.value,
-                explanation=q.explanation,
-                validation_score=v.validation_result.score,
-                duplication_chance=v.validation_result.duplication_chance,
-                total_time=q.total_time,
-                total_attempts=q.retries,
-                issues=v.validation_result.issues,
-                similar_questions=v.similar_section,
-            )
-        )
+    model_used = await get_model_name("generation")
 
     # Create and save the generation log
     if state["type"] == GraphType.mcq:
+        # Create QuestionLog entries for each question
+        question_logs = []
+        for q, v in zip(state["question_state"], state["validation_state"]):
+            if not v.added_to_vectordb or not v.uuid:
+                continue  # skip questions that were not added to the vector db
+            question_logs.append(
+                QuestionLog(
+                    chroma_id=v.uuid,
+                    question=q.question,
+                    options=q.options,
+                    correct_option=q.correct_option.value,
+                    explanation=q.explanation,
+                    validation_score=v.validation_result.score,
+                    duplication_chance=v.validation_result.duplication_chance,
+                    total_time=q.total_time,
+                    total_attempts=q.retries,
+                    issues=v.validation_result.issues,
+                    similar_questions=v.similar_section,
+                    model_used=model_used,
+                )
+            )
         log = GenerationLog(
             type=state["request"].type,
             request=state["request"],
@@ -66,9 +69,34 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             f"✅ Saved {len(question_logs)} questions to GenerationLog with ID: {log.id}\n"
         )
     elif state["type"] == GraphType.comprehension:
+        question_logs = []
+        for q, v in zip(state["question_state"], state["validation_state"]):
+            if not v.added_to_vectordb or not v.uuid:
+                continue  # skip questions that were not added to the vector db
+            question_logs.append(
+                QuestionLog(
+                    chroma_id=v.uuid,
+                    question=q.question,
+                    options=q.options,
+                    correct_option=q.correct_option.value,
+                    explanation=q.explanation,
+                    validation_score=v.validation_result.score,
+                    duplication_chance=v.validation_result.duplication_chance,
+                    total_time=q.total_time,
+                    total_attempts=q.retries,
+                    issues=v.validation_result.issues,
+                    similar_questions=v.similar_section,
+                    model_used=model_used,
+                    comprehension_type=q.comprehension_type or "inference_questions",
+                )
+            )
         request = cast(ComprehensionReqPara, state["request"])
         log = ComprehensionLog(
-            paragraph=(state["comprehensive_paragraph"] or request.comprehensive_paragraph or ""),
+            paragraph=(
+                state["comprehensive_paragraph"]
+                or request.comprehensive_paragraph
+                or ""
+            ),
             more_information=(request.more_information or ""),
             total_questions=request.no_of_questions,
             total_questions_generated=len(question_logs),
@@ -130,7 +158,9 @@ def create_question_generation_graph():
     # Start with generation
     workflow.set_entry_point("start")
     workflow.add_conditional_edges(
-            "start", should_generate_comprehension , {"generate": "generate", "generate_comprehension": "generate_comprehension" }
+        "start",
+        should_generate_comprehension,
+        {"generate": "generate", "generate_comprehension": "generate_comprehension"},
     )
 
     # After comprehension generation, always generate questions

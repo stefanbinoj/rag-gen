@@ -52,7 +52,8 @@ class QuestionLog(BaseModel):
     total_attempts: int
     issues: List[str]
     similar_questions: Optional[str] = None
-
+    model_used: Optional[str] = None
+    comprehension_type: Optional[str] = None
 
 class GenerationLog(Document):
     type: QuestionType = Field(default=QuestionType.mcq)

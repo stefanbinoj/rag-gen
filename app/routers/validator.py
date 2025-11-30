@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
 from app.schemas.input_schema import ComprehensionReqPara, QuestionReqPara
-from app.schemas.output_schema import QuestionItem, OptionLabel
+from app.schemas.output_schema import ComprehensionQuestionItem, QuestionItem, OptionLabel
 from app.helpers.chroma_helper import search_similar_questions
 from app.helpers.validation_helper import validate_questions
 
@@ -53,11 +53,12 @@ async def validate_passage(question_id: str):
         raise HTTPException(status_code=404, detail="Question not found for validation")
 
     res: QuestionLog = [q for q in log.questions if q.chroma_id == question_id][0]
-    question = QuestionItem(
+    question = ComprehensionQuestionItem(
         question=res.question,
         options=res.options,
         correct_option=OptionLabel(res.correct_option),
         explanation=res.explanation,
+        comprehension_type=res.comprehension_type or "direct_retrieval",
     )
 
     req: ComprehensionReqPara = log.request
@@ -72,6 +73,7 @@ async def validate_passage(question_id: str):
         req, question, similar_questions[1:], add_to_db=False , is_comprehension=True , comprehension_passage=log.paragraph
     )
     return {
+        "comprehensive_passage": log.paragraph,
         "_id": res.chroma_id,
         "validation_score": check_validation.validation_result.score,
         "duplication_chance": check_validation.validation_result.duplication_chance,

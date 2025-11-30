@@ -23,9 +23,11 @@ async def validate_questions(
 ) -> tuple[ValidationNodeReturn, float]:
     start_time = time.time()
     comprehension_type: Optional[ComprehensionType] = None
+
     if is_comprehension:
         question = cast(ComprehensionQuestionItem, question)
         comprehension_type = question.comprehension_type
+
     model_name = await get_model_name("validation")
     llm = get_llm_client(model_name)
 
@@ -67,7 +69,7 @@ Also consider the following similar questions from the database to avoid duplica
 
 Instructions:
 - Assess correctness, clarity, relevance to topic, and any factual errors.
-- Provide a score (0-100), a duplication chance (low/medium/high), and a list of issues if any.
+- Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
 """
 
     user_message_comprehensive = f"""
@@ -91,7 +93,7 @@ Also consider the following similar questions from the database to avoid duplica
 Instructions:
 - Verify the correct option is directly supported by the passage.
 - Flag any options that could be justified by the passage (ambiguity), factual errors, or misinterpretation.
-- Provide a score (0-100), duplication chance (low/medium/high), and list of issues with short remediation suggestions.
+- Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and list of issues with short remediation suggestions.
 """
 
     user_message = (

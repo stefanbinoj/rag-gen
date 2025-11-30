@@ -11,7 +11,7 @@ Return a single object matching this schema (and only these keys):
 - issues: list[string] — concrete, actionable issues (empty list if none)
 - duplication_chance: float in [0,1] — probability the question is duplicate or too similar to existing items
 
-(One brief note here: the output must conform to the schema above. No extra fields.)
+(One brief note here: the output must conform to the schema above. No extra fields. Output only valid JSON.)
 
 --- EVALUATION CHECKLIST (use these to generate score and issues)
 1) Content & Difficulty alignment
