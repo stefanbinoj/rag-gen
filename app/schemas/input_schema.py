@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class QuestionType(str, Enum):
@@ -47,15 +47,15 @@ class QuestionReqPara(BaseModel):
 class ComprehensionReqPara(QuestionReqPara):
     generate_comprehension: bool
     more_information: Optional[str] = None
-    comprehension_paragraph: Optional[str] = None
+    comprehensive_paragraph: Optional[str] = None
 
-    @field_validator("generate_comprehension", mode="before")
-    @classmethod
-    def check_comprehension_requirements(cls, v, info):
-        if not v:
-            if not info.data.get("comprehension_paragraph"):
-                raise ValueError("comprehension_paragraph is required when generate_comprehension is False")
-        return v
+    @model_validator(mode="after")
+    def check_comprehension_requirements(self):
+        if self.generate_comprehension is False and not self.comprehensive_paragraph:
+            raise ValueError(
+                "comprehensive_paragraph is required when generate_comprehension is False"
+            )
+        return self
 
 
 class ModelReqPara(BaseModel):

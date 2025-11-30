@@ -60,7 +60,7 @@ async def passive(req: ComprehensionReqPara):
         "start_time": start_time,
         "request": req,
         "question_state": [],
-        "comprehensive_paragraph": (req.comprehension_paragraph or "")
+        "comprehensive_paragraph": (req.comprehensive_paragraph or "")
         if not req.generate_comprehension
         else None,
         "validation_state": [],
