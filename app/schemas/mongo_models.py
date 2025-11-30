@@ -83,3 +83,5 @@ class ComprehensionLog(Document):
 
     class Settings:
         name = "comprehension_logs"
+        validate_on_load = False
+

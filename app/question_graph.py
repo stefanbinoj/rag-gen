@@ -68,7 +68,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
     elif state["type"] == GraphType.comprehension:
         request = cast(ComprehensionReqPara, state["request"])
         log = ComprehensionLog(
-            paragraph=(state["comprehensive_paragraph"] or ""),
+            paragraph=(state["comprehensive_paragraph"] or request.comprehensive_paragraph or ""),
             more_information=(request.more_information or ""),
             total_questions=request.no_of_questions,
             total_questions_generated=len(question_logs),
