@@ -19,7 +19,7 @@ async def generate_questions(
     state: QuestionReqPara | ComprehensionReqPara,
     is_comprehension: bool = False,
     comprehension_passage: str | None = None,
-) -> tuple[List[QuestionItem] | List[ComprehensionQuestionItem], float]:
+) -> tuple[List[QuestionItem] | List[ComprehensionQuestionItem], float, int]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
@@ -30,9 +30,9 @@ async def generate_questions(
     system_prompt = await get_prompt(system_prompt_name)
 
     model_with_structure = (
-        llm.with_structured_output(ComprehensionQuestionsList)
+        llm.with_structured_output(ComprehensionQuestionsList, include_raw=True)
         if is_comprehension
-        else llm.with_structured_output(QuestionsList)
+        else llm.with_structured_output(QuestionsList, include_raw=True)
     )
     # Build separate user messages for normal vs comprehensive generation
     user_message_normal = f"""
@@ -72,14 +72,15 @@ Instructions:
             ("user", user_message),
         ]
     )
-
+    total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    parsed = result["parsed"]
     # Extract questions from the result
-    if isinstance(result, (QuestionsList, ComprehensionQuestionsList)):
-        questions = result.questions
+    if isinstance(parsed, (QuestionsList, ComprehensionQuestionsList)):
+        questions = parsed.questions
     else:
         # Fallback for unexpected formats
         print(f"Unexpected result type: {type(result)}")
         raise ValueError("Failed to parse generated questions.")
 
     generation_time = time.time() - start_time
-    return questions, generation_time
+    return questions, generation_time, total_token

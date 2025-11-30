@@ -12,8 +12,6 @@ async def get_model_name(type: str) -> str:
 
     if type == "generation":
         return models.generation_model
-    elif type == "regeneration":
-        return models.regeneration_model
     elif type == "validation":
         return models.validation_model
     else:

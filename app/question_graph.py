@@ -52,6 +52,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     issues=v.validation_result.issues,
                     similar_questions=v.similar_section,
                     model_used=model_used,
+                    total_tokens=q.total_tokens,
                 )
             )
         log = GenerationLog(
@@ -88,6 +89,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     similar_questions=v.similar_section,
                     model_used=model_used,
                     comprehension_type=q.comprehension_type or "inference_questions",
+                    total_tokens=q.total_tokens,
                 )
             )
         request = cast(ComprehensionReqPara, state["request"])

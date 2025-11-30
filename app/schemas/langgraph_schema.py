@@ -10,11 +10,13 @@ from app.schemas.output_schema import (
 class GeneratedQuestionsStats(QuestionItem):
     total_time: float
     retries: int
+    total_tokens: int
 
 
 class GeneratedComprehensionQuestionsStats(ComprehensionQuestionItem):
     total_time: float
     retries: int
+    total_tokens: int
 
 
 class QuestionState(TypedDict):

@@ -63,6 +63,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
                 "total_time": q.total_time,
                 "total_attempts": q.retries,
                 "model_used": model_used,
+                "total_tokens": q.total_tokens,
             }
         )
 
@@ -122,6 +123,7 @@ async def passive(req: ComprehensionReqPara):
                 "total_attempts": q.retries,
                 "comprehension_type": q.comprehension_type,
                 "model_used": model_used,
+                "total_tokens": q.total_tokens,
 
             }
         )

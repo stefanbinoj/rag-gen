@@ -40,8 +40,6 @@ async def switch_model(req: ModelReqPara):
         models.generation_model = req.generation_model
     if req.validation_model:
         models.validation_model = req.validation_model
-    if req.regeneration_model:
-        models.regeneration_model = req.regeneration_model
 
     models.updated_at = datetime.now()
 

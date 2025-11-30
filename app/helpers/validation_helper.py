@@ -20,7 +20,7 @@ async def validate_questions(
     add_to_db: bool = True,
     is_comprehension: bool = False,
     comprehension_passage: str | None = None,
-) -> tuple[ValidationNodeReturn, float]:
+) -> tuple[ValidationNodeReturn, float, int]:
     start_time = time.time()
     comprehension_type: Optional[ComprehensionType] = None
 
@@ -36,7 +36,7 @@ async def validate_questions(
     )
     system_prompt = await get_prompt(system_prompt_name)
 
-    model_with_structure = llm.with_structured_output(ValidationResult)
+    model_with_structure = llm.with_structured_output(ValidationResult, include_raw=True)
 
     option_a = question.options.A
     option_b = question.options.B
@@ -109,8 +109,11 @@ Instructions:
 
     validation_time = time.time() - start_time
 
+    total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    parsed = result["parsed"]
+
     # Cast result to ValidationResult object
-    validation_result: ValidationResult = cast(ValidationResult, result)
+    validation_result: ValidationResult = cast(ValidationResult, parsed)
 
     return_value = ValidationNodeReturn(
         validation_result=validation_result,
@@ -119,7 +122,7 @@ Instructions:
         uuid=None,
     )
     if not add_to_db:
-        return return_value, validation_time
+        return return_value, validation_time, total_token
 
     chroma_res, question_id = await add_question_to_chroma(
         question=question,
@@ -131,4 +134,4 @@ Instructions:
 
     return_value.added_to_vectordb = chroma_res
     return_value.uuid = question_id
-    return return_value, validation_time
+    return return_value, validation_time, total_token

@@ -13,20 +13,20 @@ async def regenerate_question(
     temperature: float = 0.3,
     is_comprehension: bool = False,
     comprehension_passage: str | None = None,
-) -> tuple[QuestionItem, float]:
+) -> tuple[QuestionItem, float, int]:
     start_time = time.time()
     comprehension_type: Optional[ComprehensionType]= None
     if is_comprehension:
         question = cast(ComprehensionQuestionItem, question)
         comprehension_type = question.comprehension_type
 
-    model_name = await get_model_name("regeneration")
+    model_name = await get_model_name("generation")
     llm = get_llm_client(model_name, temperatur=temperature)
 
     system_prompt_name = "comprehensive_question_regeneration" if is_comprehension else "regeneration"
     system_prompt = await get_prompt(system_prompt_name)
 
-    model_with_structure = llm.with_structured_output(QuestionItem)
+    model_with_structure = llm.with_structured_output(QuestionItem,include_raw=True)
     # Create different user messages for normal vs comprehension regeneration
     user_message_normal = f"""
 REGENERATION TASK - Normal MCQ
@@ -96,12 +96,14 @@ Please regenerate the question so that the correct answer is directly supported 
     )
 
     generation_time = time.time() - start_time
+    total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    parsed = result["parsed"]
 
-    if isinstance(result, (QuestionItem, ComprehensionQuestionItem)):
-        questions = result
+    if isinstance(parsed, (QuestionItem, ComprehensionQuestionItem)):
+        questions = parsed
     else:
         print(f"Unexpected result type: {type(result)}")
         raise ValueError("Failed to parse generated questions.")
 
-    return questions, generation_time
+    return questions, generation_time, total_token
 

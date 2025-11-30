@@ -21,7 +21,7 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
             print(f"    Original: {generated_questions[idx].question[:60]}...")
 
             is_comprehension = state["type"] == GraphType.comprehension
-            regenerated_q, regen_time = await regenerate_question(
+            regenerated_q, regen_time, total_token = await regenerate_question(
                 req,
                 generated_questions[idx],
                 result,
@@ -35,6 +35,7 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
             generated_questions[idx].correct_option = regenerated_q.correct_option
             generated_questions[idx].explanation = regenerated_q.explanation
             generated_questions[idx].total_time += regen_time
+            generated_questions[idx].total_tokens += total_token
             generated_questions[idx].retries += 1
 
             print(f"    Regenerated: {regenerated_q.question[:60]}...")
@@ -45,11 +46,14 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
                 question=regenerated_q, subject=req.subject, topic=req.topic, top_k=3
             )
 
-            new_validation, validation_time = await validate_questions(
-                req, regenerated_q, similar
-            )
+            (
+                new_validation,
+                validation_time,
+                total_token_validation,
+            ) = await validate_questions(req, regenerated_q, similar)
 
             generated_questions[idx].total_time += validation_time
+            generated_questions[idx].total_tokens += total_token_validation
 
             # Log re-validation results
             status = (

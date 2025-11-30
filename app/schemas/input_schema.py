@@ -61,7 +61,6 @@ class ComprehensionReqPara(QuestionReqPara):
 class ModelReqPara(BaseModel):
     generation_model: Optional[str] = None
     validation_model: Optional[str] = None
-    regeneration_model: Optional[str]= None
 
 
 class PromptReqPara(BaseModel):

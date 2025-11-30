@@ -10,13 +10,13 @@ class ComprehensionResult(BaseModel):
 
 async def generate_comprehension(
     state: ComprehensionReqPara,
-) -> tuple[str, float]:
+) -> tuple[str, float, int]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
     system_prompt = await get_prompt("comprehension")
 
-    model_with_structure = llm.with_structured_output(ComprehensionResult)
+    model_with_structure = llm.with_structured_output(ComprehensionResult, include_raw=True)
 
     stream_value = state.stream.value
     if stream_value == "11Plus":
@@ -48,16 +48,17 @@ Instructions:
         ]
     )
 
-    print("----Comprehension generated is:\n", result)
+    total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    parsed = result["parsed"]
 
     # Extract questions from the result
-    if isinstance(result, ComprehensionResult):
-        paragraph = result.paragraph
+    if isinstance(parsed, ComprehensionResult):
+        paragraph = parsed.paragraph
     else:
         # Fallback for unexpected formats
         print(f"Unexpected result type: {type(result)}")
         raise ValueError("Failed to parse generated questions.")
 
     generation_time = time.time() - start_time
-    return paragraph, generation_time
+    return paragraph, generation_time, total_token
 

@@ -2,7 +2,11 @@ from fastapi import APIRouter, HTTPException
 
 from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
 from app.schemas.input_schema import ComprehensionReqPara, QuestionReqPara
-from app.schemas.output_schema import ComprehensionQuestionItem, QuestionItem, OptionLabel
+from app.schemas.output_schema import (
+    ComprehensionQuestionItem,
+    QuestionItem,
+    OptionLabel,
+)
 from app.helpers.chroma_helper import search_similar_questions
 from app.helpers.validation_helper import validate_questions
 
@@ -32,7 +36,7 @@ async def validate_question(question_id: str):
         question=question, subject=req.subject, topic=req.topic, top_k=3
     )
 
-    check_validation , validation_time = await validate_questions(
+    check_validation, validation_time, total_token = await validate_questions(
         req, question, similar_questions[1:], add_to_db=False
     )
     return {
@@ -42,6 +46,7 @@ async def validate_question(question_id: str):
         "issues": check_validation.validation_result.issues,
         "similar_questions": similar_questions,
         "validation_time": validation_time,
+        "total_tokens": total_token,
     }
 
 
@@ -69,8 +74,13 @@ async def validate_passage(question_id: str):
         question=question, subject=req.subject, topic=req.topic, top_k=3
     )
 
-    check_validation , validation_time = await validate_questions(
-        req, question, similar_questions[1:], add_to_db=False , is_comprehension=True , comprehension_passage=log.paragraph
+    check_validation, validation_time, total_tokens = await validate_questions(
+        req,
+        question,
+        similar_questions[1:],
+        add_to_db=False,
+        is_comprehension=True,
+        comprehension_passage=log.paragraph,
     )
     return {
         "comprehensive_passage": log.paragraph,
@@ -80,4 +90,5 @@ async def validate_passage(question_id: str):
         "issues": check_validation.validation_result.issues,
         "similar_questions": similar_questions,
         "validation_time": validation_time,
+        "total_tokens": total_tokens,
     }
