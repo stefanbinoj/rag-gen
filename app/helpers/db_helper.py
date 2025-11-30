@@ -34,6 +34,12 @@ async def get_prompt(type: str):
         return prompts.validation_prompt
     elif type == "comprehension":
         return prompts.comprehensive_generation_prompt
+    elif type == "comprehensive_question_generation":
+        return prompts.comprehensive_question_generation_prompt
+    elif type == "comprehensive_question_validation":
+        return prompts.comprehensive_question_validation_prompt
+    elif type == "comprehensive_question_regeneration":
+        return prompts.comprehensive_question_regeneration_prompt
     else:
         raise ValueError(f"Unknown prompt type: {type}")
 
@@ -41,33 +47,7 @@ async def get_prompt(type: str):
 def _extract_metadata(
     llm_result: dict, expected_questions: int
 ) -> tuple[list, int, float]:
-    """
-    Extract parsed questions, token usage, and cost from LLM response.
 
-    Structure of llm_result with include_raw=True:
-    {
-        'parsing_type': 'langchain_structured',
-        'raw': {
-            'content': '...',
-            'usage_metadata': {
-                'input_tokens': int,
-                'output_tokens': int,
-                'total_tokens': int
-            },
-            'response_metadata': {
-                'cost': float
-            }
-        },
-        'parsed': [QuestionItem, ...]
-    }
-
-    Args:
-        llm_result: Raw result from LLM with include_raw=True
-        expected_questions: Expected number of questions
-
-    Returns:
-        Tuple of (questions, tokens_used, cost)
-    """
     questions: list = []
     tokens_used: int = 0
     cost: float = 0.0

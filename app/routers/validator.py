@@ -69,7 +69,7 @@ async def validate_passage(question_id: str):
     )
 
     check_validation , validation_time = await validate_questions(
-        req, question, similar_questions[1:], add_to_db=False
+        req, question, similar_questions[1:], add_to_db=False , is_comprehension=True , comprehension_passage=log.paragraph
     )
     return {
         "_id": res.chroma_id,

@@ -61,6 +61,7 @@ class ComprehensionReqPara(QuestionReqPara):
 class ModelReqPara(BaseModel):
     generation_model: Optional[str] = None
     validation_model: Optional[str] = None
+    regeneration_model: Optional[str]= None
 
 
 class PromptReqPara(BaseModel):
@@ -68,6 +69,10 @@ class PromptReqPara(BaseModel):
     regeneration_prompt: Optional[str] = None
     validation_prompt: Optional[str] = None
     comprehensive_generation_prompt: Optional[str] = None
+    comprehensive_question_generation_prompt: Optional[str] = None
+    comprehensive_question_validation_prompt: Optional[str] = None
+    comprehensive_question_regeneration_prompt: Optional[str] = None
+
 
 class GraphType(str, Enum):
     mcq = "mcq"

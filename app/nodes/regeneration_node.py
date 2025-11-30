@@ -1,3 +1,4 @@
+from app.schemas.input_schema import GraphType
 from app.schemas.langgraph_schema import QuestionState
 from app.helpers.regeneration_helper import regenerate_question
 from app.helpers.validation_helper import validate_questions
@@ -19,11 +20,14 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
             print(f"  → Regenerating question {idx + 1}")
             print(f"    Original: {generated_questions[idx].question[:60]}...")
 
+            is_comprehension = state["type"] == GraphType.comprehension
             regenerated_q, regen_time = await regenerate_question(
                 req,
                 generated_questions[idx],
                 result,
                 temperature=state["current_retry"] * 0.3,
+                is_comprehension=is_comprehension,
+                comprehension_passage=state["comprehensive_paragraph"],
             )
 
             generated_questions[idx].question = regenerated_q.question

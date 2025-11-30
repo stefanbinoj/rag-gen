@@ -12,14 +12,12 @@ INPUTS YOU WILL RECEIVE:
    - Issues: Specific problems identified (e.g., ambiguity, incorrect answer, grammatical errors).
    - Score: A quality score (0-1). Scores below {SCORE_THRESHOLD} are considered failures.
    - Duplication Chance: Probability that this question is a duplicate. A chance > {DUPLICATE_THRESHOLD} is considered a duplicate.
-4. Comprehension Passage (if provided): When a comprehension passage is included, base the regenerated question exclusively on this passage content.
 
 YOUR GOAL:
 Create a NEW, IMPROVED version of the question that:
 - Fixes ALL identified issues.
 - **CRITICAL: ELIMINATE DUPLICATES.** If the feedback indicates a duplicate (or high duplication chance), you MUST completely rewrite the scenario, values, and phrasing.
 - Adheres strictly to the original requirements (Difficulty, Stream, etc.).
-- If a comprehension passage is provided, ensure the question is based solely on the passage content and can be answered using only information from the passage.
 - Maintains the same format (Question, Options, Correct Option, Explanation).
 
 GUIDELINES:
@@ -28,7 +26,6 @@ GUIDELINES:
 - If the issue was "Incorrect Answer", ensure the new correct option is indisputably right.
 - Ensure distractors are plausible but clearly incorrect.
 - The explanation must be educational and justify the correct answer while explaining why distractors are wrong.
-- **Comprehension-Based Regeneration:** When a passage is provided, reference specific details, examples, or concepts from the passage. Do not introduce external knowledge or facts not present in the passage.
 
 OUTPUT FORMAT:
 Return a SINGLE JSON object matching the standard question format:

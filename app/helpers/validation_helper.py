@@ -12,12 +12,16 @@ async def validate_questions(
     question: QuestionItem,
     similar_questions: Optional[List[dict]] = None,
     add_to_db: bool = True,
+    is_comprehension: bool = False,
+    comprehension_passage: str | None = None,
 ) -> tuple[ValidationNodeReturn, float]:
     start_time = time.time()
     model_name = await get_model_name("validation")
     llm = get_llm_client(model_name)
 
-    system_prompt = await get_prompt("validation")
+
+    system_prompt_name = "comprehensive_question_validation" if is_comprehension else "validation"
+    system_prompt = await get_prompt(system_prompt_name)
 
     model_with_structure = llm.with_structured_output(ValidationResult)
 
@@ -34,13 +38,13 @@ async def validate_questions(
             similar_section += f"\n{i}. {sim_q['question']}\n   (Similarity: {similarity}) (Metadata: {sim_q.get('metadata')})"
         similar_section += "\n\nCompare the provided question with these similar ones. Are they essentially the same? Would they have the same answer?"
 
-    user_message = f"""Validate this MCQ:
+    # Separate user messages for normal vs comprehension-based validation
+    user_message_normal = f"""
+Validate this MCQ:
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
-
-{f"Comprehension Passage: {getattr(state, 'comprehensive_paragraph', '')}" if hasattr(state, 'comprehensive_paragraph') and getattr(state, 'comprehensive_paragraph', '') else ""}
 
 Question: {question.question}
 Options: A) {option_a} | B) {option_b} | C) {option_c} | D) {option_d}
@@ -48,7 +52,37 @@ Correct: {question.correct_option.value}
 Explanation: {question.explanation}
 
 Also consider the following similar questions from the database to avoid duplicates:
-{similar_section}"""
+{similar_section}
+
+Instructions:
+- Assess correctness, clarity, relevance to topic, and any factual errors.
+- Provide a score (0-100), a duplication chance (low/medium/high), and a list of issues if any.
+"""
+
+    user_message_comprehensive = f"""
+Validate this comprehension-based MCQ (answers must be supported by the passage):
+
+{f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
+Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+{f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
+
+{f"Comprehension Passage: {comprehension_passage}" if is_comprehension else "N/A"}
+
+Question: {question.question}
+Options: A) {option_a} | B) {option_b} | C) {option_c} | D) {option_d}
+Correct: {question.correct_option.value}
+Explanation: {question.explanation}
+
+Also consider the following similar questions from the database to avoid duplicates:
+{similar_section}
+
+Instructions:
+- Verify the correct option is directly supported by the passage.
+- Flag any options that could be justified by the passage (ambiguity), factual errors, or misinterpretation.
+- Provide a score (0-100), duplication chance (low/medium/high), and list of issues with short remediation suggestions.
+"""
+
+    user_message = user_message_comprehensive if is_comprehension else user_message_normal
 
     result = model_with_structure.invoke(
         [

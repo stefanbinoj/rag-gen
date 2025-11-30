@@ -1,3 +1,4 @@
+from app.schemas.input_schema import GraphType
 from app.schemas.langgraph_schema import QuestionState
 from app.helpers.validation_helper import validate_questions
 from app.helpers.chroma_helper import search_similar_questions
@@ -9,6 +10,8 @@ async def validation_node(state: QuestionState) -> QuestionState:
     validated_results = []
     req = state["request"]
     generated_questions = state["question_state"]
+    comprehension_passage = state.get("comprehensive_paragraph")
+    is_comprehension = state["type"] == GraphType.comprehension
 
     for idx, question in enumerate(generated_questions):
         print(f"  → Validating question {idx + 1}/{len(generated_questions)}")
@@ -19,7 +22,7 @@ async def validation_node(state: QuestionState) -> QuestionState:
 
         # Validate the question
         validation_result, validation_time = await validate_questions(
-            req, question, similar_questions
+            req, question, similar_questions, is_comprehension=is_comprehension, comprehension_passage=comprehension_passage
         )
         generated_questions[idx].total_time += validation_time
 

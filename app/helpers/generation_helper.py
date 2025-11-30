@@ -13,20 +13,44 @@ class QuestionsList(BaseModel):
 
 async def generate_questions(
     state: QuestionReqPara | ComprehensionReqPara,
+    is_comprehension: bool = False,
+    comprehension_passage: str | None = None
 ) -> tuple[List[QuestionItem], float]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
-    system_prompt = await get_prompt("generation")
+
+    system_prompt_name = "comprehensive_question_generation" if is_comprehension else "generation"
+    system_prompt = await get_prompt(system_prompt_name)
 
     model_with_structure = llm.with_structured_output(QuestionsList)
-
-    user_message = f"""Generate {state.no_of_questions} MCQs.
+    # Build separate user messages for normal vs comprehensive generation
+    user_message_normal = f"""
+Generate {state.no_of_questions} MCQs.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
-{f"Comprehension Passage: {getattr(state, 'comprehensive_paragraph', '')}" if hasattr(state, 'comprehensive_paragraph') and getattr(state, 'comprehensive_paragraph', '') else ""}"""
+Instructions:
+- Produce {state.no_of_questions} distinct MCQs with 4 options (A-D).
+- Provide one correct option, and a brief explanation for the correct answer.
+"""
+
+    user_message_comprehensive = f"""
+Generate {state.no_of_questions} MCQs based on the provided comprehension passage.
+{f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
+Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+{f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
+
+{f"Comprehension Passage: {comprehension_passage}" if is_comprehension else "N/A"}
+
+Instructions:
+- Generate {state.no_of_questions} MCQs that are answerable from the passage above.
+- Use explicit references to the passage where appropriate (e.g., "According to the passage...").
+- Provide 4 options (A-D), mark the correct option, and include a concise explanation referencing the passage.
+"""
+
+    user_message = user_message_comprehensive if is_comprehension else user_message_normal
 
     result = model_with_structure.invoke(
         [

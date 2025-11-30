@@ -18,19 +18,36 @@ async def generate_comprehension(
 
     model_with_structure = llm.with_structured_output(ComprehensionResult)
 
-    user_message = f"""{f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
-{f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
-{f"Additional Information: {state.more_information}" if state.more_information else ""}"""
+    stream_value = state.stream.value
+    if stream_value == "11Plus":
+        wc_min, wc_max = 300, 450
+    elif stream_value in ("GCSE", "CBSE", "ICSE"):
+        wc_min, wc_max = 500, 800
+    else:
+        wc_min, wc_max = 450, 700
+
+
+
+    user_message_comprehensive = f"""
+Params: subject={state.subject} | topic={state.topic} | sub_topic={state.sub_topic or ''} | stream={stream_value} | difficulty={state.difficulty.value} | age={state.age or ''} | country={state.country}
+More info: {state.more_information or ''}
+Word count: {wc_min}-{wc_max}
+
+Instructions:
+- Produce a well-structured, exam-style comprehension passage with a clear introduction, development of ideas, illustrative example(s), and a concise conclusion.
+- Make sure the passage contains specific, testable facts and details that can be used to form reliable MCQs.
+- Match vocabulary and sentence complexity to the difficulty level and stream.
+"""
+
 
     result = model_with_structure.invoke(
         [
             ("system", system_prompt),
-            ("user", user_message),
+            ("user", user_message_comprehensive),
         ]
     )
 
-    print("----Comprehension generation result:", result)
+    print("----Comprehension generated is:\n", result)
 
     # Extract questions from the result
     if isinstance(result, ComprehensionResult):

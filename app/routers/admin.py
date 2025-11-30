@@ -40,6 +40,8 @@ async def switch_model(req: ModelReqPara):
         models.generation_model = req.generation_model
     if req.validation_model:
         models.validation_model = req.validation_model
+    if req.regeneration_model:
+        models.regeneration_model = req.regeneration_model
 
     models.updated_at = datetime.now()
 
@@ -77,8 +79,16 @@ async def update_prompt(req: PromptReqPara):
         prompts.regeneration_prompt = req.regeneration_prompt
     if req.validation_prompt:
         prompts.validation_prompt = req.validation_prompt
+
     if req.comprehensive_generation_prompt:
         prompts.comprehensive_generation_prompt = req.comprehensive_generation_prompt
+
+    if req.comprehensive_question_generation_prompt:
+        prompts.comprehensive_question_generation_prompt = req.comprehensive_question_generation_prompt
+    if req.comprehensive_question_validation_prompt:
+        prompts.comprehensive_question_validation_prompt = req.comprehensive_question_validation_prompt
+    if req.comprehensive_question_regeneration_prompt:
+        prompts.comprehensive_question_regeneration_prompt = req.comprehensive_question_regeneration_prompt
 
     prompts.updated_at = datetime.now()
     await prompts.save()

@@ -4,6 +4,9 @@ from pydantic import Field
 from app.prompts.comprehensive_generation_prompt import (
     comprehensive_generation_system_prompt,
 )
+from app.prompts.comprehensive_question_generation_prompt import comprehensive_question_generation_system_prompt
+from app.prompts.comprehensive_question_regeneration_prompt import comprehensive_question_regeneration_system_prompt
+from app.prompts.comprehensive_question_validation_prompt import comprehensive_question_validation_system_prompt
 from app.prompts.generation_prompt import generation_system_prompt
 from app.prompts.validation_prompt import validation_system_prompt
 from app.prompts.regeneration_prompt import regeneration_system_prompt
@@ -28,6 +31,9 @@ class Prompt(Document):
     validation_prompt: str = validation_system_prompt()
     regeneration_prompt: str = regeneration_system_prompt()
     comprehensive_generation_prompt: str = comprehensive_generation_system_prompt()
+    comprehensive_question_generation_prompt: str = comprehensive_question_generation_system_prompt()
+    comprehensive_question_validation_prompt: str = comprehensive_question_validation_system_prompt()
+    comprehensive_question_regeneration_prompt: str = comprehensive_question_regeneration_system_prompt()
     updated_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:

@@ -1,3 +1,4 @@
+from app.schemas.input_schema import GraphType
 from app.schemas.langgraph_schema import GeneratedQuestionsStats, QuestionState
 from app.helpers.generation_helper import generate_questions
 
@@ -5,7 +6,9 @@ from app.helpers.generation_helper import generate_questions
 async def generation_node(state: QuestionState) -> QuestionState:
     print("\n1) Generating questions...")
 
-    generated_questions, generation_time = await generate_questions(state["request"])
+    is_comprehension = state["type"] == GraphType.comprehension
+    generated_questions, generation_time = await generate_questions(state["request"], is_comprehension=is_comprehension,
+                                                                    comprehension_passage=state["comprehensive_paragraph"])
 
     print(f"Generated {len(generated_questions)} questions in {generation_time:.2f}s")
 
