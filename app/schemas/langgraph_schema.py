@@ -1,5 +1,6 @@
 from typing import TypedDict, List
 from app.schemas.input_schema import ComprehensionReqPara, GraphType, QuestionReqPara
+from app.schemas.mongo_models import ComprehensionLog, GenerationLog
 from app.schemas.output_schema import (
     ComprehensionQuestionItem,
     QuestionItem,
@@ -36,4 +37,5 @@ class QuestionState(TypedDict):
     current_retry: int
     total_regeneration_attempts: int
 
+    final_state: GenerationLog | ComprehensionLog | None
 

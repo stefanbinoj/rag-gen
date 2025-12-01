@@ -1,3 +1,4 @@
+from typing import cast
 from fastapi import APIRouter, HTTPException
 
 from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
@@ -9,6 +10,7 @@ from app.schemas.output_schema import (
 )
 from app.helpers.chroma_helper import search_similar_questions
 from app.helpers.validation_helper import validate_questions
+from app.schemas.langgraph_schema import GeneratedComprehensionQuestionsStats
 
 router = APIRouter()
 
@@ -20,7 +22,7 @@ async def validate_question(question_id: str):
     if not log:
         raise HTTPException(status_code=404, detail="Question not found for validation")
 
-    res: QuestionLog = [q for q in log.questions if q.chroma_id == question_id][0]
+    res: QuestionLog = [q for q in log.questions if q.question_id == question_id][0]
     question = QuestionItem(
         question=res.question,
         options=res.options,
@@ -40,7 +42,7 @@ async def validate_question(question_id: str):
         req, question, similar_questions[1:], add_to_db=False
     )
     return {
-        "_id": res.chroma_id,
+        "question_id": res.question_id,
         "validation_score": check_validation.validation_result.score,
         "duplication_chance": check_validation.validation_result.duplication_chance,
         "issues": check_validation.validation_result.issues,
@@ -57,13 +59,14 @@ async def validate_passage(question_id: str):
     if not log:
         raise HTTPException(status_code=404, detail="Question not found for validation")
 
-    res: QuestionLog = [q for q in log.questions if q.chroma_id == question_id][0]
+    res: QuestionLog = [q for q in log.questions if q.question_id == question_id][0]
+    comp_q = cast(GeneratedComprehensionQuestionsStats, res)
     question = ComprehensionQuestionItem(
-        question=res.question,
-        options=res.options,
-        correct_option=OptionLabel(res.correct_option),
-        explanation=res.explanation,
-        comprehension_type=res.comprehension_type or "direct_retrieval",
+        question=comp_q.question,
+        options=comp_q.options,
+        correct_option=OptionLabel(comp_q.correct_option),
+        explanation=comp_q.explanation,
+        comprehension_type=comp_q.comprehension_type,
     )
 
     req: ComprehensionReqPara = log.request
@@ -84,7 +87,7 @@ async def validate_passage(question_id: str):
     )
     return {
         "comprehensive_passage": log.paragraph,
-        "_id": res.chroma_id,
+        "question_id": res.question_id,
         "validation_score": check_validation.validation_result.score,
         "duplication_chance": check_validation.validation_result.duplication_chance,
         "issues": check_validation.validation_result.issues,

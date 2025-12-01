@@ -40,7 +40,7 @@ class Prompt(Document):
 
 
 class QuestionLog(BaseModel):
-    chroma_id: str
+    question_id: str
     question: str
     options: Options
     correct_option: str

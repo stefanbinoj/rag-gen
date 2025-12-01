@@ -1,6 +1,5 @@
 import time
 from fastapi import APIRouter, HTTPException
-from app.helpers.db_helper import get_model_name
 from app.schemas.input_schema import GraphType, QuestionReqPara, ComprehensionReqPara
 from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
 from app.question_graph import question_graph
@@ -32,6 +31,7 @@ async def generate_questions_endpoint(req: QuestionReqPara):
         "validation_state": [],
         "current_retry": 0,
         "total_regeneration_attempts": 0,
+        "final_state": None,
     }
 
     final_state = await question_graph.ainvoke(initial_state)
@@ -45,32 +45,8 @@ async def generate_questions_endpoint(req: QuestionReqPara):
     print(f"   Total Time Taken: {time.time() - final_state['start_time']:.2f} seconds")
     print("=" * 80 + "\n")
 
-    final_response = []
-    model_used = await get_model_name("generation")
 
-    for q, v in zip(final_state["question_state"], final_state["validation_state"]):
-        if not v.added_to_vectordb or not v.uuid:
-            continue  # Skip questions that were not added to the vector DB
-        final_response.append(
-            {
-                "id": v.uuid,
-                "question": q.question,
-                "options": q.options,
-                "correct_option": q.correct_option.value,
-                "explanation": q.explanation,
-                "validation_score": v.validation_result.score,
-                "duplication_chance": v.validation_result.duplication_chance,
-                "total_time": q.total_time,
-                "total_attempts": q.retries,
-                "model_used": model_used,
-                "total_tokens": q.total_tokens,
-            }
-        )
-
-    return {
-        "questions": final_response,
-    }
-
+    return final_state["final_state"]
 
 @router.post("/passive_paragraph")
 async def passive(req: ComprehensionReqPara):
@@ -91,6 +67,7 @@ async def passive(req: ComprehensionReqPara):
         "validation_state": [],
         "current_retry": 0,
         "total_regeneration_attempts": 0,
+        "final_state": None,
     }
 
     final_state = await question_graph.ainvoke(initial_state)
@@ -104,35 +81,8 @@ async def passive(req: ComprehensionReqPara):
     print(f"   Total Time Taken: {time.time() - final_state['start_time']:.2f} seconds")
     print("=" * 80 + "\n")
 
-    final_response = []
-    model_used = await get_model_name("generation")
 
-    for q, v in zip(final_state["question_state"], final_state["validation_state"]):
-        if not v.added_to_vectordb or not v.uuid:
-            continue  # Skip questions that were not added to the vector DB
-        final_response.append(
-            {
-                "id": v.uuid,
-                "question": q.question,
-                "options": q.options,
-                "correct_option": q.correct_option.value,
-                "explanation": q.explanation,
-                "validation_score": v.validation_result.score,
-                "duplication_chance": v.validation_result.duplication_chance,
-                "total_time": q.total_time,
-                "total_attempts": q.retries,
-                "comprehension_type": q.comprehension_type,
-                "model_used": model_used,
-                "total_tokens": q.total_tokens,
-
-            }
-        )
-
-    return {
-        "paragraph": final_state["comprehensive_paragraph"],
-        "questions": final_response,
-    }
-
+    return final_state["final_state"]
 
 @router.get("/mcq/{id}")
 async def read_question(id: str):
@@ -141,7 +91,7 @@ async def read_question(id: str):
     if not log:
         raise HTTPException(status_code=404, detail="Question not found")
 
-    res: QuestionLog = [q for q in log.questions if q.chroma_id == id][0]
+    res: QuestionLog = [q for q in log.questions if q.question_id == id][0]
 
     return res
 
@@ -153,7 +103,7 @@ async def read_comprehension_question(id: str):
     if not log:
         raise HTTPException(status_code=404, detail="Question not found")
 
-    res: QuestionLog = [q for q in log.questions if q.chroma_id == id][0]
+    res: QuestionLog = [q for q in log.questions if q.question_id == id][0]
 
     return {
         "paragraph": log.paragraph,

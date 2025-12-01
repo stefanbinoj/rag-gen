@@ -9,6 +9,7 @@ from app.nodes.generation_node import generation_node
 from app.nodes.validation_node import validation_node
 from app.nodes.regeneration_node import regeneration_node
 from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
+from app.schemas.langgraph_schema import GeneratedComprehensionQuestionsStats
 from config import MAX_RETRIES
 
 
@@ -35,12 +36,13 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
     if state["type"] == GraphType.mcq:
         # Create QuestionLog entries for each question
         question_logs = []
+        log = None
         for q, v in zip(state["question_state"], state["validation_state"]):
             if not v.added_to_vectordb or not v.uuid:
                 continue  # skip questions that were not added to the vector db
             question_logs.append(
                 QuestionLog(
-                    chroma_id=v.uuid,
+                    question_id=v.uuid,
                     question=q.question,
                     options=q.options,
                     correct_option=q.correct_option.value,
@@ -74,22 +76,24 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
         for q, v in zip(state["question_state"], state["validation_state"]):
             if not v.added_to_vectordb or not v.uuid:
                 continue  # skip questions that were not added to the vector db
+            # Cast to GeneratedComprehensionQuestionsStats since we're in comprehension branch
+            comp_q = cast(GeneratedComprehensionQuestionsStats, q)
             question_logs.append(
                 QuestionLog(
-                    chroma_id=v.uuid,
-                    question=q.question,
-                    options=q.options,
-                    correct_option=q.correct_option.value,
-                    explanation=q.explanation,
+                    question_id=v.uuid,
+                    question=comp_q.question,
+                    options=comp_q.options,
+                    correct_option=comp_q.correct_option.value,
+                    explanation=comp_q.explanation,
                     validation_score=v.validation_result.score,
                     duplication_chance=v.validation_result.duplication_chance,
-                    total_time=q.total_time,
-                    total_attempts=q.retries,
+                    total_time=comp_q.total_time,
+                    total_attempts=comp_q.retries,
                     issues=v.validation_result.issues,
                     similar_questions=v.similar_section,
                     model_used=model_used,
-                    comprehension_type=q.comprehension_type or "inference_questions",
-                    total_tokens=q.total_tokens,
+                    comprehension_type=comp_q.comprehension_type ,
+                    total_tokens=comp_q.total_tokens,
                 )
             )
         request = cast(ComprehensionReqPara, state["request"])
@@ -115,6 +119,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
 
     return {
         **state,
+        "final_state": log,
     }
 
 
