@@ -1,51 +1,54 @@
-### Search For:
+# Question Generator API
 
-- Which emebedding
-- internal indices
-- Parallel validadtion
+AI-powered question generation system with automated validation and regeneration.
 
-# Setup and Usage
+<img width="579" height="708" alt="Question Generator Workflow" src="https://github.com/user-attachments/assets/99fee51f-0bba-4b9a-91c3-2ae0af556da3" />
 
-## Prerequisites
+## Tech Stack
 
-- Python 3.12+
-- `uv` (Python package manager)
+- **FastAPI** - Web framework
+- **MongoDB** - Database
+- **ChromaDB** - Vector database
+- **LangChain** - LLM orchestration
+- **LangGraph** - Workflow management
+- **Langfuse** - LLM monitoring
 
-2. Set up environment variables:
+## Setup
 
-   ```bash
-   cp .env.example .env
-   ```
+### Environment Variables
 
-3. Install dependencies:
-   ```bash
-   uv sync
-   ```
+Create `.env` file:
 
-## Running the Application
+```bash
+MONGO_URI=your_mongodb_connection_string
+MONGO_DB=question_generator
+OPENAI_API_KEY=your_openrouter_api_key
+CHROMA_API_KEY=your_chroma_key
+CHROMA_TENANT=your_chroma_tenant
+CHROMA_DATABASE=your_chroma_database
+```
 
-1. Make sure the run script is executable:
+### Docker (Recommended)
 
-   ```bash
-   chmod +x ./run.sh
-   ```
+```bash
+# Build and run
+docker-compose up --build
 
-2. Start the server:
-   ```bash
-   ./run.sh
-   ```
+# Stop
+docker-compose down
+```
 
-## API Documentation
+### Local Development
 
-Import `api.json` into Postman
-set the base URL to `http://localhost:8000`
+```bash
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
---
-or
+# Install dependencies
+uv sync
 
-Once the server is running, you can access the Swagger UI at:
-[http://localhost:8000/docs](http://localhost:8000/docs)
+# Run server
+./run.sh
+```
 
-<img width="579" height="708" alt="Screenshot 2025-11-30 at 11 40 29 AM" src="https://github.com/user-attachments/assets/99fee51f-0bba-4b9a-91c3-2ae0af556da3" />
-
-
+API available at http://localhost:8000/docs
