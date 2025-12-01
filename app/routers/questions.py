@@ -4,6 +4,7 @@ from app.schemas.input_schema import GraphType, QuestionReqPara, ComprehensionRe
 from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
 from app.question_graph import question_graph
 from app.schemas.langgraph_schema import QuestionState
+from app.helpers.langfuse_helper import create_langfuse_handler
 
 router = APIRouter()
 
@@ -21,6 +22,19 @@ async def generate_questions_endpoint(req: QuestionReqPara):
     print("Question Generation Pipeline")
     print("=" * 80 + "\n")
 
+    # Create Langfuse handler for this trace
+    langfuse_handler = create_langfuse_handler(
+        metadata={
+            "subject": req.subject,
+            "topic": req.topic,
+            "difficulty": req.difficulty.value,
+            "stream": req.stream.value,
+            "country": req.country,
+            "no_of_questions": req.no_of_questions,
+        },
+        tags=["mcq", "question-generation", req.subject],
+    )
+
     # Initialize state for the LangGraph workflow
     initial_state: QuestionState = {
         "type": GraphType.mcq,
@@ -34,7 +48,9 @@ async def generate_questions_endpoint(req: QuestionReqPara):
         "final_state": None,
     }
 
-    final_state = await question_graph.ainvoke(initial_state)
+    final_state = await question_graph.ainvoke(
+        initial_state, config={"callbacks": [langfuse_handler]}
+    )
 
     print("\n" + "=" * 80)
     print("Pipeline Complete!")
@@ -55,6 +71,20 @@ async def passive(req: ComprehensionReqPara):
     print("Comprehension Generation Pipeline")
     print("=" * 80 + "\n")
 
+    # Create Langfuse handler for this trace
+    langfuse_handler = create_langfuse_handler(
+        metadata={
+            "subject": req.subject,
+            "topic": req.topic,
+            "difficulty": req.difficulty.value,
+            "stream": req.stream.value,
+            "country": req.country,
+            "no_of_questions": req.no_of_questions,
+            "generate_comprehension": req.generate_comprehension,
+        },
+        tags=["comprehension", "question-generation", req.subject],
+    )
+
     # Initialize state for the LangGraph workflow
     initial_state: QuestionState = {
         "type": GraphType.comprehension,
@@ -70,7 +100,9 @@ async def passive(req: ComprehensionReqPara):
         "final_state": None,
     }
 
-    final_state = await question_graph.ainvoke(initial_state)
+    final_state = await question_graph.ainvoke(
+        initial_state, config={"callbacks": [langfuse_handler]}
+    )
 
     print("\n" + "=" * 80)
     print("Pipeline Complete!")
