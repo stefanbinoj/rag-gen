@@ -86,7 +86,7 @@ async def passive(req: ComprehensionReqPara):
 
 @router.get("/mcq/{id}")
 async def read_question(id: str):
-    log = await GenerationLog.find_one({"questions.chroma_id": id})
+    log = await GenerationLog.find_one({"questions.question_id": id})
 
     if not log:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -98,7 +98,7 @@ async def read_question(id: str):
 
 @router.get("/comprehension/{id}")
 async def read_comprehension_question(id: str):
-    log = await ComprehensionLog.find_one({"questions.chroma_id": id})
+    log = await ComprehensionLog.find_one({"questions.question_id": id})
 
     if not log:
         raise HTTPException(status_code=404, detail="Question not found")

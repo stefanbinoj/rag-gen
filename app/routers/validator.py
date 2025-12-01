@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.post("/validate-question")
 async def validate_question(question_id: str):
-    log = await GenerationLog.find_one({"questions.chroma_id": question_id})
+    log = await GenerationLog.find_one({"questions.question_id": question_id})
 
     if not log:
         raise HTTPException(status_code=404, detail="Question not found for validation")
@@ -54,7 +54,7 @@ async def validate_question(question_id: str):
 
 @router.post("/validate-passage")
 async def validate_passage(question_id: str):
-    log = await ComprehensionLog.find_one({"questions.chroma_id": question_id})
+    log = await ComprehensionLog.find_one({"questions.question_id": question_id})
 
     if not log:
         raise HTTPException(status_code=404, detail="Question not found for validation")
