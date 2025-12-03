@@ -37,6 +37,14 @@ class QuestionItem(BaseModel):
     )
     explanation: str = Field(..., description="Explanation for the correct answer")
 
+class FillInTheBlankQuestionItem(BaseModel):
+    """Contains information about a fill-in-the-blank question item."""
+
+    question: str = Field(..., description="The question text with a blank")
+    answer: str = Field(..., description="The correct answer for the blank")
+    acceptable_answers: Optional[list[str]] = Field(None, description="List of acceptable alternative answers")
+    explanation: str = Field(..., description="Explanation for the correct answer")
+
 
 class ComprehensionQuestionItem(QuestionItem):
     """Extends QuestionItem to include comprehension type."""

@@ -35,7 +35,7 @@ async def validate_question(question_id: str):
     print(f"\n\n    --->Validating single question {question.question}")
 
     similar_questions = await search_similar_questions(
-        question=question, subject=req.subject, topic=req.topic, top_k=3
+        question=question.question, subject=req.subject, topic=req.topic, top_k=3
     )
 
     check_validation, validation_time, total_token = await validate_questions(
@@ -74,7 +74,7 @@ async def validate_passage(question_id: str):
     print(f"\n\n    --->Validating single question {question.question}")
 
     similar_questions = await search_similar_questions(
-        question=question, subject=req.subject, topic=req.topic, top_k=3
+        question=question.question, subject=req.subject, topic=req.topic, top_k=3
     )
 
     check_validation, validation_time, total_tokens = await validate_questions(

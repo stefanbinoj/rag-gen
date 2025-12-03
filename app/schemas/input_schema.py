@@ -3,15 +3,13 @@ from __future__ import annotations
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator 
 
 
 class QuestionType(str, Enum):
     mcq = "mcq"
     fill_in_the_blank = "fill_in_the_blank"
-    short_answer = "short_answer"
-    long_form = "long_form"
-    comprehension_based = "comprehension_based"
+    subjective = "subjective"
 
 class Difficulty(str, Enum):
     easy = "easy"
@@ -48,6 +46,7 @@ class ComprehensionReqPara(QuestionReqPara):
     generate_comprehension: bool
     more_information: Optional[str] = None
     comprehensive_paragraph: Optional[str] = None
+    type: Optional[QuestionType] = Field(default=None, exclude=True)
 
     @model_validator(mode="after")
     def check_comprehension_requirements(self):
@@ -75,4 +74,5 @@ class PromptReqPara(BaseModel):
 
 class GraphType(str, Enum):
     mcq = "mcq"
+    fill_in_the_blank = "fill_in_the_blank"
     comprehension = "comprehension"

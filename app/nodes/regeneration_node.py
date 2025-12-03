@@ -1,5 +1,12 @@
+from typing import cast
 from app.schemas.input_schema import GraphType
-from app.schemas.langgraph_schema import QuestionState
+from app.schemas.langgraph_schema import (
+    QuestionState,
+    GeneratedFillInTheBlankQuestionsStats,
+    GeneratedQuestionsStats,
+    GeneratedComprehensionQuestionsStats,
+)
+from app.schemas.output_schema import FillInTheBlankQuestionItem, QuestionItem, ComprehensionQuestionItem
 from app.helpers.regeneration_helper import regenerate_question
 from app.helpers.validation_helper import validate_questions
 from app.helpers.chroma_helper import search_similar_questions
@@ -14,13 +21,14 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
     total_regeneration_attempts = state.get("total_regeneration_attempts")
 
     regenerated_count = 0
+    is_comprehension = state["type"] == GraphType.comprehension
+    is_fill_blank = state["type"] == GraphType.fill_in_the_blank
 
     for idx, result in enumerate(validated_results):
         if not result.added_to_vectordb:
             print(f"  → Regenerating question {idx + 1}")
             print(f"    Original: {generated_questions[idx].question[:60]}...")
 
-            is_comprehension = state["type"] == GraphType.comprehension
             regenerated_q, regen_time, total_token = await regenerate_question(
                 req,
                 generated_questions[idx],
@@ -28,12 +36,22 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
                 temperature=state["current_retry"] * 0.3,
                 is_comprehension=is_comprehension,
                 comprehension_passage=state["comprehensive_paragraph"],
+                is_fill_blank=is_fill_blank,
             )
 
             generated_questions[idx].question = regenerated_q.question
-            generated_questions[idx].options = regenerated_q.options
-            generated_questions[idx].correct_option = regenerated_q.correct_option
             generated_questions[idx].explanation = regenerated_q.explanation
+            
+            if is_fill_blank:
+                fill_regen = cast(FillInTheBlankQuestionItem, regenerated_q)
+                fill_state = cast(GeneratedFillInTheBlankQuestionsStats, generated_questions[idx])
+                fill_state.answer = fill_regen.answer
+                fill_state.acceptable_answers = fill_regen.acceptable_answers
+            else:
+                mcq_regen = cast(QuestionItem | ComprehensionQuestionItem, regenerated_q)
+                mcq_state = cast(GeneratedQuestionsStats | GeneratedComprehensionQuestionsStats, generated_questions[idx])
+                mcq_state.options = mcq_regen.options
+                mcq_state.correct_option = mcq_regen.correct_option
             generated_questions[idx].total_time += regen_time
             generated_questions[idx].total_tokens += total_token
             generated_questions[idx].retries += 1
@@ -43,14 +61,20 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
 
             # Search for similar questions with the regenerated question
             similar = await search_similar_questions(
-                question=regenerated_q, subject=req.subject, topic=req.topic, top_k=3
+                question=regenerated_q.question, subject=req.subject, topic=req.topic, top_k=3
             )
 
             (
                 new_validation,
                 validation_time,
                 total_token_validation,
-            ) = await validate_questions(req, regenerated_q, similar)
+            ) = await validate_questions(
+                req, 
+                regenerated_q, 
+                similar,
+                is_comprehension=is_comprehension,
+                is_fill_blank=is_fill_blank,
+            )
 
             generated_questions[idx].total_time += validation_time
             generated_questions[idx].total_tokens += total_token_validation

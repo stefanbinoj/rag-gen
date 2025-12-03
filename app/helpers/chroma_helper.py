@@ -6,7 +6,7 @@ from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD
 
 
 async def search_similar_questions(
-    question: QuestionItem, subject: str,topic: str, top_k: int = 3
+    question: str, subject: str,topic: str, top_k: int = 3
 ) -> list[dict]:
     """Search ChromaDB for similar questions"""
     try:
@@ -18,7 +18,7 @@ async def search_similar_questions(
 
         # Search for similar questions
         results = collection.query(
-            query_texts=[question.question],
+            query_texts=[question],
             n_results=top_k,
             include=["documents", "distances", "metadatas"],
         )
@@ -45,7 +45,7 @@ async def search_similar_questions(
 
 
 async def add_question_to_chroma(
-    question: QuestionItem,
+    question: str,
     subject: str,
     topic: str,
     score: float,
@@ -64,7 +64,7 @@ async def add_question_to_chroma(
         # Add to collection
         uuid_str = uuid.uuid4().hex
         collection.add(
-            documents=[question.question],
+            documents=[question],
             metadatas=[
                 {
                     "subject": subject,

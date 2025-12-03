@@ -3,13 +3,13 @@ from typing import cast
 from langgraph.graph import StateGraph, END
 from app.helpers.db_helper import get_model_name
 from app.nodes.comprehension_generator_node import comprehension_generator_node
-from app.schemas.input_schema import ComprehensionReqPara, GraphType
+from app.schemas.input_schema import ComprehensionReqPara, GraphType, QuestionType
 from app.schemas.langgraph_schema import QuestionState
 from app.nodes.generation_node import generation_node
 from app.nodes.validation_node import validation_node
 from app.nodes.regeneration_node import regeneration_node
-from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog
-from app.schemas.langgraph_schema import GeneratedComprehensionQuestionsStats
+from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog, FillInTheBlankLog, FillInTheBlankQuestionLog
+from app.schemas.langgraph_schema import GeneratedComprehensionQuestionsStats, GeneratedQuestionsStats, GeneratedFillInTheBlankQuestionsStats
 from config import MAX_RETRIES
 
 
@@ -37,9 +37,11 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
         # Create QuestionLog entries for each question
         question_logs = []
         log = None
-        for q, v in zip(state["question_state"], state["validation_state"]):
+        for mcq, v in zip(state["question_state"], state["validation_state"]):
             if not v.added_to_vectordb or not v.uuid:
                 continue  # skip questions that were not added to the vector db
+
+            q = cast(GeneratedQuestionsStats, mcq)
             question_logs.append(
                 QuestionLog(
                     question_id=v.uuid,
@@ -58,7 +60,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                 )
             )
         log = GenerationLog(
-            type=state["request"].type,
+            type=QuestionType.mcq,
             request=state["request"],
             questions=question_logs,
             total_questions=state["request"].no_of_questions,
@@ -115,6 +117,43 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
         await log.insert()
         print(
             f"✅ Saved {len(question_logs)} questions to ComprehensionLog with ID: {log.id}\n"
+        )
+    elif state["type"] == GraphType.fill_in_the_blank:
+        question_logs = []
+        for fill_in_the_blanks, v in zip(state["question_state"], state["validation_state"]):
+            if not v.added_to_vectordb or not v.uuid:
+                continue  # skip questions that were not added to the vector db
+            q= cast(GeneratedFillInTheBlankQuestionsStats, fill_in_the_blanks)
+            question_logs.append(
+                FillInTheBlankQuestionLog(
+                    question_id=v.uuid,
+                    question=q.question,
+                    answer=q.answer,
+                    acceptable_answers=q.acceptable_answers,
+                    explanation=q.explanation,
+                    validation_score=v.validation_result.score,
+                    duplication_chance=v.validation_result.duplication_chance,
+                    total_time=q.total_time,
+                    total_attempts=q.retries,
+                    issues=v.validation_result.issues,
+                    similar_questions=v.similar_section,
+                    model_used=model_used,
+                    total_tokens=q.total_tokens,
+                )
+            )
+        log = FillInTheBlankLog(
+            type=QuestionType.fill_in_the_blank,
+            request=state["request"],
+            questions=question_logs,
+            total_questions=state["request"].no_of_questions,
+            total_questions_generated=len(question_logs),
+            total_regeneration_attempts=state["total_regeneration_attempts"],
+            total_retries=state["current_retry"],
+            total_time=time() - state["start_time"],
+        )
+        await log.insert()
+        print(
+            f"✅ Saved {len(question_logs)} questions to FillInTheBlankLog with ID: {log.id}\n"
         )
 
     return {

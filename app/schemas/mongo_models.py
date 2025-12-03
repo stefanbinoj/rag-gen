@@ -10,6 +10,9 @@ from app.prompts.comprehensive_question_validation_prompt import comprehensive_q
 from app.prompts.generation_prompt import generation_system_prompt
 from app.prompts.validation_prompt import validation_system_prompt
 from app.prompts.regeneration_prompt import regeneration_system_prompt
+from app.prompts.fill_blank_generation_prompt import fill_blank_generation_system_prompt
+from app.prompts.fill_blank_validation_prompt import fill_blank_validation_system_prompt
+from app.prompts.fill_blank_regeneration_prompt import fill_blank_regeneration_system_prompt
 from typing import List, Optional
 from app.schemas.input_schema import ComprehensionReqPara, QuestionReqPara, QuestionType
 from app.schemas.output_schema import Options
@@ -33,6 +36,9 @@ class Prompt(Document):
     comprehensive_question_generation_prompt: str = comprehensive_question_generation_system_prompt()
     comprehensive_question_validation_prompt: str = comprehensive_question_validation_system_prompt()
     comprehensive_question_regeneration_prompt: str = comprehensive_question_regeneration_system_prompt()
+    fill_blank_generation_prompt: str = fill_blank_generation_system_prompt()
+    fill_blank_validation_prompt: str = fill_blank_validation_system_prompt()
+    fill_blank_regeneration_prompt: str = fill_blank_regeneration_system_prompt()
     updated_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
@@ -85,4 +91,35 @@ class ComprehensionLog(Document):
     class Settings:
         name = "comprehension_logs"
         validate_on_load = False
+
+
+class FillInTheBlankQuestionLog(BaseModel):
+    question_id: str
+    question: str
+    answer: str
+    acceptable_answers: Optional[List[str]] = None
+    explanation: str
+    validation_score: float
+    duplication_chance: float
+    total_time: float
+    total_attempts: int
+    issues: List[str]
+    similar_questions: Optional[str] = None
+    model_used: Optional[str] = None
+    total_tokens: Optional[int] = None
+
+
+class FillInTheBlankLog(Document):
+    type: QuestionType = Field(default=QuestionType.fill_in_the_blank)
+    total_questions: int
+    total_questions_generated: int
+    total_time: float
+    request: QuestionReqPara
+    questions: List[FillInTheBlankQuestionLog]
+    total_regeneration_attempts: int
+    total_retries: int
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    class Settings:
+        name = "fill_in_the_blank_logs"
 

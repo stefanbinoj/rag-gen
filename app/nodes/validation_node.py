@@ -12,12 +12,13 @@ async def validation_node(state: QuestionState) -> QuestionState:
     generated_questions = state["question_state"]
     comprehension_passage = state.get("comprehensive_paragraph")
     is_comprehension = state["type"] == GraphType.comprehension
+    is_fill_blank = state["type"] == GraphType.fill_in_the_blank
 
     for idx, question in enumerate(generated_questions):
         print(f"  → Validating question {idx + 1}/{len(generated_questions)}")
 
         similar_questions = await search_similar_questions(
-            question=question, subject=req.subject, topic=req.topic, top_k=3
+            question=question.question, subject=req.subject, topic=req.topic, top_k=3
         )
 
         # Validate the question
@@ -27,6 +28,7 @@ async def validation_node(state: QuestionState) -> QuestionState:
             similar_questions,
             is_comprehension=is_comprehension,
             comprehension_passage=comprehension_passage,
+            is_fill_blank=is_fill_blank,
         )
         generated_questions[idx].total_time += validation_time
         generated_questions[idx].total_tokens += total_token
