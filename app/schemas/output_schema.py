@@ -45,6 +45,23 @@ class FillInTheBlankQuestionItem(BaseModel):
     acceptable_answers: Optional[list[str]] = Field(None, description="List of acceptable alternative answers")
     explanation: str = Field(..., description="Explanation for the correct answer")
 
+class SubjectiveMarkingScheme(BaseModel):
+    step: str = Field(..., description="Step to evaluate the subjective answer")
+    marks: int = Field(..., description="Marks allocated for this step")
+
+class MarkingScheme(BaseModel):
+    total_marks: int = Field(..., description="Total marks for the subjective question")
+    criteria: list[SubjectiveMarkingScheme] = Field(
+        ..., description="List of marking criteria"
+    )
+
+class SubjectiveQuestionItem(BaseModel):
+    question: str = Field(..., description="The question text")
+    expected_answer: str = Field(..., description="The expected answer for the question")
+    marking_scheme: MarkingScheme = Field(
+        ..., description="Marking scheme for evaluating the subjective answer"
+    )
+
 
 class ComprehensionQuestionItem(QuestionItem):
     """Extends QuestionItem to include comprehension type."""

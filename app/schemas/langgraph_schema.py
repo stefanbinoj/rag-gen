@@ -1,10 +1,11 @@
 from typing import TypedDict, List
 from app.schemas.input_schema import ComprehensionReqPara, GraphType, QuestionReqPara
-from app.schemas.mongo_models import ComprehensionLog, GenerationLog, FillInTheBlankLog
+from app.schemas.mongo_models import ComprehensionLog, GenerationLog, FillInTheBlankLog, SubjectiveLog
 from app.schemas.output_schema import (
     ComprehensionQuestionItem,
     FillInTheBlankQuestionItem,
     QuestionItem,
+    SubjectiveQuestionItem,
     ValidationNodeReturn,
 )
 
@@ -27,6 +28,12 @@ class GeneratedFillInTheBlankQuestionsStats(FillInTheBlankQuestionItem):
     total_tokens: int
 
 
+class GeneratedSubjectiveQuestionsStats(SubjectiveQuestionItem):
+    total_time: float
+    retries: int
+    total_tokens: int
+
+
 class QuestionState(TypedDict):
     type: GraphType
 
@@ -41,6 +48,7 @@ class QuestionState(TypedDict):
         List[GeneratedQuestionsStats]
         | List[GeneratedComprehensionQuestionsStats]
         | List[GeneratedFillInTheBlankQuestionsStats]
+        | List[GeneratedSubjectiveQuestionsStats]
     )
 
     validation_state: List[ValidationNodeReturn]  # Validation results for each question
@@ -48,5 +56,5 @@ class QuestionState(TypedDict):
     current_retry: int
     total_regeneration_attempts: int
 
-    final_state: GenerationLog | ComprehensionLog | FillInTheBlankLog | None
+    final_state: GenerationLog | ComprehensionLog | FillInTheBlankLog | SubjectiveLog | None
 

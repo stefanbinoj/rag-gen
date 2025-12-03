@@ -75,4 +75,5 @@ class PromptReqPara(BaseModel):
 class GraphType(str, Enum):
     mcq = "mcq"
     fill_in_the_blank = "fill_in_the_blank"
+    subjective = "subjective"
     comprehension = "comprehension"

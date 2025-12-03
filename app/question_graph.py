@@ -8,8 +8,8 @@ from app.schemas.langgraph_schema import QuestionState
 from app.nodes.generation_node import generation_node
 from app.nodes.validation_node import validation_node
 from app.nodes.regeneration_node import regeneration_node
-from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog, FillInTheBlankLog, FillInTheBlankQuestionLog
-from app.schemas.langgraph_schema import GeneratedComprehensionQuestionsStats, GeneratedQuestionsStats, GeneratedFillInTheBlankQuestionsStats
+from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog, FillInTheBlankLog, FillInTheBlankQuestionLog, SubjectiveLog, SubjectiveQuestionLog 
+from app.schemas.langgraph_schema import GeneratedComprehensionQuestionsStats, GeneratedQuestionsStats, GeneratedFillInTheBlankQuestionsStats, GeneratedSubjectiveQuestionsStats
 from config import MAX_RETRIES
 
 
@@ -154,6 +154,42 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
         await log.insert()
         print(
             f"✅ Saved {len(question_logs)} questions to FillInTheBlankLog with ID: {log.id}\n"
+        )
+    elif state["type"] == GraphType.subjective:
+        question_logs = []
+        for subjective_question, v in zip(state["question_state"], state["validation_state"]):
+            if not v.added_to_vectordb or not v.uuid:
+                continue  # skip questions that were not added to the vector db
+            q= cast(GeneratedSubjectiveQuestionsStats, subjective_question)
+            question_logs.append(
+                SubjectiveQuestionLog(
+                    question_id=v.uuid,
+                    question=q.question,
+                    expected_answer=q.expected_answer,
+                    marking_scheme=q.marking_scheme.model_dump(),
+                    validation_score=v.validation_result.score,
+                    duplication_chance=v.validation_result.duplication_chance,
+                    total_time=q.total_time,
+                    total_attempts=q.retries,
+                    issues=v.validation_result.issues,
+                    similar_questions=v.similar_section,
+                    model_used=model_used,
+                    total_tokens=q.total_tokens,
+                )
+            )
+        log = SubjectiveLog(
+            type=QuestionType.subjective,
+            request=state["request"],
+            questions=question_logs,
+            total_questions=state["request"].no_of_questions,
+            total_questions_generated=len(question_logs),
+            total_regeneration_attempts=state["total_regeneration_attempts"],
+            total_retries=state["current_retry"],
+            total_time=time() - state["start_time"],
+        )
+        await log.insert()
+        print(
+            f"✅ Saved {len(question_logs)} questions to SubjectiveLog with ID: {log.id}\n"
         )
 
     return {

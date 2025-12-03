@@ -2,19 +2,20 @@ import time
 from typing import Optional, cast
 from app.deps import get_llm_client
 from app.schemas.input_schema import QuestionReqPara, ComprehensionReqPara
-from app.schemas.output_schema import ComprehensionQuestionItem, ComprehensionType, FillInTheBlankQuestionItem, QuestionItem, ValidationNodeReturn
+from app.schemas.output_schema import ComprehensionQuestionItem, ComprehensionType, FillInTheBlankQuestionItem, QuestionItem, SubjectiveQuestionItem, ValidationNodeReturn
 from app.helpers.db_helper import get_model_name, get_prompt
 
 
 async def regenerate_question(
     req: QuestionReqPara | ComprehensionReqPara,
-    question: QuestionItem | ComprehensionQuestionItem | FillInTheBlankQuestionItem,
+    question: QuestionItem | ComprehensionQuestionItem | FillInTheBlankQuestionItem | SubjectiveQuestionItem,
     validation_result: ValidationNodeReturn,
     temperature: float = 0.3,
     is_comprehension: bool = False,
     comprehension_passage: str | None = None,
     is_fill_blank: bool = False,
-) -> tuple[QuestionItem | FillInTheBlankQuestionItem, float, int]:
+    is_subjective: bool = False,
+) -> tuple[QuestionItem | FillInTheBlankQuestionItem | SubjectiveQuestionItem, float, int]:
     start_time = time.time()
     comprehension_type: Optional[ComprehensionType]= None
     if is_comprehension:
@@ -25,7 +26,9 @@ async def regenerate_question(
     llm = get_llm_client(model_name, temperatur=temperature)
 
     # Determine system prompt based on question type
-    if is_fill_blank:
+    if is_subjective:
+        system_prompt_name = "subjective_regeneration"
+    elif is_fill_blank:
         system_prompt_name = "fill_blank_regeneration"
     elif is_comprehension:
         system_prompt_name = "comprehensive_question_regeneration"
@@ -35,11 +38,39 @@ async def regenerate_question(
     system_prompt = await get_prompt(system_prompt_name)
 
     # Choose the appropriate structured output model
-    if is_fill_blank:
+    if is_subjective:
+        model_with_structure = llm.with_structured_output(SubjectiveQuestionItem, include_raw=True)
+    elif is_fill_blank:
         model_with_structure = llm.with_structured_output(FillInTheBlankQuestionItem, include_raw=True)
     else:
         model_with_structure = llm.with_structured_output(QuestionItem, include_raw=True)
     # Create different user messages for normal vs comprehension regeneration
+    user_message_subjective = f"""
+REGENERATION TASK - Subjective Question
+----------------------------------------
+ORIGINAL REQUIREMENTS:
+Subject: {req.subject}
+Topic: {req.topic}
+Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
+Difficulty: {req.difficulty.value}
+Stream: {req.stream.value}
+Country: {req.country}
+Age Group: {req.age if req.age else "N/A"}
+
+FAULTY QUESTION:
+Question: {question.question}
+Expected Answer: {cast(SubjectiveQuestionItem, question).expected_answer if is_subjective else "N/A"}
+Marking Scheme: {cast(SubjectiveQuestionItem, question).marking_scheme.model_dump() if is_subjective else "N/A"}
+
+VALIDATION FEEDBACK:
+Score: {validation_result.validation_result.score}
+Duplication Chance: {validation_result.validation_result.duplication_chance}
+Issues: {", ".join(validation_result.validation_result.issues)}
+
+Please regenerate a single clear, comprehensive subjective question that addresses the issues above. Keep format consistent.
+- Don't use any emojis and always ensure content is in {req.country} respective context.
+"""
+
     user_message_fill_blank = f"""
 REGENERATION TASK - Fill-in-the-Blank Question
 -----------------------------------------------
@@ -56,7 +87,7 @@ FAULTY QUESTION:
 Question: {question.question}
 Answer: {cast(FillInTheBlankQuestionItem, question).answer if is_fill_blank else "N/A"}
 Acceptable Answers: {cast(FillInTheBlankQuestionItem, question).acceptable_answers if is_fill_blank else "N/A"}
-Explanation: {question.explanation}
+Explanation: {cast(FillInTheBlankQuestionItem, question).explanation if is_fill_blank else "N/A"}
 
 VALIDATION FEEDBACK:
 Score: {validation_result.validation_result.score}
@@ -81,9 +112,9 @@ Age Group: {req.age if req.age else "N/A"}
 
 FAULTY QUESTION:
 Question: {question.question}
-Options: {cast(QuestionItem, question).options if not is_fill_blank else "N/A"}
-Correct Option: {cast(QuestionItem, question).correct_option if not is_fill_blank else "N/A"}
-Explanation: {question.explanation}
+Options: {cast(QuestionItem, question).options if not is_fill_blank and not is_subjective else "N/A"}
+Correct Option: {cast(QuestionItem, question).correct_option if not is_fill_blank and not is_subjective else "N/A"}
+Explanation: {cast(QuestionItem | FillInTheBlankQuestionItem, question).explanation if not is_subjective else "N/A"}
 
 VALIDATION FEEDBACK:
 Score: {validation_result.validation_result.score}
@@ -114,7 +145,7 @@ FAULTY QUESTION:
 Question: {question.question}
 Options: {cast(ComprehensionQuestionItem, question).options if is_comprehension else "N/A"}
 Correct Option: {cast(ComprehensionQuestionItem, question).correct_option if is_comprehension else "N/A"}
-Explanation: {question.explanation}
+Explanation: {cast(ComprehensionQuestionItem, question).explanation if is_comprehension else "N/A"}
 
 VALIDATION FEEDBACK:
 Score: {validation_result.validation_result.score}
@@ -126,7 +157,9 @@ Please regenerate the question so that the correct answer is directly supported 
 """
 
     # Select the appropriate user message
-    if is_fill_blank:
+    if is_subjective:
+        user_message = user_message_subjective
+    elif is_fill_blank:
         user_message = user_message_fill_blank
     elif is_comprehension:
         user_message = user_message_comprehensive
@@ -144,7 +177,7 @@ Please regenerate the question so that the correct answer is directly supported 
     total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
     parsed = result["parsed"]
 
-    if isinstance(parsed, (QuestionItem, ComprehensionQuestionItem, FillInTheBlankQuestionItem)):
+    if isinstance(parsed, (QuestionItem, ComprehensionQuestionItem, FillInTheBlankQuestionItem, SubjectiveQuestionItem)):
         questions = parsed
     else:
         print(f"Unexpected result type: {type(result)}")

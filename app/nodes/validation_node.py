@@ -13,6 +13,7 @@ async def validation_node(state: QuestionState) -> QuestionState:
     comprehension_passage = state.get("comprehensive_paragraph")
     is_comprehension = state["type"] == GraphType.comprehension
     is_fill_blank = state["type"] == GraphType.fill_in_the_blank
+    is_subjective = state["type"] == GraphType.subjective
 
     for idx, question in enumerate(generated_questions):
         print(f"  → Validating question {idx + 1}/{len(generated_questions)}")
@@ -29,6 +30,7 @@ async def validation_node(state: QuestionState) -> QuestionState:
             is_comprehension=is_comprehension,
             comprehension_passage=comprehension_passage,
             is_fill_blank=is_fill_blank,
+            is_subjective=is_subjective,
         )
         generated_questions[idx].total_time += validation_time
         generated_questions[idx].total_tokens += total_token

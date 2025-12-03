@@ -44,6 +44,12 @@ async def get_prompt(type: str):
         return prompts.fill_blank_validation_prompt
     elif type == "fill_blank_regeneration":
         return prompts.fill_blank_regeneration_prompt
+    elif type == "subjective_generation":
+        return prompts.subjective_generation_prompt
+    elif type == "subjective_validation":
+        return prompts.subjective_validation_prompt
+    elif type == "subjective_regeneration":
+        return prompts.subjective_regeneration_prompt
     else:
         raise ValueError(f"Unknown prompt type: {type}")
 

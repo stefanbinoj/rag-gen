@@ -13,6 +13,9 @@ from app.prompts.regeneration_prompt import regeneration_system_prompt
 from app.prompts.fill_blank_generation_prompt import fill_blank_generation_system_prompt
 from app.prompts.fill_blank_validation_prompt import fill_blank_validation_system_prompt
 from app.prompts.fill_blank_regeneration_prompt import fill_blank_regeneration_system_prompt
+from app.prompts.subjective_generation_prompt import subjective_generation_system_prompt
+from app.prompts.subjective_validation_prompt import subjective_validation_system_prompt
+from app.prompts.subjective_regeneration_prompt import subjective_regeneration_system_prompt
 from typing import List, Optional
 from app.schemas.input_schema import ComprehensionReqPara, QuestionReqPara, QuestionType
 from app.schemas.output_schema import Options
@@ -39,6 +42,9 @@ class Prompt(Document):
     fill_blank_generation_prompt: str = fill_blank_generation_system_prompt()
     fill_blank_validation_prompt: str = fill_blank_validation_system_prompt()
     fill_blank_regeneration_prompt: str = fill_blank_regeneration_system_prompt()
+    subjective_generation_prompt: str = subjective_generation_system_prompt()
+    subjective_validation_prompt: str = subjective_validation_system_prompt()
+    subjective_regeneration_prompt: str = subjective_regeneration_system_prompt()
     updated_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
@@ -122,4 +128,34 @@ class FillInTheBlankLog(Document):
 
     class Settings:
         name = "fill_in_the_blank_logs"
+
+
+class SubjectiveQuestionLog(BaseModel):
+    question_id: str
+    question: str
+    expected_answer: str
+    marking_scheme: dict  # Store as dict to include total_marks and criteria
+    validation_score: float
+    duplication_chance: float
+    total_time: float
+    total_attempts: int
+    issues: List[str]
+    similar_questions: Optional[str] = None
+    model_used: Optional[str] = None
+    total_tokens: Optional[int] = None
+
+
+class SubjectiveLog(Document):
+    type: QuestionType = Field(default=QuestionType.subjective)
+    total_questions: int
+    total_questions_generated: int
+    total_time: float
+    request: QuestionReqPara
+    questions: List[SubjectiveQuestionLog]
+    total_regeneration_attempts: int
+    total_retries: int
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    class Settings:
+        name = "subjective_logs"
 

@@ -7,6 +7,7 @@ from app.schemas.output_schema import (
     ComprehensionType,
     FillInTheBlankQuestionItem,
     QuestionItem,
+    SubjectiveQuestionItem,
     ValidationResult,
     ValidationNodeReturn,
 )
@@ -16,12 +17,13 @@ from app.helpers.chroma_helper import add_question_to_chroma
 
 async def validate_questions(
     state: QuestionReqPara | ComprehensionReqPara,
-    question: QuestionItem | ComprehensionQuestionItem | FillInTheBlankQuestionItem,
+    question: QuestionItem | ComprehensionQuestionItem | FillInTheBlankQuestionItem | SubjectiveQuestionItem,
     similar_questions: Optional[List[dict]] = None,
     add_to_db: bool = True,
     is_comprehension: bool = False,
     comprehension_passage: str | None = None,
     is_fill_blank: bool = False,
+    is_subjective: bool = False,
 ) -> tuple[ValidationNodeReturn, float, int]:
     start_time = time.time()
     comprehension_type: Optional[ComprehensionType] = None
@@ -34,7 +36,9 @@ async def validate_questions(
     llm = get_llm_client(model_name)
 
     # Determine system prompt based on question type
-    if is_fill_blank:
+    if is_subjective:
+        system_prompt_name = "subjective_validation"
+    elif is_fill_blank:
         system_prompt_name = "fill_blank_validation"
     elif is_comprehension:
         system_prompt_name = "comprehensive_question_validation"
@@ -55,7 +59,29 @@ async def validate_questions(
         similar_section += "\n\nCompare the provided question with these similar ones. Are they essentially the same? Would they have the same answer?"
 
     # Build validation message based on question type
-    if is_fill_blank:
+    if is_subjective:
+        subjective_q = cast(SubjectiveQuestionItem, question)
+        user_message = f"""
+Validate this subjective question:
+
+{f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
+Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+{f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
+
+Question: {subjective_q.question}
+Expected Answer: {subjective_q.expected_answer}
+Marking Scheme: {subjective_q.marking_scheme.model_dump()}
+
+Also consider the following similar questions from the database to avoid duplicates:
+{similar_section}
+
+Instructions:
+- Assess correctness, clarity, relevance to topic, and any factual errors.
+- Verify the expected answer is comprehensive and correct.
+- Check that the marking scheme is detailed, specific, and marks add up correctly.
+- Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
+"""
+    elif is_fill_blank:
         fill_question = cast(FillInTheBlankQuestionItem, question)
         user_message = f"""
 Validate this fill-in-the-blank question:

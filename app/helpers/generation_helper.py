@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 from app.deps import get_llm_client
 from app.schemas.input_schema import ComprehensionReqPara, QuestionReqPara
-from app.schemas.output_schema import ComprehensionQuestionItem, QuestionItem, FillInTheBlankQuestionItem
+from app.schemas.output_schema import ComprehensionQuestionItem, QuestionItem, FillInTheBlankQuestionItem, SubjectiveQuestionItem
 from app.helpers.db_helper import get_model_name, get_prompt
 
 
@@ -19,18 +19,25 @@ class FillInTheBlankQuestionsList(BaseModel):
     questions: List[FillInTheBlankQuestionItem]
 
 
+class SubjectiveQuestionsList(BaseModel):
+    questions: List[SubjectiveQuestionItem]
+
+
 async def generate_questions(
     state: QuestionReqPara | ComprehensionReqPara,
     is_comprehension: bool = False,
     comprehension_passage: str | None = None,
     is_fill_blank: bool = False,
-) -> tuple[List[QuestionItem] | List[ComprehensionQuestionItem] | List[FillInTheBlankQuestionItem], float, int]:
+    is_subjective: bool = False,
+) -> tuple[List[QuestionItem] | List[ComprehensionQuestionItem] | List[FillInTheBlankQuestionItem] | List[SubjectiveQuestionItem], float, int]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
 
     # Determine system prompt based on question type
-    if is_fill_blank:
+    if is_subjective:
+        system_prompt_name = "subjective_generation"
+    elif is_fill_blank:
         system_prompt_name = "fill_blank_generation"
     elif is_comprehension:
         system_prompt_name = "comprehensive_question_generation"
@@ -40,7 +47,9 @@ async def generate_questions(
     system_prompt = await get_prompt(system_prompt_name)
 
     # Choose the appropriate structured output model
-    if is_fill_blank:
+    if is_subjective:
+        model_with_structure = llm.with_structured_output(SubjectiveQuestionsList, include_raw=True)
+    elif is_fill_blank:
         model_with_structure = llm.with_structured_output(FillInTheBlankQuestionsList, include_raw=True)
     elif is_comprehension:
         model_with_structure = llm.with_structured_output(ComprehensionQuestionsList, include_raw=True)
@@ -87,8 +96,23 @@ Instructions:
 - Don't use any emojis and always ensure content is in {state.country} respective context.
 """
 
+    user_message_subjective = f"""
+Generate {state.no_of_questions} subjective questions.
+{f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
+Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+{f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
+
+Instructions:
+- Produce {state.no_of_questions} distinct subjective questions requiring detailed explanatory answers.
+- Provide a comprehensive expected answer showing all steps/reasoning.
+- Include a detailed marking scheme with specific criteria and mark allocation.
+- Don't use any emojis and always ensure content is in {state.country} respective context.
+"""
+
     # Select the appropriate user message
-    if is_fill_blank:
+    if is_subjective:
+        user_message = user_message_subjective
+    elif is_fill_blank:
         user_message = user_message_fill_blank
     elif is_comprehension:
         user_message = user_message_comprehensive
@@ -104,7 +128,7 @@ Instructions:
     total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
     parsed = result["parsed"]
     # Extract questions from the result
-    if isinstance(parsed, (QuestionsList, ComprehensionQuestionsList, FillInTheBlankQuestionsList)):
+    if isinstance(parsed, (QuestionsList, ComprehensionQuestionsList, FillInTheBlankQuestionsList, SubjectiveQuestionsList)):
         questions = parsed.questions
     else:
         # Fallback for unexpected formats
