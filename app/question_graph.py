@@ -3,13 +3,31 @@ from typing import cast
 from langgraph.graph import StateGraph, END
 from app.helpers.db_helper import get_model_name
 from app.nodes.comprehension_generator_node import comprehension_generator_node
-from app.schemas.input_schema import ComprehensionReqPara, GraphType, QuestionType
+from app.schemas.input_schema import (
+    ComprehensionReqPara,
+    GraphType,
+    QuestionReqPara,
+    QuestionType,
+)
 from app.schemas.langgraph_schema import QuestionState
 from app.nodes.generation_node import generation_node
 from app.nodes.validation_node import validation_node
 from app.nodes.regeneration_node import regeneration_node
-from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog, FillInTheBlankLog, FillInTheBlankQuestionLog, SubjectiveLog, SubjectiveQuestionLog 
-from app.schemas.langgraph_schema import GeneratedComprehensionQuestionsStats, GeneratedQuestionsStats, GeneratedFillInTheBlankQuestionsStats, GeneratedSubjectiveQuestionsStats
+from app.schemas.mongo_models import (
+    ComprehensionLog,
+    GenerationLog,
+    QuestionLog,
+    FillInTheBlankLog,
+    FillInTheBlankQuestionLog,
+    SubjectiveLog,
+    SubjectiveQuestionLog,
+)
+from app.schemas.langgraph_schema import (
+    GeneratedComprehensionQuestionsStats,
+    GeneratedQuestionsStats,
+    GeneratedFillInTheBlankQuestionsStats,
+    GeneratedSubjectiveQuestionsStats,
+)
 from config import MAX_RETRIES
 
 
@@ -59,9 +77,11 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     total_tokens=q.total_tokens,
                 )
             )
+
+        req = cast(QuestionReqPara, state["request"])
         log = GenerationLog(
             type=QuestionType.mcq,
-            request=state["request"],
+            request=req,
             questions=question_logs,
             total_questions=state["request"].no_of_questions,
             total_questions_generated=len(question_logs),
@@ -94,7 +114,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     issues=v.validation_result.issues,
                     similar_questions=v.similar_section,
                     model_used=model_used,
-                    comprehension_type=comp_q.comprehension_type ,
+                    comprehension_type=comp_q.comprehension_type,
                     total_tokens=comp_q.total_tokens,
                 )
             )
@@ -120,10 +140,12 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
         )
     elif state["type"] == GraphType.fill_in_the_blank:
         question_logs = []
-        for fill_in_the_blanks, v in zip(state["question_state"], state["validation_state"]):
+        for fill_in_the_blanks, v in zip(
+            state["question_state"], state["validation_state"]
+        ):
             if not v.added_to_vectordb or not v.uuid:
                 continue  # skip questions that were not added to the vector db
-            q= cast(GeneratedFillInTheBlankQuestionsStats, fill_in_the_blanks)
+            q = cast(GeneratedFillInTheBlankQuestionsStats, fill_in_the_blanks)
             question_logs.append(
                 FillInTheBlankQuestionLog(
                     question_id=v.uuid,
@@ -141,9 +163,10 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     total_tokens=q.total_tokens,
                 )
             )
+        req = cast(QuestionReqPara, state["request"])
         log = FillInTheBlankLog(
             type=QuestionType.fill_in_the_blank,
-            request=state["request"],
+            request=req,
             questions=question_logs,
             total_questions=state["request"].no_of_questions,
             total_questions_generated=len(question_logs),
@@ -157,10 +180,12 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
         )
     elif state["type"] == GraphType.subjective:
         question_logs = []
-        for subjective_question, v in zip(state["question_state"], state["validation_state"]):
+        for subjective_question, v in zip(
+            state["question_state"], state["validation_state"]
+        ):
             if not v.added_to_vectordb or not v.uuid:
                 continue  # skip questions that were not added to the vector db
-            q= cast(GeneratedSubjectiveQuestionsStats, subjective_question)
+            q = cast(GeneratedSubjectiveQuestionsStats, subjective_question)
             question_logs.append(
                 SubjectiveQuestionLog(
                     question_id=v.uuid,
@@ -177,9 +202,10 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     total_tokens=q.total_tokens,
                 )
             )
+        req = cast(QuestionReqPara, state["request"])
         log = SubjectiveLog(
             type=QuestionType.subjective,
-            request=state["request"],
+            request=req,
             questions=question_logs,
             total_questions=state["request"].no_of_questions,
             total_questions_generated=len(question_logs),

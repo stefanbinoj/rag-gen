@@ -42,11 +42,26 @@ class QuestionReqPara(BaseModel):
         return v
 
 
-class ComprehensionReqPara(QuestionReqPara):
+class ComprehensionReqPara(BaseModel):
+    subject: str
+    topic: str
+    sub_topic: Optional[str] = None
+    difficulty: Difficulty
+    stream: Stream
+    country: str = "UK"
+    age: Optional[str] = None
+    no_of_questions: int = Field(..., gt=0, le=25)
+    language: str = "English"
+
+    @field_validator("subject", "topic", "sub_topic", mode="before")
+    @classmethod
+    def sanitize_strings(cls, v):
+        if isinstance(v, str):
+            return v.strip().lower().rstrip(".").replace(" ", "_")
+        return v
     generate_comprehension: bool
     more_information: Optional[str] = None
     comprehensive_paragraph: Optional[str] = None
-    type: Optional[QuestionType] = Field(default=None, exclude=True)
 
     @model_validator(mode="after")
     def check_comprehension_requirements(self):

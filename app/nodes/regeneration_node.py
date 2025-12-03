@@ -25,6 +25,7 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
     is_comprehension = state["type"] == GraphType.comprehension
     is_fill_blank = state["type"] == GraphType.fill_in_the_blank
     is_subjective = state["type"] == GraphType.subjective
+    question_type = state["type"].value
 
     for idx, result in enumerate(validated_results):
         if not result.added_to_vectordb:
@@ -70,7 +71,11 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
 
             # Search for similar questions with the regenerated question
             similar = await search_similar_questions(
-                question=regenerated_q.question, subject=req.subject, topic=req.topic, top_k=3
+                question=regenerated_q.question, 
+                subject=req.subject, 
+                topic=req.topic, 
+                question_type=question_type,
+                top_k=3
             )
 
             (
@@ -84,6 +89,7 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
                 is_comprehension=is_comprehension,
                 is_fill_blank=is_fill_blank,
                 is_subjective=is_subjective,
+                question_type=question_type,
             )
 
             generated_questions[idx].total_time += validation_time

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from beanie import init_beanie
 from app.routers import history, questions, validator, admin, health
-from app.schemas.mongo_models import Model, Prompt, GenerationLog, ComprehensionLog, FillInTheBlankLog
+from app.schemas.mongo_models import Model, Prompt, GenerationLog, ComprehensionLog, FillInTheBlankLog, SubjectiveLog
 from config import load_environment_variables
 from app.deps import get_mongo_db
 
@@ -13,7 +13,7 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
         db = get_mongo_db()
-        await init_beanie(database=db, document_models=[Model, Prompt, GenerationLog, ComprehensionLog,FillInTheBlankLog ])  # pyright: ignore[reportArgumentType]
+        await init_beanie(database=db, document_models=[Model, Prompt, GenerationLog, ComprehensionLog,FillInTheBlankLog , SubjectiveLog])  # pyright: ignore[reportArgumentType]
 
         # Initialize default models if none exist
         if not await Model.find_one():

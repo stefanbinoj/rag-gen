@@ -24,6 +24,7 @@ async def validate_questions(
     comprehension_passage: str | None = None,
     is_fill_blank: bool = False,
     is_subjective: bool = False,
+    question_type: str = "mcq",
 ) -> tuple[ValidationNodeReturn, float, int]:
     start_time = time.time()
     comprehension_type: Optional[ComprehensionType] = None
@@ -188,6 +189,7 @@ Instructions:
         question=question.question,
         subject=state.subject,
         topic=state.topic,
+        question_type=question_type,
         score=validation_result.score,
         duplication_chance=validation_result.duplication_chance,
     )

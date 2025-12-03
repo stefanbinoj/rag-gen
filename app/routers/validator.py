@@ -35,11 +35,15 @@ async def validate_question(question_id: str):
     print(f"\n\n    --->Validating single question {question.question}")
 
     similar_questions = await search_similar_questions(
-        question=question.question, subject=req.subject, topic=req.topic, top_k=3
+        question=question.question, 
+        subject=req.subject, 
+        topic=req.topic, 
+        question_type="mcq",
+        top_k=3
     )
 
     check_validation, validation_time, total_token = await validate_questions(
-        req, question, similar_questions[1:], add_to_db=False
+        req, question, similar_questions[1:], add_to_db=False, question_type="mcq"
     )
     return {
         "question_id": res.question_id,
@@ -74,7 +78,11 @@ async def validate_passage(question_id: str):
     print(f"\n\n    --->Validating single question {question.question}")
 
     similar_questions = await search_similar_questions(
-        question=question.question, subject=req.subject, topic=req.topic, top_k=3
+        question=question.question, 
+        subject=req.subject, 
+        topic=req.topic, 
+        question_type="comprehension",
+        top_k=3
     )
 
     check_validation, validation_time, total_tokens = await validate_questions(
@@ -84,6 +92,7 @@ async def validate_passage(question_id: str):
         add_to_db=False,
         is_comprehension=True,
         comprehension_passage=log.paragraph,
+        question_type="comprehension",
     )
     return {
         "comprehensive_passage": log.paragraph,

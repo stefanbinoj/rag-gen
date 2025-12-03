@@ -18,8 +18,15 @@ async def validation_node(state: QuestionState) -> QuestionState:
     for idx, question in enumerate(generated_questions):
         print(f"  → Validating question {idx + 1}/{len(generated_questions)}")
 
+        # Determine question type for collection
+        question_type = state["type"].value
+        
         similar_questions = await search_similar_questions(
-            question=question.question, subject=req.subject, topic=req.topic, top_k=3
+            question=question.question, 
+            subject=req.subject, 
+            topic=req.topic, 
+            question_type=question_type,
+            top_k=3
         )
 
         # Validate the question
@@ -31,6 +38,7 @@ async def validation_node(state: QuestionState) -> QuestionState:
             comprehension_passage=comprehension_passage,
             is_fill_blank=is_fill_blank,
             is_subjective=is_subjective,
+            question_type=question_type,
         )
         generated_questions[idx].total_time += validation_time
         generated_questions[idx].total_tokens += total_token

@@ -5,14 +5,26 @@ from app.schemas.output_schema import QuestionItem
 from config import DUPLICATE_THRESHOLD, SCORE_THRESHOLD
 
 
+def _get_collection_prefix(question_type: str) -> str:
+    if question_type in ["mcq", "fill_in_the_blank"]:
+        return "1"
+    elif question_type == "subjective":
+        return "2"
+    elif question_type == "comprehension":
+        return "3"
+    else:
+        return "1"  # default to normal
+
+
 async def search_similar_questions(
-    question: str, subject: str,topic: str, top_k: int = 3
+    question: str, subject: str, topic: str, question_type: str, top_k: int = 3
 ) -> list[dict]:
     """Search ChromaDB for similar questions"""
     try:
         client = get_chroma_client()
+        prefix = _get_collection_prefix(question_type)
         collection = client.get_or_create_collection(
-            name=f"{subject.strip().lower()}.{topic.strip().lower()}",
+            name=f"{prefix}.{subject.strip().lower()}.{topic.strip().lower()}",
             metadata={"hnsw:space": "cosine"},
         )
 
@@ -48,6 +60,7 @@ async def add_question_to_chroma(
     question: str,
     subject: str,
     topic: str,
+    question_type: str,
     score: float,
     duplication_chance: float,
 ) -> tuple[bool, Optional[str]]:
@@ -56,8 +69,9 @@ async def add_question_to_chroma(
             return False, None
 
         client = get_chroma_client()
+        prefix = _get_collection_prefix(question_type)
         collection = client.get_or_create_collection(
-            name=f"{subject.strip().lower()}.{topic.strip().lower()}",
+            name=f"{prefix}.{subject.strip().lower()}.{topic.strip().lower()}",
             metadata={"hnsw:space": "cosine"},
         )
 

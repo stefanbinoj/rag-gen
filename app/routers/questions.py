@@ -1,7 +1,15 @@
 import time
 from fastapi import APIRouter, HTTPException
 from app.schemas.input_schema import GraphType, QuestionReqPara, ComprehensionReqPara
-from app.schemas.mongo_models import ComprehensionLog, GenerationLog, QuestionLog, FillInTheBlankLog, FillInTheBlankQuestionLog, SubjectiveLog, SubjectiveQuestionLog
+from app.schemas.mongo_models import (
+    ComprehensionLog,
+    GenerationLog,
+    QuestionLog,
+    FillInTheBlankLog,
+    FillInTheBlankQuestionLog,
+    SubjectiveLog,
+    SubjectiveQuestionLog,
+)
 from app.question_graph import question_graph
 from app.schemas.langgraph_schema import QuestionState
 from app.helpers.langfuse_helper import create_langfuse_handler
@@ -18,25 +26,27 @@ router = APIRouter()
 )
 async def generate_questions_endpoint(req: QuestionReqPara):
     start_time = time.time()
-    
+
     # Map QuestionType to GraphType
     type_mapping = {
         "mcq": GraphType.mcq,
         "fill_in_the_blank": GraphType.fill_in_the_blank,
         "subjective": GraphType.subjective,
     }
-    
+
     graph_type = type_mapping.get(req.type.value)
     if not graph_type:
-        raise HTTPException(status_code=400, detail=f"Invalid question type: {req.type}")
-    
+        raise HTTPException(
+            status_code=400, detail=f"Invalid question type: {req.type}"
+        )
+
     # Pipeline names for logging
     pipeline_names = {
         "mcq": "MCQ Question Generation Pipeline",
         "fill_in_the_blank": "Fill-in-the-Blank Question Generation Pipeline",
         "subjective": "Subjective Question Generation Pipeline",
     }
-    
+
     print("\n" + "=" * 80)
     print(pipeline_names[req.type.value])
     print("=" * 80 + "\n")
@@ -82,7 +92,6 @@ async def generate_questions_endpoint(req: QuestionReqPara):
     print("=" * 80 + "\n")
 
     return final_state["final_state"]
-
 
 
 @router.post("/generate-comprehension")
@@ -134,8 +143,8 @@ async def generate_comprehension_endpoint(req: ComprehensionReqPara):
     print(f"   Total Time Taken: {time.time() - final_state['start_time']:.2f} seconds")
     print("=" * 80 + "\n")
 
-
     return final_state["final_state"]
+
 
 @router.get("/mcq/{id}")
 async def read_question(id: str):
@@ -164,14 +173,16 @@ async def read_comprehension_question(id: str):
     }
 
 
-@router.get("/fill-blank/{id}")
+@router.get("/fill-in-the-blank/{id}")
 async def read_fill_blank_question(id: str):
     log = await FillInTheBlankLog.find_one({"questions.question_id": id})
 
     if not log:
         raise HTTPException(status_code=404, detail="Question not found")
 
-    res: FillInTheBlankQuestionLog = [q for q in log.questions if q.question_id == id][0]
+    res: FillInTheBlankQuestionLog = [q for q in log.questions if q.question_id == id][
+        0
+    ]
 
     return res
 

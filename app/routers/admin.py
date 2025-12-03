@@ -6,24 +6,6 @@ from app.schemas.input_schema import ModelReqPara, PromptReqPara
 
 router = APIRouter()
 
-
-@router.get("/metrics")
-async def admin_metrics():
-    return {"status": "to be implemented with langfuse"}
-
-
-@router.get("/models")
-async def list_models():
-    models = await Model.find_one()
-    return JSONResponse(
-        content={
-            "success": True,
-            "models": models.model_dump(mode="json") if models else None,
-        },
-        status_code=200,
-    )
-
-
 @router.post("/models/switch")
 async def switch_model(req: ModelReqPara):
     models = await Model.find_one()
