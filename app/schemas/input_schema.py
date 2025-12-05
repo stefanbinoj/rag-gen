@@ -33,6 +33,7 @@ class QuestionReqPara(BaseModel):
     age: Optional[str] = None
     no_of_questions: int = Field(..., gt=0, le=25)
     language: str = "English"
+    special_instructions: Optional[str] = None
 
     @field_validator("subject", "topic", "sub_topic", mode="before")
     @classmethod
@@ -52,6 +53,10 @@ class ComprehensionReqPara(BaseModel):
     age: Optional[str] = None
     no_of_questions: int = Field(..., gt=0, le=25)
     language: str = "English"
+    generate_comprehension: bool
+    more_information: Optional[str] = None
+    comprehensive_paragraph: Optional[str] = None
+    special_instructions: Optional[str] = None
 
     @field_validator("subject", "topic", "sub_topic", mode="before")
     @classmethod
@@ -59,9 +64,6 @@ class ComprehensionReqPara(BaseModel):
         if isinstance(v, str):
             return v.strip().lower().rstrip(".").replace(" ", "_")
         return v
-    generate_comprehension: bool
-    more_information: Optional[str] = None
-    comprehensive_paragraph: Optional[str] = None
 
     @model_validator(mode="after")
     def check_comprehension_requirements(self):

@@ -15,6 +15,10 @@ async def generate_comprehension(
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
     system_prompt = await get_prompt("comprehension")
+    
+    # Add special_instructions to system prompt if present
+    if state.special_instructions:
+        system_prompt += f"\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY):**\n{state.special_instructions}"
 
     model_with_structure = llm.with_structured_output(ComprehensionResult, include_raw=True)
 
@@ -38,6 +42,7 @@ Instructions:
 - Make sure the passage contains specific, testable facts and details that can be used to form reliable MCQs.
 - Match vocabulary and sentence complexity to the difficulty level and stream.
 - Don't use any emojis and always ensure passage is in {state.country} respective context.
+{f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 
 

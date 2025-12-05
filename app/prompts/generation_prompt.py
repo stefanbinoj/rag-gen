@@ -39,5 +39,7 @@ OUTPUT FORMAT (MANDATORY)
     "explanation": "Correct answer (B):** ...\\n\\n**Why the others are wrong:**\\n- **Option A:** ...\\n- **Option C:** ...\\n- **Option D:** ..."
   }
 
+IMPORTANT: If special instructions are provided by the user, they MUST be followed with the highest priority. Special instructions override any conflicting guidelines above but should work in harmony with the core requirements.
+
 When ready, generate the {num_quizzes} questions
 """

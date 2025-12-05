@@ -63,5 +63,7 @@ LANGUAGE & TONE
 - Professional academic voice; no emojis or slang.
 - Expected answers should be comprehensive but appropriate for the age group.
 
+IMPORTANT: If special instructions are provided by the user, they MUST be followed with the highest priority. Special instructions override any conflicting guidelines above but should work in harmony with the core requirements.
+
 When ready, generate all {num_quizzes} subjective questions.
 """

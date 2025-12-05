@@ -19,6 +19,8 @@ Context Integration: If additional information is provided in the `more_informat
 
 Remember: The passage should be self-contained, factual, and suitable for testing reading comprehension skills through MCQs that assess understanding, inference, and critical thinking. Adjust complexity based on the specified difficulty level to ensure an appropriate challenge for the target students.
 
+IMPORTANT: If special instructions are provided by the user, they MUST be followed with the highest priority. Special instructions override any conflicting guidelines above but should work in harmony with the core requirements.
+
 """
 
 

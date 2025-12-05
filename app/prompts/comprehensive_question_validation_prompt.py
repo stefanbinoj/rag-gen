@@ -87,6 +87,8 @@ When duplication_chance is high (>0.5), reduce score accordingly (typically belo
 - Be evidence-based and specific. Avoid vagueness like "needs improvement" without saying what.
 - Prioritize actionable fixes in issues (what to change, why, and a short suggestion).
 
+IMPORTANT: If special instructions are provided by the user, consider them during validation as they represent user-specific requirements that should be verified in the questions.
+
 --- FINAL NOTE
 Produce the ValidationResult values according to the schema above and nothing else.
 """

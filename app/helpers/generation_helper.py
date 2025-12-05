@@ -45,6 +45,10 @@ async def generate_questions(
         system_prompt_name = "generation"
     
     system_prompt = await get_prompt(system_prompt_name)
+    
+    # Add special_instructions to system prompt if present
+    if state.special_instructions:
+        system_prompt += f"\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY):**\n{state.special_instructions}"
 
     # Choose the appropriate structured output model
     if is_subjective:
@@ -66,6 +70,7 @@ Instructions:
 - Produce {state.no_of_questions} distinct MCQs with 4 options (A-D).
 - Provide one correct option, and a brief explanation for the correct answer.
 - Don't use any emojis and always ensure passage is in {state.country} respective context.
+{f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 
     user_message_comprehensive = f"""
@@ -81,6 +86,7 @@ Instructions:
 - Use explicit references to the passage where appropriate (e.g., "According to the passage...").
 - Provide 4 options (A-D), mark the correct option, and include a concise explanation referencing the passage.
 - Don't use any emojis and always ensure passage is in {state.country} respective context.
+{f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 
     user_message_fill_blank = f"""
@@ -94,6 +100,7 @@ Instructions:
 - Provide the correct answer and any acceptable alternative answers.
 - Include a brief explanation for the correct answer.
 - Don't use any emojis and always ensure content is in {state.country} respective context.
+{f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 
     user_message_subjective = f"""
@@ -107,6 +114,7 @@ Instructions:
 - Provide a comprehensive expected answer showing all steps/reasoning.
 - Include a detailed marking scheme with specific criteria and mark allocation.
 - Don't use any emojis and always ensure content is in {state.country} respective context.
+{f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 
     # Select the appropriate user message

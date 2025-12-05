@@ -47,6 +47,10 @@ async def validate_questions(
         system_prompt_name = "validation"
     
     system_prompt = await get_prompt(system_prompt_name)
+    
+    # Add special_instructions to system prompt if present
+    if state.special_instructions:
+        system_prompt += f"\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY - Consider during validation):**\n{state.special_instructions}"
 
     model_with_structure = llm.with_structured_output(ValidationResult, include_raw=True)
 
@@ -81,6 +85,7 @@ Instructions:
 - Verify the expected answer is comprehensive and correct.
 - Check that the marking scheme is detailed, specific, and marks add up correctly.
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
+{f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
     elif is_fill_blank:
         fill_question = cast(FillInTheBlankQuestionItem, question)
@@ -104,6 +109,7 @@ Instructions:
 - Verify the answer correctly fills the blank.
 - Check that acceptable_answers are truly valid alternatives.
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
+{f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
     else:
         # Cast to QuestionItem for MCQ/comprehension types
@@ -131,6 +137,7 @@ Also consider the following similar questions from the database to avoid duplica
 Instructions:
 - Assess correctness, clarity, relevance to topic, and any factual errors.
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
+{f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
 
         user_message_comprehensive = f"""
@@ -155,6 +162,7 @@ Instructions:
 - Verify the correct option is directly supported by the passage.
 - Flag any options that could be justified by the passage (ambiguity), factual errors, or misinterpretation.
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and list of issues with short remediation suggestions.
+{f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
 
         user_message = (

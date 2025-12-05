@@ -51,4 +51,6 @@ Return a SINGLE JSON object matching the standard question format:
   "explanation": "...",
   "comprehension_type": "inference_questions"
 }}
+
+IMPORTANT: If special instructions are provided by the user, they MUST be followed with the highest priority in the regenerated question. Special instructions override any conflicting guidelines above but should work in harmony with the core requirements.
 """
