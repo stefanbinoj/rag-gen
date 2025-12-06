@@ -16,16 +16,19 @@ def get_mongo_db():
     return _mongo_db
 
 
+_llm_client = None
 
 
 def get_llm_client(model_name: str, temperatur: float = 0) -> ChatOpenAI:
-    langfuse_handler = get_langfuse_handler()
-    _llm_client = ChatOpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        model=model_name,
-        temperature=temperatur,
-        callbacks=[langfuse_handler],
-    )
+    global _llm_client
+    if _llm_client is None:
+        langfuse_handler = get_langfuse_handler()
+        _llm_client = ChatOpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            model=model_name,
+            temperature=temperatur,
+            callbacks=[langfuse_handler],
+        )
     return _llm_client
 
 
