@@ -31,7 +31,7 @@ async def validate_questions(
 
     if is_comprehension:
         question = cast(ComprehensionQuestionItem, question)
-        comprehension_type = question.comprehension_type
+        comprehension_type = getattr(question, 'comprehension_type', None)
 
     model_name = await get_model_name("validation")
     llm = get_llm_client(model_name)
