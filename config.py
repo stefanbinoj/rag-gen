@@ -13,7 +13,7 @@ def load_environment_variables():
         raise EnvironmentError("MONGO_DB is not set in the environment variables.")
     if not os.getenv("OPENAI_API_KEY"):
         raise EnvironmentError(
-            "OPEN_ROUTER_API_KEY is not set in the environment variables."
+            "OPEN_ROUTER_API_KEY is not set in the environment variables. Please pass open router API key here."
         )
     if not os.getenv("CHROMA_API_KEY"):
         raise EnvironmentError(

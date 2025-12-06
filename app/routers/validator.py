@@ -46,11 +46,11 @@ async def validate_question(question_id: str):
     print(f"\n\n    --->Validating single question {question.question}")
 
     similar_questions = await search_similar_questions(
-        question=question.question, 
-        subject=req.subject, 
-        topic=req.topic, 
+        question=question.question,
+        subject=req.subject,
+        topic=req.topic,
         question_type="mcq",
-        top_k=3
+        top_k=3,
     )
 
     check_validation, validation_time, total_token = await validate_questions(
@@ -89,11 +89,11 @@ async def validate_passage(question_id: str):
     print(f"\n\n    --->Validating single question {question.question}")
 
     similar_questions = await search_similar_questions(
-        question=question.question, 
-        subject=req.subject, 
-        topic=req.topic, 
+        question=question.question,
+        subject=req.subject,
+        topic=req.topic,
         question_type="comprehension",
-        top_k=3
+        top_k=3,
     )
 
     check_validation, validation_time, total_tokens = await validate_questions(
@@ -124,7 +124,9 @@ async def validate_fill_in_the_blank(question_id: str):
     if not log:
         raise HTTPException(status_code=404, detail="Question not found for validation")
 
-    res: FillInTheBlankQuestionLog = [q for q in log.questions if q.question_id == question_id][0]
+    res: FillInTheBlankQuestionLog = [
+        q for q in log.questions if q.question_id == question_id
+    ][0]
     question = FillInTheBlankQuestionItem(
         question=res.question,
         answer=res.answer,
@@ -134,18 +136,24 @@ async def validate_fill_in_the_blank(question_id: str):
 
     req: QuestionReqPara = log.request
 
-    print(f"\n\n    --->Validating single fill-in-the-blank question {question.question}")
+    print(
+        f"\n\n    --->Validating single fill-in-the-blank question {question.question}"
+    )
 
     similar_questions = await search_similar_questions(
-        question=question.question, 
-        subject=req.subject, 
-        topic=req.topic, 
+        question=question.question,
+        subject=req.subject,
+        topic=req.topic,
         question_type="fill_in_the_blank",
-        top_k=3
+        top_k=3,
     )
 
     check_validation, validation_time, total_token = await validate_questions(
-        req, question, similar_questions[1:], add_to_db=False, question_type="fill_in_the_blank"
+        req,
+        question,
+        similar_questions[1:],
+        add_to_db=False,
+        question_type="fill_in_the_blank",
     )
     return {
         "question_id": res.question_id,
@@ -165,7 +173,9 @@ async def validate_subjective(question_id: str):
     if not log:
         raise HTTPException(status_code=404, detail="Question not found for validation")
 
-    res: SubjectiveQuestionLog = [q for q in log.questions if q.question_id == question_id][0]
+    res: SubjectiveQuestionLog = [
+        q for q in log.questions if q.question_id == question_id
+    ][0]
     question = SubjectiveQuestionItem(
         question=res.question,
         expected_answer=res.expected_answer,
@@ -177,15 +187,19 @@ async def validate_subjective(question_id: str):
     print(f"\n\n    --->Validating single subjective question {question.question}")
 
     similar_questions = await search_similar_questions(
-        question=question.question, 
-        subject=req.subject, 
-        topic=req.topic, 
+        question=question.question,
+        subject=req.subject,
+        topic=req.topic,
         question_type="subjective",
-        top_k=3
+        top_k=3,
     )
 
     check_validation, validation_time, total_token = await validate_questions(
-        req, question, similar_questions[1:], add_to_db=False, question_type="subjective"
+        req,
+        question,
+        similar_questions[1:],
+        add_to_db=False,
+        question_type="subjective",
     )
     return {
         "question_id": res.question_id,

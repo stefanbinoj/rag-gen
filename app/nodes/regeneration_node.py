@@ -7,7 +7,12 @@ from app.schemas.langgraph_schema import (
     GeneratedComprehensionQuestionsStats,
     GeneratedSubjectiveQuestionsStats,
 )
-from app.schemas.output_schema import FillInTheBlankQuestionItem, QuestionItem, ComprehensionQuestionItem, SubjectiveQuestionItem
+from app.schemas.output_schema import (
+    FillInTheBlankQuestionItem,
+    QuestionItem,
+    ComprehensionQuestionItem,
+    SubjectiveQuestionItem,
+)
 from app.helpers.regeneration_helper import regenerate_question
 from app.helpers.validation_helper import validate_questions
 from app.helpers.chroma_helper import search_similar_questions
@@ -19,7 +24,7 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
     req = state["request"]
     generated_questions = state["question_state"].copy()
     validated_results = state["validation_state"].copy()
-    total_regeneration_attempts = state.get("total_regeneration_attempts")
+    total_regeneration_attempts = state["total_regeneration_attempts"]
 
     regenerated_count = 0
     is_comprehension = state["type"] == GraphType.comprehension
@@ -44,21 +49,30 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
             )
 
             generated_questions[idx].question = regenerated_q.question
-            
+
             if is_subjective:
                 subj_regen = cast(SubjectiveQuestionItem, regenerated_q)
-                subj_state = cast(GeneratedSubjectiveQuestionsStats, generated_questions[idx])
+                subj_state = cast(
+                    GeneratedSubjectiveQuestionsStats, generated_questions[idx]
+                )
                 subj_state.expected_answer = subj_regen.expected_answer
                 subj_state.marking_scheme = subj_regen.marking_scheme
             elif is_fill_blank:
                 fill_regen = cast(FillInTheBlankQuestionItem, regenerated_q)
-                fill_state = cast(GeneratedFillInTheBlankQuestionsStats, generated_questions[idx])
+                fill_state = cast(
+                    GeneratedFillInTheBlankQuestionsStats, generated_questions[idx]
+                )
                 fill_state.answer = fill_regen.answer
                 fill_state.acceptable_answers = fill_regen.acceptable_answers
                 fill_state.explanation = fill_regen.explanation
             else:
-                mcq_regen = cast(QuestionItem | ComprehensionQuestionItem, regenerated_q)
-                mcq_state = cast(GeneratedQuestionsStats | GeneratedComprehensionQuestionsStats, generated_questions[idx])
+                mcq_regen = cast(
+                    QuestionItem | ComprehensionQuestionItem, regenerated_q
+                )
+                mcq_state = cast(
+                    GeneratedQuestionsStats | GeneratedComprehensionQuestionsStats,
+                    generated_questions[idx],
+                )
                 mcq_state.options = mcq_regen.options
                 mcq_state.correct_option = mcq_regen.correct_option
                 mcq_state.explanation = mcq_regen.explanation
@@ -71,11 +85,11 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
 
             # Search for similar questions with the regenerated question
             similar = await search_similar_questions(
-                question=regenerated_q.question, 
-                subject=req.subject, 
-                topic=req.topic, 
+                question=regenerated_q.question,
+                subject=req.subject,
+                topic=req.topic,
                 question_type=question_type,
-                top_k=3
+                top_k=3,
             )
 
             (
@@ -83,8 +97,8 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
                 validation_time,
                 total_token_validation,
             ) = await validate_questions(
-                req, 
-                regenerated_q, 
+                req,
+                regenerated_q,
                 similar,
                 is_comprehension=is_comprehension,
                 is_fill_blank=is_fill_blank,

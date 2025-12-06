@@ -92,7 +92,7 @@ async def get_fill_in_the_blank_history(offset: int = 0, limit: int = 10):
         total_count = await FillInTheBlankLog.count()
 
         logs = (
-            await ComprehensionLog.find()
+            await FillInTheBlankLog.find()
             .sort("created_at", "-1")
             .skip(offset)
             .limit(limit)
@@ -129,7 +129,7 @@ async def get_subjective_history(offset: int = 0, limit: int = 10):
         total_count = await SubjectiveLog.count()
 
         logs = (
-            await ComprehensionLog.find()
+            await SubjectiveLog.find()
             .sort("created_at", "-1")
             .skip(offset)
             .limit(limit)
