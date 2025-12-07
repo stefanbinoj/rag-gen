@@ -29,7 +29,7 @@ async def generate_questions(
     comprehension_passage: str | None = None,
     is_fill_blank: bool = False,
     is_subjective: bool = False,
-) -> tuple[List[QuestionItem] | List[ComprehensionQuestionItem] | List[FillInTheBlankQuestionItem] | List[SubjectiveQuestionItem], float, int]:
+) -> tuple[List[QuestionItem] | List[ComprehensionQuestionItem] | List[FillInTheBlankQuestionItem] | List[SubjectiveQuestionItem], float, int, int]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
@@ -144,7 +144,8 @@ Instructions:
             ("user", user_message),
         ]
     )
-    total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    total_input = result["raw"].response_metadata["token_usage"]["prompt_tokens"]
+    total_output = result["raw"].response_metadata["token_usage"]["completion_tokens"]
     parsed = result["parsed"]
     # Extract questions from the result
     if isinstance(parsed, (QuestionsList, ComprehensionQuestionsList, FillInTheBlankQuestionsList, SubjectiveQuestionsList)):
@@ -155,4 +156,4 @@ Instructions:
         raise ValueError("Failed to parse generated questions.")
 
     generation_time = time.time() - start_time
-    return questions, generation_time, total_token
+    return questions, generation_time, total_input, total_output

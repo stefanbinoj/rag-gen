@@ -13,25 +13,29 @@ from app.schemas.output_schema import (
 class GeneratedQuestionsStats(QuestionItem):
     total_time: float
     retries: int
-    total_tokens: int
+    total_input_tokens: int
+    total_output_tokens: int
 
 
 class GeneratedComprehensionQuestionsStats(ComprehensionQuestionItem):
     total_time: float
     retries: int
-    total_tokens: int
+    total_input_tokens: int
+    total_output_tokens: int
 
 
 class GeneratedFillInTheBlankQuestionsStats(FillInTheBlankQuestionItem):
     total_time: float
     retries: int
-    total_tokens: int
+    total_input_tokens: int
+    total_output_tokens: int
 
 
 class GeneratedSubjectiveQuestionsStats(SubjectiveQuestionItem):
     total_time: float
     retries: int
-    total_tokens: int
+    total_input_tokens: int
+    total_output_tokens: int
 
 
 class QuestionState(TypedDict):

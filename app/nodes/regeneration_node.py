@@ -37,7 +37,7 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
             print(f"  → Regenerating question {idx + 1}")
             print(f"    Original: {generated_questions[idx].question[:60]}...")
 
-            regenerated_q, regen_time, total_token = await regenerate_question(
+            regenerated_q, regen_time, total_input, total_output = await regenerate_question(
                 req,
                 generated_questions[idx],
                 result,
@@ -77,7 +77,8 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
                 mcq_state.correct_option = mcq_regen.correct_option
                 mcq_state.explanation = mcq_regen.explanation
             generated_questions[idx].total_time += regen_time
-            generated_questions[idx].total_tokens += total_token
+            generated_questions[idx].total_input_tokens += total_input
+            generated_questions[idx].total_output_tokens += total_output
             generated_questions[idx].retries += 1
 
             print(f"    Regenerated: {regenerated_q.question[:60]}...")
@@ -95,7 +96,8 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
             (
                 new_validation,
                 validation_time,
-                total_token_validation,
+                total_input_validation,
+                total_output_validation,
             ) = await validate_questions(
                 req,
                 regenerated_q,
@@ -107,7 +109,8 @@ async def regeneration_node(state: QuestionState) -> QuestionState:
             )
 
             generated_questions[idx].total_time += validation_time
-            generated_questions[idx].total_tokens += total_token_validation
+            generated_questions[idx].total_input_tokens += total_input_validation
+            generated_questions[idx].total_output_tokens += total_output_validation
 
             # Log re-validation results
             status = (

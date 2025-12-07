@@ -74,11 +74,16 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     issues=v.validation_result.issues,
                     similar_questions=v.similar_section,
                     model_used=model_used,
-                    total_tokens=q.total_tokens,
+                    total_input_tokens=q.total_input_tokens,
+                    total_output_tokens=q.total_output_tokens,
                 )
             )
 
         req = cast(QuestionReqPara, state["request"])
+        total_tokens = sum(
+            (q.total_input_tokens or 0) + (q.total_output_tokens or 0)
+            for q in question_logs
+        )
         log = GenerationLog(
             type=QuestionType.mcq,
             request=req,
@@ -88,6 +93,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             total_regeneration_attempts=state["total_regeneration_attempts"],
             total_retries=state["current_retry"],
             total_time=time() - state["start_time"],
+            total_tokens=total_tokens,
         )
         await log.insert()
         print(
@@ -115,10 +121,15 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     similar_questions=v.similar_section,
                     model_used=model_used,
                     comprehension_type=comp_q.comprehension_type,
-                    total_tokens=comp_q.total_tokens,
+                    total_input_tokens=comp_q.total_input_tokens,
+                    total_output_tokens=comp_q.total_output_tokens,
                 )
             )
         request = cast(ComprehensionReqPara, state["request"])
+        total_tokens = sum(
+            (q.total_input_tokens or 0) + (q.total_output_tokens or 0)
+            for q in question_logs
+        )
         log = ComprehensionLog(
             paragraph=(
                 state["comprehensive_paragraph"]
@@ -133,6 +144,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             total_regeneration_attempts=state["total_regeneration_attempts"],
             total_retries=state["current_retry"],
             total_time=time() - state["start_time"],
+            total_tokens=total_tokens,
         )
         await log.insert()
         print(
@@ -160,10 +172,15 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     issues=v.validation_result.issues,
                     similar_questions=v.similar_section,
                     model_used=model_used,
-                    total_tokens=q.total_tokens,
+                    total_input_tokens=q.total_input_tokens,
+                    total_output_tokens=q.total_output_tokens,
                 )
             )
         req = cast(QuestionReqPara, state["request"])
+        total_tokens = sum(
+            (q.total_input_tokens or 0) + (q.total_output_tokens or 0)
+            for q in question_logs
+        )
         log = FillInTheBlankLog(
             type=QuestionType.fill_in_the_blank,
             request=req,
@@ -173,6 +190,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             total_regeneration_attempts=state["total_regeneration_attempts"],
             total_retries=state["current_retry"],
             total_time=time() - state["start_time"],
+            total_tokens=total_tokens,
         )
         await log.insert()
         print(
@@ -199,10 +217,15 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                     issues=v.validation_result.issues,
                     similar_questions=v.similar_section,
                     model_used=model_used,
-                    total_tokens=q.total_tokens,
+                    total_input_tokens=q.total_input_tokens,
+                    total_output_tokens=q.total_output_tokens,
                 )
             )
         req = cast(QuestionReqPara, state["request"])
+        total_tokens = sum(
+            (q.total_input_tokens or 0) + (q.total_output_tokens or 0)
+            for q in question_logs
+        )
         log = SubjectiveLog(
             type=QuestionType.subjective,
             request=req,
@@ -212,6 +235,7 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             total_regeneration_attempts=state["total_regeneration_attempts"],
             total_retries=state["current_retry"],
             total_time=time() - state["start_time"],
+            total_tokens=total_tokens,
         )
         await log.insert()
         print(

@@ -9,7 +9,7 @@ async def comprehension_generator_node(state: QuestionState) -> QuestionState:
 
     req = cast(ComprehensionReqPara, state["request"])
 
-    generated_paragraph, generation_time, total_token = await generate_comprehension(
+    generated_paragraph, generation_time, total_input, total_output = await generate_comprehension(
         req
     )
 

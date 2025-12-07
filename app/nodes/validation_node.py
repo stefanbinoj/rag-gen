@@ -30,7 +30,7 @@ async def validation_node(state: QuestionState) -> QuestionState:
         )
 
         # Validate the question
-        validation_result, validation_time, total_token = await validate_questions(
+        validation_result, validation_time, total_input, total_output = await validate_questions(
             req,
             question,
             similar_questions,
@@ -41,7 +41,8 @@ async def validation_node(state: QuestionState) -> QuestionState:
             question_type=question_type,
         )
         generated_questions[idx].total_time += validation_time
-        generated_questions[idx].total_tokens += total_token
+        generated_questions[idx].total_input_tokens += total_input
+        generated_questions[idx].total_output_tokens += total_output
 
         # Log validation results
         status = "✅ ADDED" if validation_result.added_to_vectordb else "❌ REJECTED"

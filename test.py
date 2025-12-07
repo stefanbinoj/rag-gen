@@ -47,9 +47,13 @@ Instructionsny emojis and always ensure passage is in {state.country} respective
 
     print(result)
     total = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    total_input = result["raw"].response_metadata["token_usage"]["prompt_tokens"]
+    total_output = result["raw"].response_metadata["token_usage"]["completion_tokens"]
     parsed = result["parsed"]
     print("="*20)
     print(total)
+    print(total_input)
+    print(total_output)
     print("="*20)
     print(parsed)
     print("="*20)

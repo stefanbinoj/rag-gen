@@ -81,7 +81,8 @@ class QuestionLog(BaseModel):
     similar_questions: Optional[str] = None
     model_used: Optional[str] = None
     comprehension_type: Optional[str] = None
-    total_tokens: Optional[int] = None
+    total_input_tokens: Optional[int] = None
+    total_output_tokens: Optional[int] = None
 
 
 class GenerationLog(Document):
@@ -93,6 +94,7 @@ class GenerationLog(Document):
     questions: List[QuestionLog]
     total_regeneration_attempts: int
     total_retries: int
+    total_tokens: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
@@ -109,6 +111,7 @@ class ComprehensionLog(Document):
     questions: List[QuestionLog]
     total_regeneration_attempts: int
     total_retries: int
+    total_tokens: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
@@ -129,7 +132,8 @@ class FillInTheBlankQuestionLog(BaseModel):
     issues: List[str]
     similar_questions: Optional[str] = None
     model_used: Optional[str] = None
-    total_tokens: Optional[int] = None
+    total_input_tokens: Optional[int] = None
+    total_output_tokens: Optional[int] = None
 
 
 class FillInTheBlankLog(Document):
@@ -141,6 +145,7 @@ class FillInTheBlankLog(Document):
     questions: List[FillInTheBlankQuestionLog]
     total_regeneration_attempts: int
     total_retries: int
+    total_tokens: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
@@ -159,7 +164,8 @@ class SubjectiveQuestionLog(BaseModel):
     issues: List[str]
     similar_questions: Optional[str] = None
     model_used: Optional[str] = None
-    total_tokens: Optional[int] = None
+    total_input_tokens: Optional[int] = None
+    total_output_tokens: Optional[int] = None
 
 
 class SubjectiveLog(Document):
@@ -171,6 +177,7 @@ class SubjectiveLog(Document):
     questions: List[SubjectiveQuestionLog]
     total_regeneration_attempts: int
     total_retries: int
+    total_tokens: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:

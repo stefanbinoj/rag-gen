@@ -15,7 +15,7 @@ async def regenerate_question(
     comprehension_passage: str | None = None,
     is_fill_blank: bool = False,
     is_subjective: bool = False,
-) -> tuple[QuestionItem | FillInTheBlankQuestionItem | SubjectiveQuestionItem, float, int]:
+) -> tuple[QuestionItem | FillInTheBlankQuestionItem | SubjectiveQuestionItem, float, int,int]:
     start_time = time.time()
     comprehension_type: Optional[ComprehensionType]= None
     if is_comprehension:
@@ -193,7 +193,8 @@ Please regenerate the question so that the correct answer is directly supported 
     )
 
     generation_time = time.time() - start_time
-    total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    total_input = result["raw"].response_metadata["token_usage"]["prompt_tokens"]
+    total_output = result["raw"].response_metadata["token_usage"]["completion_tokens"]
     parsed = result["parsed"]
 
     if isinstance(parsed, (QuestionItem, ComprehensionQuestionItem, FillInTheBlankQuestionItem, SubjectiveQuestionItem)):
@@ -202,5 +203,5 @@ Please regenerate the question so that the correct answer is directly supported 
         print(f"Unexpected result type: {type(result)}")
         raise ValueError("Failed to parse generated questions.")
 
-    return questions, generation_time, total_token
+    return questions, generation_time, total_input, total_output
 

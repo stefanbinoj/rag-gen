@@ -10,7 +10,7 @@ class ComprehensionResult(BaseModel):
 
 async def generate_comprehension(
     state: ComprehensionReqPara,
-) -> tuple[str, float, int]:
+) -> tuple[str, float, int,int]:
     start_time = time.time()
     model_name = await get_model_name("generation")
     llm = get_llm_client(model_name)
@@ -57,7 +57,8 @@ Instructions:
         ]
     )
 
-    total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    total_input = result["raw"].response_metadata["token_usage"]["prompt_tokens"]
+    total_output = result["raw"].response_metadata["token_usage"]["completion_tokens"]
     parsed = result["parsed"]
 
     # Extract questions from the result
@@ -69,5 +70,5 @@ Instructions:
         raise ValueError("Failed to parse generated questions.")
 
     generation_time = time.time() - start_time
-    return paragraph, generation_time, total_token
+    return paragraph, generation_time, total_input, total_output
 

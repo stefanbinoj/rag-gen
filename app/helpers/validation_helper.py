@@ -25,7 +25,7 @@ async def validate_questions(
     is_fill_blank: bool = False,
     is_subjective: bool = False,
     question_type: str = "mcq",
-) -> tuple[ValidationNodeReturn, float, int]:
+) -> tuple[ValidationNodeReturn, float, int,int]:
     start_time = time.time()
     comprehension_type: Optional[ComprehensionType] = None
 
@@ -189,7 +189,8 @@ Instructions:
 
     validation_time = time.time() - start_time
 
-    total_token = result["raw"].response_metadata["token_usage"]["total_tokens"]
+    total_input = result["raw"].response_metadata["token_usage"]["prompt_tokens"]
+    total_output = result["raw"].response_metadata["token_usage"]["completion_tokens"]
     parsed = result["parsed"]
 
     # Cast result to ValidationResult object
@@ -202,7 +203,7 @@ Instructions:
         uuid=None,
     )
     if not add_to_db:
-        return return_value, validation_time, total_token
+        return return_value, validation_time, total_input, total_output
 
     chroma_res, question_id = await add_question_to_chroma(
         question=question.question,
@@ -215,4 +216,4 @@ Instructions:
 
     return_value.added_to_vectordb = chroma_res
     return_value.uuid = question_id
-    return return_value, validation_time, total_token
+    return return_value, validation_time, total_input, total_output

@@ -18,7 +18,7 @@ async def generation_node(state: QuestionState) -> QuestionState:
     is_comprehension = state["type"] == GraphType.comprehension
     is_fill_blank = state["type"] == GraphType.fill_in_the_blank
     is_subjective = state["type"] == GraphType.subjective
-    generated_questions, generation_time, total_token = await generate_questions(
+    generated_questions, generation_time, total_input, total_output = await generate_questions(
         state["request"],
         is_comprehension=is_comprehension,
         comprehension_passage=state["comprehensive_paragraph"],
@@ -39,7 +39,8 @@ async def generation_node(state: QuestionState) -> QuestionState:
                 marking_scheme=q.marking_scheme,
                 total_time=generation_time // len(subjective_questions),
                 retries=0,
-                total_tokens=total_token // len(subjective_questions),
+                total_input_tokens=total_input // len(subjective_questions),
+                total_output_tokens=total_output // len(subjective_questions),
             )
             for q in subjective_questions
         ]
@@ -55,7 +56,8 @@ async def generation_node(state: QuestionState) -> QuestionState:
                 explanation=q.explanation,
                 total_time=generation_time // len(fill_blank_questions),
                 retries=0,
-                total_tokens=total_token // len(fill_blank_questions),
+                total_input_tokens=total_input // len(fill_blank_questions),
+                total_output_tokens=total_output // len(fill_blank_questions),
             )
             for q in fill_blank_questions
         ]
@@ -71,7 +73,8 @@ async def generation_node(state: QuestionState) -> QuestionState:
                 explanation=q.explanation,
                 total_time=generation_time // len(mcq_questions),
                 retries=0,
-                total_tokens=total_token // len(mcq_questions),
+                total_input_tokens=total_input // len(mcq_questions),
+                total_output_tokens=total_output // len(mcq_questions),
             )
             for q in mcq_questions
         ]
@@ -89,7 +92,8 @@ async def generation_node(state: QuestionState) -> QuestionState:
                 total_time=generation_time // len(comprehension_questions),
                 retries=0,
                 comprehension_type=q.comprehension_type,
-                total_tokens=total_token // len(comprehension_questions),
+                total_input_tokens=total_input // len(comprehension_questions),
+                total_output_tokens=total_output // len(comprehension_questions),
             )
             for q in comprehension_questions
         ]
