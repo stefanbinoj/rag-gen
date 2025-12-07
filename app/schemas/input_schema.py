@@ -39,7 +39,24 @@ class QuestionReqPara(BaseModel):
     @classmethod
     def sanitize_strings(cls, v):
         if isinstance(v, str):
-            return v.strip().lower().rstrip(".").replace(" ", "_")
+            import re
+            # Strip whitespace and convert to lowercase
+            v = v.strip().lower()
+            # Replace spaces with underscores
+            v = v.replace(" ", "_")
+            # Replace common special characters with text equivalents or remove them
+            v = v.replace("&", "and")
+            v = v.replace("+", "plus")
+            # Remove any characters that aren't alphanumeric, dot, underscore, or hyphen
+            v = re.sub(r'[^a-z0-9._-]', '', v)
+            # Remove leading non-alphanumeric characters (must start with [a-zA-Z0-9])
+            v = re.sub(r'^[._-]+', '', v)
+            # Remove trailing non-alphanumeric characters (must end with [a-zA-Z0-9])
+            v = re.sub(r'[._-]+$', '', v)
+            # Ensure it's not empty after sanitization
+            if not v:
+                v = "unknown"
+            return v
         return v
 
 
@@ -62,7 +79,24 @@ class ComprehensionReqPara(BaseModel):
     @classmethod
     def sanitize_strings(cls, v):
         if isinstance(v, str):
-            return v.strip().lower().rstrip(".").replace(" ", "_")
+            import re
+            # Strip whitespace and convert to lowercase
+            v = v.strip().lower()
+            # Replace spaces with underscores
+            v = v.replace(" ", "_")
+            # Replace common special characters with text equivalents or remove them
+            v = v.replace("&", "and")
+            v = v.replace("+", "plus")
+            # Remove any characters that aren't alphanumeric, dot, underscore, or hyphen
+            v = re.sub(r'[^a-z0-9._-]', '', v)
+            # Remove leading non-alphanumeric characters (must start with [a-zA-Z0-9])
+            v = re.sub(r'^[._-]+', '', v)
+            # Remove trailing non-alphanumeric characters (must end with [a-zA-Z0-9])
+            v = re.sub(r'[._-]+$', '', v)
+            # Ensure it's not empty after sanitization
+            if not v:
+                v = "unknown"
+            return v
         return v
 
     @model_validator(mode="after")

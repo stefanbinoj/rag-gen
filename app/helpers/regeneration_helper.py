@@ -37,6 +37,9 @@ async def regenerate_question(
     
     system_prompt = await get_prompt(system_prompt_name)
     
+    # Enforce language in system prompt
+    system_prompt += f"\n\n**LANGUAGE REQUIREMENT:** All regenerated content MUST be in {req.language}. Questions, options, explanations, and all text must strictly be in {req.language} language."
+    
     # Add special_instructions to system prompt if present
     if req.special_instructions:
         system_prompt += f"\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY - Must be followed in regenerated question):**\n{req.special_instructions}"
@@ -59,6 +62,7 @@ Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
 Stream: {req.stream.value}
 Country: {req.country}
+Language: {req.language}
 Age Group: {req.age if req.age else "N/A"}
 
 FAULTY QUESTION:
@@ -73,6 +77,7 @@ Issues: {", ".join(validation_result.validation_result.issues)}
 
 Please regenerate a single clear, comprehensive subjective question that addresses the issues above. Keep format consistent.
 - Don't use any emojis and always ensure content is in {req.country} respective context.
+- CRITICAL: All content MUST be in {req.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {req.special_instructions}" if req.special_instructions else ""}
 """
 
@@ -86,6 +91,7 @@ Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
 Stream: {req.stream.value}
 Country: {req.country}
+Language: {req.language}
 Age Group: {req.age if req.age else "N/A"}
 
 FAULTY QUESTION:
@@ -101,6 +107,7 @@ Issues: {", ".join(validation_result.validation_result.issues)}
 
 Please regenerate a single clear, unambiguous fill-in-the-blank question that addresses the issues above. Keep format consistent.
 - Don't use any emojis and always ensure content is in {req.country} respective context.
+- CRITICAL: All content MUST be in {req.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {req.special_instructions}" if req.special_instructions else ""}
 """
 
@@ -114,6 +121,7 @@ Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
 Stream: {req.stream.value}
 Country: {req.country}
+Language: {req.language}
 Age Group: {req.age if req.age else "N/A"}
 
 FAULTY QUESTION:
@@ -129,6 +137,7 @@ Issues: {", ".join(validation_result.validation_result.issues)}
 
 Please regenerate a single clear, unambiguous MCQ that addresses the issues above. Keep format consistent.
 - Don't use any emojis and always ensure passage is in {req.country} respective context.
+- CRITICAL: All content MUST be in {req.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {req.special_instructions}" if req.special_instructions else ""}
 """
 
@@ -142,6 +151,7 @@ Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
 Stream: {req.stream.value}
 Country: {req.country}
+Language: {req.language}
 Age Group: {req.age if req.age else "N/A"}
 
 COMPREHENSION PASSAGE:
@@ -161,6 +171,7 @@ Issues: {", ".join(validation_result.validation_result.issues)}
 
 Please regenerate the question so that the correct answer is directly supported by the passage. Avoid ambiguity and ensure distractors are plausible but clearly incorrect when compared with the passage.
 - Don't use any emojis and always ensure passage is in {req.country} respective context.
+- CRITICAL: All content MUST be in {req.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {req.special_instructions}" if req.special_instructions else ""}
 """
 

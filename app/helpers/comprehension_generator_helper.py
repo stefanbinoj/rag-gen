@@ -16,6 +16,9 @@ async def generate_comprehension(
     llm = get_llm_client(model_name)
     system_prompt = await get_prompt("comprehension")
     
+    # Enforce language in system prompt
+    system_prompt += f"\n\n**LANGUAGE REQUIREMENT:** The comprehension passage MUST be generated in {state.language}. All content must strictly be in {state.language} language."
+    
     # Add special_instructions to system prompt if present
     if state.special_instructions:
         system_prompt += f"\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY):**\n{state.special_instructions}"
@@ -33,7 +36,7 @@ async def generate_comprehension(
 
 
     user_message_comprehensive = f"""
-Params: subject={state.subject} | topic={state.topic} | sub_topic={state.sub_topic or ''} | stream={stream_value} | difficulty={state.difficulty.value} | age={state.age or ''} | country={state.country}
+Params: subject={state.subject} | topic={state.topic} | sub_topic={state.sub_topic or ''} | stream={stream_value} | difficulty={state.difficulty.value} | age={state.age or ''} | country={state.country} | language={state.language}
 More info: {state.more_information or ''}
 Word count: {wc_min}-{wc_max}
 
@@ -42,6 +45,7 @@ Instructions:
 - Make sure the passage contains specific, testable facts and details that can be used to form reliable MCQs.
 - Match vocabulary and sentence complexity to the difficulty level and stream.
 - Don't use any emojis and always ensure passage is in {state.country} respective context.
+- CRITICAL: The entire passage MUST be in {state.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 

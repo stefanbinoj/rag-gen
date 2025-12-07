@@ -46,6 +46,9 @@ async def generate_questions(
     
     system_prompt = await get_prompt(system_prompt_name)
     
+    # Enforce language in system prompt
+    system_prompt += f"\n\n**LANGUAGE REQUIREMENT:** All content MUST be generated in {state.language}. Questions, options, explanations, and all text must strictly be in {state.language} language."
+    
     # Add special_instructions to system prompt if present
     if state.special_instructions:
         system_prompt += f"\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY):**\n{state.special_instructions}"
@@ -64,12 +67,14 @@ async def generate_questions(
 Generate {state.no_of_questions} MCQs.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 Instructions:
 - Produce {state.no_of_questions} distinct MCQs with 4 options (A-D).
 - Provide one correct option, and a brief explanation for the correct answer.
 - Don't use any emojis and always ensure passage is in {state.country} respective context.
+- CRITICAL: All content MUST be in {state.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 
@@ -77,6 +82,7 @@ Instructions:
 Generate {state.no_of_questions} MCQs based on the provided comprehension passage.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 {f"Comprehension Passage: {comprehension_passage}" if is_comprehension else "N/A"}
@@ -86,6 +92,7 @@ Instructions:
 - Use explicit references to the passage where appropriate (e.g., "According to the passage...").
 - Provide 4 options (A-D), mark the correct option, and include a concise explanation referencing the passage.
 - Don't use any emojis and always ensure passage is in {state.country} respective context.
+- CRITICAL: All content MUST be in {state.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 
@@ -93,6 +100,7 @@ Instructions:
 Generate {state.no_of_questions} fill-in-the-blank questions.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 Instructions:
@@ -100,6 +108,7 @@ Instructions:
 - Provide the correct answer and any acceptable alternative answers.
 - Include a brief explanation for the correct answer.
 - Don't use any emojis and always ensure content is in {state.country} respective context.
+- CRITICAL: All content MUST be in {state.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 
@@ -107,6 +116,7 @@ Instructions:
 Generate {state.no_of_questions} subjective questions.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 Instructions:
@@ -114,6 +124,7 @@ Instructions:
 - Provide a comprehensive expected answer showing all steps/reasoning.
 - Include a detailed marking scheme with specific criteria and mark allocation.
 - Don't use any emojis and always ensure content is in {state.country} respective context.
+- CRITICAL: All content MUST be in {state.language} language.
 {f"\n\nSPECIAL INSTRUCTIONS (MUST FOLLOW): {state.special_instructions}" if state.special_instructions else ""}
 """
 

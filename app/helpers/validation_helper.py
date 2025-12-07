@@ -48,6 +48,9 @@ async def validate_questions(
     
     system_prompt = await get_prompt(system_prompt_name)
     
+    # Enforce language in system prompt
+    system_prompt += f"\n\n**LANGUAGE REQUIREMENT:** All validation feedback and communication MUST be in {state.language}. Ensure the question being validated is also in {state.language} language."
+    
     # Add special_instructions to system prompt if present
     if state.special_instructions:
         system_prompt += f"\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY - Consider during validation):**\n{state.special_instructions}"
@@ -71,6 +74,7 @@ Validate this subjective question:
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 Question: {subjective_q.question}
@@ -84,6 +88,7 @@ Instructions:
 - Assess correctness, clarity, relevance to topic, and any factual errors.
 - Verify the expected answer is comprehensive and correct.
 - Check that the marking scheme is detailed, specific, and marks add up correctly.
+- Verify all content is in {state.language} language.
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
 {f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
@@ -94,6 +99,7 @@ Validate this fill-in-the-blank question:
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 Question: {fill_question.question}
@@ -108,6 +114,7 @@ Instructions:
 - Assess correctness, clarity, relevance to topic, and any factual errors.
 - Verify the answer correctly fills the blank.
 - Check that acceptable_answers are truly valid alternatives.
+- Verify all content is in {state.language} language.
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
 {f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
@@ -124,6 +131,7 @@ Validate this MCQ:
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 Question: {mcq_question.question}
@@ -136,6 +144,7 @@ Also consider the following similar questions from the database to avoid duplica
 
 Instructions:
 - Assess correctness, clarity, relevance to topic, and any factual errors.
+- Verify all content is in {state.language} language.
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
 {f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
@@ -145,6 +154,7 @@ Validate this comprehension-based MCQ (answers must be supported by the passage)
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
 Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
 {f"Comprehension Passage: {comprehension_passage}" if is_comprehension else "N/A"}
@@ -161,6 +171,7 @@ Also consider the following similar questions from the database to avoid duplica
 Instructions:
 - Verify the correct option is directly supported by the passage.
 - Flag any options that could be justified by the passage (ambiguity), factual errors, or misinterpretation.
+- Verify all content is in {state.language} language.
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and list of issues with short remediation suggestions.
 {f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
