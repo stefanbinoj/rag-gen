@@ -19,7 +19,7 @@ async def get_history(offset: int = 0, limit: int = 10):
 
         logs = (
             await GenerationLog.find()
-            .sort("created_at", "-1")
+            .sort("-created_at")
             .skip(offset)
             .limit(limit)
             .to_list()
@@ -56,7 +56,7 @@ async def get_comprehension_history(offset: int = 0, limit: int = 10):
 
         logs = (
             await ComprehensionLog.find()
-            .sort("created_at", "-1")
+            .sort("-created_at")
             .skip(offset)
             .limit(limit)
             .to_list()
@@ -93,7 +93,7 @@ async def get_fill_in_the_blank_history(offset: int = 0, limit: int = 10):
 
         logs = (
             await FillInTheBlankLog.find()
-            .sort("created_at", "-1")
+            .sort("-created_at")
             .skip(offset)
             .limit(limit)
             .to_list()
@@ -130,7 +130,7 @@ async def get_subjective_history(offset: int = 0, limit: int = 10):
 
         logs = (
             await SubjectiveLog.find()
-            .sort("created_at", "-1")
+            .sort("-created_at")
             .skip(offset)
             .limit(limit)
             .to_list()
