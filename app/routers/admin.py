@@ -6,6 +6,17 @@ from app.schemas.input_schema import ModelReqPara, PromptReqPara
 
 router = APIRouter()
 
+@router.get("/models")
+async def get_models():
+    models = await Model.find_one()
+    return JSONResponse(
+        content={
+            "success": True,
+            "model": models.model_dump(mode="json") if models else None,
+        },
+        status_code=200,
+    )
+
 @router.post("/models/switch")
 async def switch_model(req: ModelReqPara):
     models = await Model.find_one()

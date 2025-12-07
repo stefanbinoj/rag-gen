@@ -34,7 +34,7 @@ from pydantic import BaseModel
 
 class Model(Document):
     generation_model: str = "openai/gpt-5.1-chat"
-    validation_model: str = "openai/gpt-oss-120b"
+    validation_model: str = "openai/gpt-5.1-chat"
     updated_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:

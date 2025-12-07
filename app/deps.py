@@ -16,20 +16,27 @@ def get_mongo_db():
     return _mongo_db
 
 
-_llm_client = None
+_llm_clients = {}
 
 
 def get_llm_client(model_name: str, temperatur: float = 0) -> ChatOpenAI:
-    global _llm_client
-    if _llm_client is None:
+    """
+    Get or create a cached LLM client for the given model and temperature.
+    Caches clients per unique model+temperature combination to avoid auth errors.
+    """
+    global _llm_clients
+    cache_key = f"{model_name}:{temperatur}"
+    
+    if cache_key not in _llm_clients:
         langfuse_handler = get_langfuse_handler()
-        _llm_client = ChatOpenAI(
+        _llm_clients[cache_key] = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
             model=model_name,
             temperature=temperatur,
+            api_key=os.environ["OPENAI_API_KEY"], # pyright: ignore[reportArgumentType]
             callbacks=[langfuse_handler],
         )
-    return _llm_client
+    return _llm_clients[cache_key]
 
 
 _chroma_client = None
