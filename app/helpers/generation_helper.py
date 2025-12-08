@@ -66,7 +66,7 @@ async def generate_questions(
     user_message_normal = f"""
 Generate {state.no_of_questions} MCQs.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Stream: {state.stream} | Country: {state.country} | Difficulty: {state.difficulty.value}
 Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
@@ -81,7 +81,7 @@ Instructions:
     user_message_comprehensive = f"""
 Generate {state.no_of_questions} MCQs based on the provided comprehension passage.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Stream: {state.stream} | Country: {state.country} | Difficulty: {state.difficulty.value}
 Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
@@ -99,7 +99,7 @@ Instructions:
     user_message_fill_blank = f"""
 Generate {state.no_of_questions} fill-in-the-blank questions.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Stream: {state.stream} | Country: {state.country} | Difficulty: {state.difficulty.value}
 Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
@@ -115,7 +115,7 @@ Instructions:
     user_message_subjective = f"""
 Generate {state.no_of_questions} subjective questions.
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Stream: {state.stream} | Country: {state.country} | Difficulty: {state.difficulty.value}
 Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 

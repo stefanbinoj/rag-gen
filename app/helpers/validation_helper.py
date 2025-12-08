@@ -73,7 +73,7 @@ async def validate_questions(
 Validate this subjective question:
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Stream: {state.stream} | Country: {state.country} | Difficulty: {state.difficulty.value}
 Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
@@ -98,7 +98,7 @@ Instructions:
 Validate this fill-in-the-blank question:
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Stream: {state.stream} | Country: {state.country} | Difficulty: {state.difficulty.value}
 Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
@@ -126,11 +126,12 @@ Instructions:
         option_c = mcq_question.options.C
         option_d = mcq_question.options.D
 
-        user_message_normal = f"""
+        if not is_comprehension:
+            user_message = f"""
 Validate this MCQ:
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Stream: {state.stream} | Country: {state.country} | Difficulty: {state.difficulty.value}
 Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
@@ -148,12 +149,12 @@ Instructions:
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and a list of issues if any.
 {f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
-
-        user_message_comprehensive = f"""
+        else:
+            user_message = f"""
 Validate this comprehension-based MCQ (answers must be supported by the passage):
 
 {f"Age: {state.age} | " if state.age else ""}Subject: {state.subject} | Topic: {state.topic}
-Stream: {state.stream.value} | Country: {state.country} | Difficulty: {state.difficulty.value}
+Stream: {state.stream} | Country: {state.country} | Difficulty: {state.difficulty.value}
 Language: {state.language}
 {f"Sub-topic: {state.sub_topic}" if state.sub_topic else ""}
 
@@ -175,10 +176,6 @@ Instructions:
 - Provide a score (0.0-1.0), duplication_chance (0.0-1.0), and list of issues with short remediation suggestions.
 {f"\n\nSPECIAL INSTRUCTIONS (Consider in validation): {state.special_instructions}" if state.special_instructions else ""}
 """
-
-        user_message = (
-            user_message_comprehensive if is_comprehension else user_message_normal
-        )
 
     result = model_with_structure.invoke(
         [

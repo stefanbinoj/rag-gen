@@ -94,7 +94,8 @@ class GenerationLog(Document):
     questions: List[QuestionLog]
     total_regeneration_attempts: int
     total_retries: int
-    total_tokens: Optional[int] = None
+    total_input_tokens: Optional[int] = None
+    total_output_tokens: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
@@ -111,7 +112,8 @@ class ComprehensionLog(Document):
     questions: List[QuestionLog]
     total_regeneration_attempts: int
     total_retries: int
-    total_tokens: Optional[int] = None
+    total_input_tokens: Optional[int] = None
+    total_output_tokens: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
@@ -145,7 +147,8 @@ class FillInTheBlankLog(Document):
     questions: List[FillInTheBlankQuestionLog]
     total_regeneration_attempts: int
     total_retries: int
-    total_tokens: Optional[int] = None
+    total_input_tokens: Optional[int] = None
+    total_output_tokens: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:
@@ -177,7 +180,8 @@ class SubjectiveLog(Document):
     questions: List[SubjectiveQuestionLog]
     total_regeneration_attempts: int
     total_retries: int
-    total_tokens: Optional[int] = None
+    total_input_tokens: Optional[int] = None
+    total_output_tokens: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.now)
 
     class Settings:

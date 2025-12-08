@@ -8,10 +8,8 @@ Difficulty:
 - Medium: moderate vocabulary, some analysis.
 - Hard: advanced vocabulary, deeper synthesis.
 
-Increased length guidance:
-- 11Plus: 300–450 words
-- GCSE/CBSE/ICSE: 500–800 words
-- Other streams: 450–700 words
+Length guidance:
+- All paragraphs: 600–800 words
 
 Structure: brief intro → key facts → example(s) if relevant → short conclusion.
 

@@ -60,7 +60,7 @@ Subject: {req.subject}
 Topic: {req.topic}
 Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
-Stream: {req.stream.value}
+Stream: {req.stream}
 Country: {req.country}
 Language: {req.language}
 Age Group: {req.age if req.age else "N/A"}
@@ -89,7 +89,7 @@ Subject: {req.subject}
 Topic: {req.topic}
 Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
-Stream: {req.stream.value}
+Stream: {req.stream}
 Country: {req.country}
 Language: {req.language}
 Age Group: {req.age if req.age else "N/A"}
@@ -119,14 +119,14 @@ Subject: {req.subject}
 Topic: {req.topic}
 Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
-Stream: {req.stream.value}
+Stream: {req.stream}
 Country: {req.country}
 Language: {req.language}
 Age Group: {req.age if req.age else "N/A"}
 
 FAULTY QUESTION:
 Question: {question.question}
-Options: {cast(QuestionItem, question).options if not is_fill_blank and not is_subjective else "N/A"}
+Options: {cast(QuestionItem, question).options.model_dump() if not is_fill_blank and not is_subjective else "N/A"}
 Correct Option: {cast(QuestionItem, question).correct_option if not is_fill_blank and not is_subjective else "N/A"}
 Explanation: {cast(QuestionItem | FillInTheBlankQuestionItem, question).explanation if not is_subjective else "N/A"}
 
@@ -149,7 +149,7 @@ Subject: {req.subject}
 Topic: {req.topic}
 Sub-topic: {req.sub_topic if req.sub_topic else "N/A"}
 Difficulty: {req.difficulty.value}
-Stream: {req.stream.value}
+Stream: {req.stream}
 Country: {req.country}
 Language: {req.language}
 Age Group: {req.age if req.age else "N/A"}

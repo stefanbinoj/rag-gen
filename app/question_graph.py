@@ -80,9 +80,11 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             )
 
         req = cast(QuestionReqPara, state["request"])
-        total_tokens = sum(
-            (q.total_input_tokens or 0) + (q.total_output_tokens or 0)
-            for q in question_logs
+        total_input_tokens = sum(
+            q.total_input_tokens or 0 for q in question_logs
+        )
+        total_output_tokens = sum(
+            q.total_output_tokens or 0 for q in question_logs
         )
         log = GenerationLog(
             type=QuestionType.mcq,
@@ -93,7 +95,8 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             total_regeneration_attempts=state["total_regeneration_attempts"],
             total_retries=state["current_retry"],
             total_time=time() - state["start_time"],
-            total_tokens=total_tokens,
+            total_input_tokens=total_input_tokens,
+            total_output_tokens=total_output_tokens,
         )
         await log.insert()
         print(
@@ -126,9 +129,11 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                 )
             )
         request = cast(ComprehensionReqPara, state["request"])
-        total_tokens = sum(
-            (q.total_input_tokens or 0) + (q.total_output_tokens or 0)
-            for q in question_logs
+        total_input_tokens = sum(
+            q.total_input_tokens or 0 for q in question_logs
+        )
+        total_output_tokens = sum(
+            q.total_output_tokens or 0 for q in question_logs
         )
         log = ComprehensionLog(
             paragraph=(
@@ -144,7 +149,8 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             total_regeneration_attempts=state["total_regeneration_attempts"],
             total_retries=state["current_retry"],
             total_time=time() - state["start_time"],
-            total_tokens=total_tokens,
+            total_input_tokens=total_input_tokens,
+            total_output_tokens=total_output_tokens,
         )
         await log.insert()
         print(
@@ -177,9 +183,11 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                 )
             )
         req = cast(QuestionReqPara, state["request"])
-        total_tokens = sum(
-            (q.total_input_tokens or 0) + (q.total_output_tokens or 0)
-            for q in question_logs
+        total_input_tokens = sum(
+            q.total_input_tokens or 0 for q in question_logs
+        )
+        total_output_tokens = sum(
+            q.total_output_tokens or 0 for q in question_logs
         )
         log = FillInTheBlankLog(
             type=QuestionType.fill_in_the_blank,
@@ -190,7 +198,8 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             total_regeneration_attempts=state["total_regeneration_attempts"],
             total_retries=state["current_retry"],
             total_time=time() - state["start_time"],
-            total_tokens=total_tokens,
+            total_input_tokens=total_input_tokens,
+            total_output_tokens=total_output_tokens,
         )
         await log.insert()
         print(
@@ -222,9 +231,11 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
                 )
             )
         req = cast(QuestionReqPara, state["request"])
-        total_tokens = sum(
-            (q.total_input_tokens or 0) + (q.total_output_tokens or 0)
-            for q in question_logs
+        total_input_tokens = sum(
+            q.total_input_tokens or 0 for q in question_logs
+        )
+        total_output_tokens = sum(
+            q.total_output_tokens or 0 for q in question_logs
         )
         log = SubjectiveLog(
             type=QuestionType.subjective,
@@ -235,7 +246,8 @@ async def save_to_db_node(state: QuestionState) -> QuestionState:
             total_regeneration_attempts=state["total_regeneration_attempts"],
             total_retries=state["current_retry"],
             total_time=time() - state["start_time"],
-            total_tokens=total_tokens,
+            total_input_tokens=total_input_tokens,
+            total_output_tokens=total_output_tokens,
         )
         await log.insert()
         print(

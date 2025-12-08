@@ -16,19 +16,13 @@ class Difficulty(str, Enum):
     medium = "medium"
     hard = "hard"
 
-class Stream(str, Enum):
-    _11Plus = "11Plus"
-    GCSE = "GCSE"
-    CBSE = "CBSE"
-    ICSE = "ICSE"
-
 class QuestionReqPara(BaseModel):
     type: QuestionType
     subject: str
     topic: str
     sub_topic: Optional[str] = None
     difficulty: Difficulty
-    stream: Stream
+    stream: str
     country: str = "UK"
     age: Optional[str] = None
     no_of_questions: int = Field(..., gt=0, le=25)
@@ -65,7 +59,7 @@ class ComprehensionReqPara(BaseModel):
     topic: str
     sub_topic: Optional[str] = None
     difficulty: Difficulty
-    stream: Stream
+    stream: str
     country: str = "UK"
     age: Optional[str] = None
     no_of_questions: int = Field(..., gt=0, le=25)

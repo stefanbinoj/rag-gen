@@ -25,18 +25,10 @@ async def generate_comprehension(
 
     model_with_structure = llm.with_structured_output(ComprehensionResult, include_raw=True)
 
-    stream_value = state.stream.value
-    if stream_value == "11Plus":
-        wc_min, wc_max = 300, 450
-    elif stream_value in ("GCSE", "CBSE", "ICSE"):
-        wc_min, wc_max = 500, 800
-    else:
-        wc_min, wc_max = 450, 700
-
-
+    wc_min, wc_max = 600, 800
 
     user_message_comprehensive = f"""
-Params: subject={state.subject} | topic={state.topic} | sub_topic={state.sub_topic or ''} | stream={stream_value} | difficulty={state.difficulty.value} | age={state.age or ''} | country={state.country} | language={state.language}
+Params: subject={state.subject} | topic={state.topic} | sub_topic={state.sub_topic or ''} | stream={state.stream} | difficulty={state.difficulty.value} | age={state.age or ''} | country={state.country} | language={state.language}
 More info: {state.more_information or ''}
 Word count: {wc_min}-{wc_max}
 
