@@ -11,7 +11,7 @@ from app.schemas.mongo_models import (
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("/questions")
 async def get_history(offset: int = 0, limit: int = 10):
     try:
         # Get total count

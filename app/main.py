@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from beanie import init_beanie
-from app.routers import history, questions, validator, admin, health
+from app.routers import history, questions, validator, admin, health, session_log
 from app.schemas.mongo_models import Model, Prompt, GenerationLog, ComprehensionLog, FillInTheBlankLog, SubjectiveLog
 from config import load_environment_variables
 from app.deps import get_mongo_db
@@ -25,12 +25,15 @@ def create_app() -> FastAPI:
             await Prompt().insert()
             print("Default prompts initialized.")
 
-    app.include_router(questions.router, prefix="/api/v1/questions", tags=["questions"])
+    app.include_router(questions.router, prefix="/api/v1/questions", tags=["generate questions"])
     app.include_router(
-        validator.router, prefix="/api/v1/validators", tags=["validators"]
+        validator.router, prefix="/api/v1/validators", tags=["validator single question"]
     )
-    app.include_router(history.router, prefix="/api/v1/history", tags=["history"])
-    app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+    app.include_router(
+        session_log.router, prefix="/api/v1/session", tags=["single session"]
+    )
+    app.include_router(history.router, prefix="/api/v1/history", tags=["full history"])
+    app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin endpoints"])
     app.include_router(health.router, prefix="/api/v1/health", tags=["health"])
     return app
 

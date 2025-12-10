@@ -87,7 +87,7 @@ async def validate_passage(question_id: str):
 
     req: ComprehensionReqPara = log.request
 
-    print(f"\n\n    --->Validating single question {question.question}")
+    print(f"\n\n    --->Validating comprehension question {question.question}")
 
     similar_questions = await search_similar_questions(
         question=question.question,
@@ -155,6 +155,7 @@ async def validate_fill_in_the_blank(question_id: str):
         question,
         similar_questions[1:],
         add_to_db=False,
+        is_fill_blank=True,
         question_type="fill_in_the_blank",
     )
     return {
@@ -202,6 +203,7 @@ async def validate_subjective(question_id: str):
         question,
         similar_questions[1:],
         add_to_db=False,
+        is_subjective=True,
         question_type="subjective",
     )
     return {
