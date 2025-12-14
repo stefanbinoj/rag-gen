@@ -21,11 +21,11 @@ async def generate_comprehension(
     
     # Add special_instructions to system prompt if present
     if state.special_instructions:
-        system_prompt += f"\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY):**\n{state.special_instructions}"
+        system_prompt += f"\nIf custom word_counts are provided, ensure the passage adheres to them.\n\n**SPECIAL INSTRUCTIONS FROM USER (HIGHEST PRIORITY):**\n{state.special_instructions}"
 
     model_with_structure = llm.with_structured_output(ComprehensionResult, include_raw=True)
 
-    wc_min, wc_max = 600, 800
+    wc_min, wc_max = state.min_word_count or 600, state.max_word_count or 800
 
     user_message_comprehensive = f"""
 Params: subject={state.subject} | topic={state.topic} | sub_topic={state.sub_topic or ''} | stream={state.stream} | difficulty={state.difficulty.value} | age={state.age or ''} | country={state.country} | language={state.language}

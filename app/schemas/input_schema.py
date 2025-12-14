@@ -68,6 +68,8 @@ class ComprehensionReqPara(BaseModel):
     more_information: Optional[str] = None
     comprehensive_paragraph: Optional[str] = None
     special_instructions: Optional[str] = None
+    min_word_count: Optional[int] = Field(None, gt=0)
+    max_word_count: Optional[int] = Field(None, gt=0)
 
     @field_validator("subject", "topic", "sub_topic", mode="before")
     @classmethod
@@ -99,6 +101,16 @@ class ComprehensionReqPara(BaseModel):
             raise ValueError(
                 "comprehensive_paragraph is required when generate_comprehension is False"
             )
+        return self
+    
+    @model_validator(mode="after")
+    def check_word_count_present(self):
+        if self.generate_comprehension is True:
+            if self.min_word_count is None or self.max_word_count is None:
+                raise ValueError(
+                    "min_word_count and max_word_count are required when generate_comprehension is True"
+                )
+            return self
         return self
 
 
